@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui">
+
+    <ui:composition>
+        
+            
+            <!-- PARA CREAR UN NUEVO ESTILO -->
+            <p:dialog id="dlgCrearEstilo" widgetVar="crearEstiloDialog" modal="true" resizable="false" appendTo="@(body)" header="Nuevo Estilo">
+                
+                <h:form id="frmCrearEstilo" enctype="multipart/form-data">
+                    <p:growl id="gwCrearEstilo" />
+                    <h:panelGroup id="displayCrearEstilo">
+                        <p:panelGrid id="pnCrearEstilo" columns="2" rendered="#{productoController.selected != null}"  styleClass="noBorderPanelGrid">
+
+                            <p:outputLabel value="Codigo Estilo:" for="codEstilo"  />
+                            <p:inputText id="codEstilo" value="#{productoController.selected.productoPK.codestilo}" required="true" requiredMessage="Codigo Requerido"/>
+                            
+                            <p:outputLabel value="Nombre Estilo:" for="nombreEstilo" />
+                            <p:inputText id="nombreEstilo" value="#{productoController.selected.nombreEstilo}" />
+
+                            <p:outputLabel value="Detalle Estilo:" for="detalleEstilo" />
+                            <p:inputTextarea id="detalleEstilo" value="#{productoController.selected.detalleEstilo}" cols="20" rows="5" />
+                            
+                        </p:panelGrid>
+                        <p:panelGrid styleClass="noBorderPanelGrid" columns="2">
+                            <p:fileUpload mode="advanced" dragDropSupport="false"  
+                                        fileLimit="1" fileUploadListener="#{productoController.subirImagen}"
+                                        sizeLimit="5242880" allowTypes="/(\.|\/)(gif|jpe?g|png)$/"
+                                        cancelLabel="Cancelar" uploadLabel="Subir Imagen"
+                                        label="Elegir Imagen para Catalogo" update="gfImgTmp,gwCrearEstilo" 
+                                        invalidFileMessage="Formatos permitidos: (PNG,JPG,GIF)" invalidSizeMessage="Archivo Demaciado Grande" 
+                                        previewWidth="100"/>
+                            <p:graphicImage id="gfImgTmp" library="catalogo/tmp" name="#{productoController.urlImgTmp}" width="100" height="80"  />
+                        </p:panelGrid>
+                         
+                        <br/>
+                        &nbsp;&ensp;&nbsp;&ensp;<p:commandButton actionListener="#{productoController.guardarEstilo(preingresoController.tipoProducto)}" value="Guardar" icon="ui-icon-disk" update="displayCrearEstilo,:gwIngreso,:frmIngreso:frmSegunTipo:somEstilo"  oncomplete="handleSubmit(xhr,status,args,crearEstiloDialog);" />&nbsp;&ensp;&nbsp;&ensp;&nbsp;&ensp;&nbsp;&ensp;&nbsp;&ensp;&nbsp;&ensp;&nbsp;&ensp;&nbsp;
+                        &nbsp;&ensp;&nbsp;&ensp;<p:commandButton actionListener="#{productoController.cancelarEstilo()}" value="Cancelar" icon="ui-icon-close"  oncomplete="crearEstiloDialog.hide()" process="@this" />
+                    </h:panelGroup>
+
+                </h:form>
+
+            </p:dialog>
+            
+    </ui:composition>
+
+</html>

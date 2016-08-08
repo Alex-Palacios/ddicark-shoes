@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/resources/plantillas/plantillaPrincipal.xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+
+    <ui:define name="title">
+        <h:outputText value="INVENTARIO FISICO" />
+    </ui:define>
+
+    <ui:define name="body">
+         <c:choose>
+        <!-- VERIFICA QUE TENGA PERMISOS -->
+        <c:when test="${empleadoController.verificarPermiso('INVENTARIO', 'FISICO')}" >
+            
+        #{existenciasController.prepararInventarioFisicoUnidad()}
+        <p:panel  header="C O N T R O L &nbsp;&nbsp; D E &nbsp;&nbsp; I N V E N T A R I O" >
+            <p:growl id="gwInventario" />
+            
+             <h:form id="frmInventario">
+                 
+                  <!-- Filtro Personalizado -->
+                  <p:fieldset>
+                        <h:panelGrid columns="2" style="float: left">
+                            <p:outputLabel value="TIPO PRODUCTO:" />
+                            <p:selectOneMenu value="#{existenciasController.tipoProducto}"  >
+                                <f:selectItem itemLabel="CALZADO" itemValue="1" />
+                                <f:selectItem itemLabel="CARTERAS" itemValue="2"/>
+                                <f:selectItem itemLabel="ROPA" itemValue="3"/>
+                            </p:selectOneMenu>
+                            <p:outputLabel value="CONSULTAR:" style="font-weight: bold;" />
+                            <p:selectOneMenu value="#{existenciasController.articulosCaja}">
+                                <f:selectItem itemLabel="Articulos Unitarios" itemValue="0"/>
+                                <f:selectItem itemLabel="Articulos en Cajas" itemValue="1"/>
+                                <f:selectItem itemLabel="Todos los Articulos" itemValue="2"/>
+                            </p:selectOneMenu>
+                        </h:panelGrid>
+                        
+                      <p:commandButton value="CONSULTAR" actionListener="#{existenciasController.consultarFiltroUnidadesFisico()}" process="@form" update="dtInventarioFisico,pngTotales,:gwInventario" />
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <h:commandLink> 
+                           <p:graphicImage library="imagenes" name="excel.png" title="Exportar a Excel" />  
+                           <p:dataExporter type="xls" target="dtInventarioFisico" fileName="Existencias" postProcessor="#{inventarioController.postProcessXLS}" />  
+                        </h:commandLink> 
+                        <h:commandLink rendered="false">  
+                           <p:graphicImage library="imagenes" name="pdf.png" title="Exportar en PDF"/>  
+                           <p:dataExporter type="pdf" target="dtInventarioFisico" fileName="Existencias" preProcessor="#{inventarioController.preProcessPDF}"/>  
+                        </h:commandLink>
+                        <h:panelGrid id="pngTotales" columns="2" style="float: right">
+                            <p:outputLabel value="TOTAL UNIDADES" style="font-weight: bold"/>
+                            <p:outputLabel value="#{existenciasController.numUnidadesFisicas}"/>
+                        </h:panelGrid>
+                 </p:fieldset>
+                  <p:remoteCommand name="actUnidades" actionListener="#{existenciasController.onFilterUnidadesFisicas()}" update=":frmInventario:pngTotales"/>
+                 <p:dataTable id="dtInventarioFisico" var="inventario" value="#{existenciasController.unidadesFisico}"
+                              emptyMessage="NO HAY PRODUCTO EN INVENTARIO" scrollable="true" scrollHeight="350" style="text-align: center;"
+                              paginator="true" rows="100" paginatorPosition="top"  paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}" 
+                              filteredValue="#{existenciasController.filtro}"  >
+                     
+                     <p:ajax event="filter" onsuccess="actUnidades()" />
+                     
+                     <p:column filterBy="#{inventario.numcaja.numcaja}" filterMaxLength="30" filterStyle="width:60px;" style="font-size: 8px;"> 
+                            <f:facet name="header">  
+                                <h:outputText value="COD CAJA" />  
+                            </f:facet> 
+                            <h:outputText value="#{inventario.numcaja.numcaja}" />
+                        </p:column>
+                     
+                     
+                        <p:column filterBy="#{inventario.producto.productoPK.codestilo}" filterStyle="width:60px;" style="font-size: 8px;"> 
+                             <f:facet name="header">  
+                                 <h:outputText value="ESTILO" />  
+                             </f:facet> 
+                             <h:outputText value="#{inventario.producto.productoPK.codestilo}"/>
+                        </p:column>
+                     
+                     
+                        <p:column filterBy="#{inventario.color}"
+                               filterOptions="#{existenciasController.colorsOptions}"  
+                               filterMatchMode="exact" filterStyle="width:60px;" style="font-size: 8px;"> 
+                            <f:facet name="header">  
+                                <h:outputText value="COLOR" />  
+                            </f:facet> 
+                            <h:outputText value="#{inventario.color}" />
+                        </p:column>
+                        
+                     
+                        <p:column filterBy="#{inventario.marca}" filterStyle="width:50px;" style="font-size: 8px;" 
+                               filterOptions="#{existenciasController.marcasOptions}" filterMatchMode="exact" >
+                            <f:facet name="header">  
+                                <h:outputText value="MARCA" />  
+                            </f:facet> 
+                            <h:outputText value="#{inventario.marca}" />
+                        </p:column>
+                     
+                     
+                     <p:column filterBy="#{inventario.talla}" filterStyle="width:20px;" style="font-size: 8px;" width="25"> 
+                            <f:facet name="header">  
+                                <h:outputText value="TALLA" />  
+                            </f:facet> 
+                            <h:outputText value="#{inventario.talla}" />
+                        </p:column>
+                     
+                     
+                     
+                        <p:column style="font-size: 8px;" width="40"> 
+                            <f:facet name="header">  
+                                <h:outputText value="PRECIO" />  
+                            </f:facet> 
+                            <h:outputText value="#{funciones.redondearMas(inventario.preciomayoreo,2)}" />
+                        </p:column>
+                     
+                     
+                        <p:column filterBy="#{inventario.estadoproducto}" filterStyle="width:50px;" style="font-size: 8px;"
+                               filterOptions="#{existenciasController.estadosOptions}" filterMatchMode="exact" > 
+                            <f:facet name="header">  
+                                <h:outputText value="ESTADO" />  
+                            </f:facet> 
+                            <h:outputText value="#{inventario.estadoproducto}" />
+                        </p:column>
+                     
+                     
+                        <p:column style="font-size: 8px;" exportable="false"> 
+                            <f:facet name="header">  
+                                <h:outputText value="NOTA" />  
+                            </f:facet> 
+                            <h:outputText value="#{inventario.notaProducto}" />
+                        </p:column>
+                     
+                     
+                        <p:column filterBy="#{inventario.ubicacionProducto}" filterStyle="width:50px;" style="font-size: 8px;" exportable="false"> 
+                            <f:facet name="header">  
+                                <h:outputText value="UBICACION" />  
+                            </f:facet> 
+                            <h:outputText value="#{inventario.ubicacionProducto}" />
+                        </p:column >
+                     
+                        
+                        <p:column width="3%" exportable="false">  
+                            <div align="center">
+                                <p:commandButton actionListener="#{existenciasController.cancelarEditarInfoUnidad()}" oncomplete="unidadDialog.show()" update=":frmUnidad" icon="ui-icon-pencil" title="Editar" style="height: 15px; width:15px;"  >
+                                    <f:setPropertyActionListener value="#{inventario}" target="#{existenciasController.articuloFisico}"  />  
+                                </p:commandButton>
+                            </div>
+                        </p:column>
+                 </p:dataTable>  
+             </h:form>
+       </p:panel>
+        
+        
+       
+       
+        
+        
+        <!-- PARA VER Y ACTUALIZAR INFORMACION DE UNA UNIDAD -->
+        <p:dialog id="dlgUnidad" widgetVar="unidadDialog" modal="true" resizable="false" appendTo="@(body)" header="ARTICULO"  >
+
+            <h:form id="frmUnidad">
+                <p:growl id="gwUnidad" />
+                <h:panelGroup id="displayUnidad" rendered="#{existenciasController.articuloFisico != null}">
+                    <p:panelGrid columns="2" styleClass="noBorderPanelGrid" >
+                        <p:outputLabel value="Codigo Unidad:" />
+                        <p:outputLabel value="#{existenciasController.articuloFisico.codigo}" />
+                        <p:outputLabel value="Estilo:" />
+                        <p:outputLabel value="#{existenciasController.articuloFisico.producto.productoPK.codestilo}" />
+                        <p:outputLabel value="Color:" />
+                        <p:outputLabel value="#{existenciasController.articuloFisico.color}" rendered="#{!existenciasController.editarArticuloFisico}"/>
+                        <p:inputText value="#{existenciasController.articuloFisico.color}"  rendered="#{existenciasController.editarArticuloFisico}" required="true" requiredMessage="Ingrese Color" />
+                        <p:outputLabel value="Talla:" />
+                        <p:outputLabel value="#{existenciasController.articuloFisico.talla}" rendered="#{!existenciasController.editarArticuloFisico}"/>
+                        <p:inputText value="#{existenciasController.articuloFisico.talla}" rendered="#{existenciasController.editarArticuloFisico}"  required="true" requiredMessage="Ingrese Talla" />
+                        <p:outputLabel value="Marca:" />
+                        <p:outputLabel value="#{existenciasController.articuloFisico.marca}" rendered="#{!existenciasController.editarArticuloFisico}"/>
+                        <p:autoComplete id="marca" value="#{existenciasController.articuloFisico.marca}"  completeMethod="#{inventarioController.autoCompletarMarca}" required="true" requiredMessage="Ingrese la MARCA" rendered="#{existenciasController.editarArticuloFisico}"/>
+                        <p:outputLabel value="Material:" />
+                        <p:outputLabel value="#{existenciasController.articuloFisico.material}" rendered="#{!existenciasController.editarArticuloFisico}"/>
+                        <p:autoComplete id="material" dropdown="true" value="#{existenciasController.articuloFisico.material}"  completeMethod="#{inventarioController.autoCompletarMaterial}" rendered="#{existenciasController.editarArticuloFisico}"/> 
+                        <p:outputLabel value="Genero:" />
+                        <p:outputLabel value="#{funciones.generoLabel(existenciasController.articuloFisico.genero)}" rendered="#{!existenciasController.editarArticuloFisico}"/>
+                        <p:selectOneMenu value="#{existenciasController.articuloFisico.genero}" rendered="#{existenciasController.editarArticuloFisico}" style="width: 100px;">
+                                <f:selectItem  itemLabel="FEMENINO" itemValue="F" />
+                                <f:selectItem itemLabel="MASCULINO" itemValue="M" />
+                                <f:selectItem  itemLabel="UNISEX" itemValue="U" />
+                        </p:selectOneMenu>
+                        <p:outputLabel value="Para:" />
+                        <p:outputLabel value="#{funciones.clasePersonaLabel(existenciasController.articuloFisico.clasepersona)}" rendered="#{!existenciasController.editarArticuloFisico}"/>
+                        <p:selectOneMenu value="#{existenciasController.articuloFisico.clasepersona}" style="width: 100px;" rendered="#{existenciasController.editarArticuloFisico}">
+                                <f:selectItem  itemLabel="ADULTOS" itemValue="A" itemDescription="Adultos" />
+                            <f:selectItem itemLabel="JUVENIL" itemValue="J" itemDescription="Adolescentes" /> 
+                                <f:selectItem  itemLabel="NI&Ntilde;OS" itemValue="N" />
+                                <f:selectItem itemLabel="INFANTES" itemValue="I" itemDescription="Bebes" />
+                        </p:selectOneMenu>
+                        <p:outputLabel value="Procedencia:"  />
+                        <p:outputLabel value="#{existenciasController.articuloFisico.procedencia}" />
+                        <p:outputLabel value="Costo Unitario:" />
+                        <p:outputLabel value="#{existenciasController.articuloFisico.costounitario}" />
+                        <p:outputLabel value="Costo Real:" />
+                        <p:outputLabel value="#{funciones.redondearMas(existenciasController.articuloFisico.costoreal,2)}" />
+                        <p:outputLabel value="Precio Mayoreo:" />
+                        <p:outputLabel value="#{funciones.redondearMas(existenciasController.articuloFisico.preciomayoreo,2)}" />
+                        <p:outputLabel value="Precio Detalle:" />
+                        <p:outputLabel value="#{funciones.redondearMas(existenciasController.articuloFisico.preciounitario,2)}" />
+                        <p:outputLabel value="Ubicacion:" rendered="#{existenciasController.articuloFisico.numcaja eq null}" />
+                        <p:outputLabel value="#{existenciasController.articuloFisico.ubicacionProducto}" rendered="#{(!existenciasController.editarArticuloFisico) and (existenciasController.articuloFisico.numcaja eq null)}"/>
+                        <p:inputText value="#{existenciasController.articuloFisico.ubicacionProducto}" required="true" requiredMessage="Se requiere ubicacion en bodega de la unidad" rendered="#{existenciasController.editarArticuloFisico and existenciasController.articuloFisico.numcaja eq null}"/>
+                        <p:outputLabel value="Pertenece a Caja N°:" rendered="#{existenciasController.articuloFisico.numcaja ne null}" />
+                        <p:outputLabel value="#{existenciasController.articuloFisico.numcaja.numcaja}" rendered="#{existenciasController.articuloFisico.numcaja ne null}"/>
+                        <p:outputLabel value="ESTADO:" style="font-weight: bold;" />
+                        <p:outputLabel value="#{existenciasController.articuloFisico.estadoproducto}" rendered="#{!existenciasController.editarArticuloFisico}" style="font-weight: bold;" />
+                        <p:selectOneMenu value="#{existenciasController.articuloFisico.estadoproducto}" rendered="#{existenciasController.editarArticuloFisico}" style="width: 100px;">
+                                <f:selectItem  itemLabel="EN EXISTENCIA" itemValue="EN EXISTENCIA" />
+                                <f:selectItem itemLabel="DEFECTUOSO" itemValue="DEFECTUOSO" />
+                        </p:selectOneMenu>
+                        <p:outputLabel value="NOTA:" />
+                        <p:outputLabel value="#{existenciasController.articuloFisico.notaProducto}" rendered="#{!existenciasController.editarArticuloFisico}"/>
+                        <p:inputTextarea value="#{existenciasController.articuloFisico.notaProducto}" cols="30" rows="3" rendered="#{existenciasController.editarArticuloFisico}"/>
+                        
+                    </p:panelGrid>
+                    <br/>
+                    <p:commandButton value="CERRAR" oncomplete="unidadDialog.hide();" rendered="#{!existenciasController.editarArticuloFisico}" />
+                    <p:commandButton value="EDITAR INFO" actionListener="#{existenciasController.editarInfoUnidad()}" update=":frmUnidad" process="@this" rendered="#{!existenciasController.editarArticuloFisico}" style="float: right"/>
+                    <p:commandButton value="CANCELAR" actionListener="#{existenciasController.cancelarEditarInfoUnidad()}" update=":frmUnidad" process="@this" rendered="#{existenciasController.editarArticuloFisico}" style="float: right"/>
+                    <p:commandButton value="GUARDAR CAMBIOS" actionListener="#{existenciasController.guardarCambiosUnidad()}" oncomplete="submit(xhr, status, args, unidadDialog) " update=":gwInventario,:frmUnidad,:frmInventario:dtInventarioFisico" process="@form" rendered="#{existenciasController.editarArticuloFisico}" />
+
+                </h:panelGroup>
+            </h:form>
+
+        </p:dialog>
+        
+        
+
+
+         </c:when>
+            
+            
+            <!-- SI NO TIENE LOS PERMISOS DA MSJ DE ERROR -->
+            <c:otherwise>
+                   <h:form>
+                        <div style="min-height: 300px; text-align: center; margin-top: 100px;">
+                            <p:outputLabel value="ACCESO DENEGADO" style="font-size: 30px;font-weight: bold;color:red"/>
+                            <br/><br/>
+                            <h:graphicImage url="/faces/resources/imagenes/locked.png" alt="ZONA RESTRINGIDA" width="200" />
+                            <br/><br/>
+                            <p:outputLabel value="NO TIENE PERMISO PARA VER ESTA PAGINA" style="font-size: 20px;font-weight: bold;color:red"/>
+                            <br/>
+                            <p:outputLabel value="CONSULTE CON EL ADMINISTRADOR DEL SISTEMA" style="font-size: 20px;font-weight: bold;"/>
+                        </div>
+                    </h:form>
+             </c:otherwise>
+        </c:choose>
+         
+    </ui:define>
+    
+
+</ui:composition>
+    

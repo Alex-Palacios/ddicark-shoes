@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/resources/plantillas/plantillaPrincipal.xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+    <ui:define name="title">
+        <h:outputText value="REGLAS DEL NEGOCIO"/>
+    </ui:define>
+
+    <ui:define name="body">
+        
+         <c:choose>
+        <!-- VERIFICA QUE TENGA PERMISOS -->
+        <c:when test="${empleadoController.verificarPermiso('CONTROL GENERAL', 'CONTROL GENERAL')}" >
+
+       #{configuracionesController.consultarConfiguracionesActuales()} 
+
+       <p:panel  header="R E G L A S &nbsp;&nbsp;D E L&nbsp;&nbsp;N E G O C I O" style="height:99.3%; width: 99.5%;" >
+            <p:growl id="gwReglas"/>
+            
+             
+            <h:form id="frmReglas">
+                <br/>
+                SOLO PERSONAL DE ALTA GERENCIA PUEDE HACER CAMBIOS EN ESTAS VARIABLES TENIENDO EN CUENTA QUE CUALQUIER CAMBIO AFECTARA DIRECTA E INMEDIATAMENTE 
+                LAS OPERACIONES DE LA EMPRESA
+                <br/><br/>
+                <h:panelGrid columns="2" style="width: 98%;" cellspacing="15">
+                    <p:fieldset legend="VARIABLES GLOBALES" >
+                        <p:panelGrid columns="3">
+                            <p:outputLabel value="IVA:" />
+                            <p:outputLabel value="#{configuracionesController.ivaTexto}"  title="PORCENTAJE DE IVA A APLICAR EN TODAS LAS VENTAS"/>
+                            <p:commandButton value="Cambiar" actionListener="#{configuracionesController.prepararCambiarConfig(1)}" oncomplete="cambiarConfigDialog.show()" update=":frmCambiarConfig" process="@form" rendered="false" />
+                        </p:panelGrid>
+                    </p:fieldset>
+                    
+                    
+                    
+                    
+                    <p:fieldset legend="POLITICAS DE CREDITOS">
+                        <p:panelGrid columns="3">
+                            <p:outputLabel value="PLAZO CREDITO:"/>
+                            <p:inputText value="#{configuracionesController.plazoTexto}" readonly="true"  title="DIAS DE PLAZO PARA UN CREDITO ANTES DE CONSIDERARSE VENCIDO"/>
+                            <p:commandButton value="Cambiar" actionListener="#{configuracionesController.prepararCambiarConfig(2)}" oncomplete="cambiarConfigDialog.show()" update=":frmCambiarConfig" process="@form" />
+                        </p:panelGrid>
+                    </p:fieldset>
+                    
+                    
+                    
+                    
+                    
+                    <p:fieldset legend="POLITICAS DE PRECIOS">
+                        <p:panelGrid columns="3" >
+                            <p:outputLabel value="UTILIDAD:"/>
+                            <p:inputText value="#{configuracionesController.utilidadTexto}" readonly="true" title="PORCENTAJE DE UTILIDAD SOBRE EL COSTO REAL"/>
+                            <p:commandButton value="Cambiar" actionListener="#{configuracionesController.prepararCambiarConfig(3)}" oncomplete="cambiarConfigDialog.show()" update=":frmCambiarConfig" process="@form" />
+                            <p:outputLabel value="COMISIONES Y COSTO DE DISTRIBUCION:"/>
+                            <p:inputText value="#{configuracionesController.comisionesTexto}" readonly="true" title="PORCENTAJE PARA COMISIONES DE VENDEDORES"/>
+                            <p:commandButton value="Cambiar" actionListener="#{configuracionesController.prepararCambiarConfig(4)}" oncomplete="cambiarConfigDialog.show()" update=":frmCambiarConfig" process="@form" />
+                            <p:outputLabel value="PARA DESCUENTO:"/>
+                            <p:inputText value="#{configuracionesController.descuentoTexto}" readonly="true" title="PORCENTAJE PARA DESCUENTOS"/>
+                            <p:commandButton value="Cambiar" actionListener="#{configuracionesController.prepararCambiarConfig(5)}" oncomplete="cambiarConfigDialog.show()" update=":frmCambiarConfig" process="@form"  />
+                            <p:outputLabel value="DETALLE:"/>
+                            <p:inputText value="#{configuracionesController.detalleTexto}" readonly="true"  title="PORCENTAJE PARA PRECIO AL DETALLE SOBRE EL PRECIO DE MAYOREO"/>
+                            <p:commandButton value="Cambiar" actionListener="#{configuracionesController.prepararCambiarConfig(6)}" oncomplete="cambiarConfigDialog.show()" update=":frmCambiarConfig" process="@form" />
+                        </p:panelGrid>
+                    </p:fieldset>
+                </h:panelGrid>
+            </h:form>
+            
+       </p:panel>
+        
+        
+         <!-- PARA VER Y ACTUALIZAR INFORMACION DE UNA UNIDAD -->
+        <p:dialog id="dlgCambiarConfig" widgetVar="cambiarConfigDialog" modal="true" resizable="false" appendTo="@(body)" header="CAMBIO DE CONFIGURACION GLOBAL DEL NEGOCIO"  >
+
+            <h:form id="frmCambiarConfig">
+                <h:panelGroup >
+                    <p:panelGrid columns="2" styleClass="noBorderPanelGrid" >
+                        <p:outputLabel value="VALOR ACTUAL:" style="font-weight: bold; color:blue;font-size: 12px;" />
+                        <p:outputLabel value="#{configuracionesController.ivaTexto}"  rendered="#{configuracionesController.cambiarIva}" style="font-weight: bold; color:blue;font-size: 12px;"/>
+                        <p:outputLabel value="#{configuracionesController.plazoTexto}"  rendered="#{configuracionesController.cambiarPlazo}" style="font-weight: bold; color:blue;font-size: 12px;"/>
+                        <p:outputLabel value="#{configuracionesController.utilidadTexto}"  rendered="#{configuracionesController.cambiarUtilidad}" style="font-weight: bold; color:blue;font-size: 12px;"/>
+                        <p:outputLabel value="#{configuracionesController.comisionesTexto}"  rendered="#{configuracionesController.cambiarComisiones}" style="font-weight: bold; color:blue;font-size: 12px;"/>
+                        <p:outputLabel value="#{configuracionesController.descuentoTexto}"  rendered="#{configuracionesController.cambiarDescuento}" style="font-weight: bold; color:blue;font-size: 12px;"/>
+                        <p:outputLabel value="#{configuracionesController.detalleTexto}"  rendered="#{configuracionesController.cambiarDetalle}" style="font-weight: bold; color:blue;font-size: 12px;"/>
+                        
+                        <p:outputLabel value="NUEVO VALOR (#{configuracionesController.simbolo}):" style="font-weight: bold; color:red;font-size: 15px;" />
+                        <p:inputText value="#{configuracionesController.ivaValor}" required="true" requiredMessage="INGRESE EL NUEVO PORCENTAJE DE IVA" rendered="#{configuracionesController.cambiarIva}" maxlength="6" size="4" style="font-weight: bold; color:red;font-size: 15px;" />
+                        <p:inputText value="#{configuracionesController.plazoValor}" required="true" requiredMessage="INGRESE EL NUEVO PLAZO DE CREDITO" rendered="#{configuracionesController.cambiarPlazo}" maxlength="6" size="4" style="font-weight: bold; color:red;font-size: 15px;" />
+                        <p:inputText value="#{configuracionesController.utilidadValor}" required="true" requiredMessage="INGRESE EL NUEVO PORCENTAJE DE UTILIDAD" rendered="#{configuracionesController.cambiarUtilidad}" maxlength="6" size="4" style="font-weight: bold; color:red;font-size: 15px;" />
+                        <p:inputText value="#{configuracionesController.comisionesValor}" required="true" requiredMessage="INGRESE EL NUEVO PORCENTAJE PARA COMISIONES" rendered="#{configuracionesController.cambiarComisiones}" maxlength="6" size="4" style="font-weight: bold; color:red;font-size: 15px;" />
+                        <p:inputText value="#{configuracionesController.descuentoValor}" required="true" requiredMessage="INGRESE EL NUEVO PORCENTAJE PARA DESCUENTOS" rendered="#{configuracionesController.cambiarDescuento}" maxlength="6" size="4" style="font-weight: bold; color:red;font-size: 15px;" />
+                        <p:inputText value="#{configuracionesController.detalleValor}" required="true" requiredMessage="INGRESE EL NUEVO PORCENTAJE DE PRECIO DE DETALLE" rendered="#{configuracionesController.cambiarDetalle}" maxlength="6" size="4" style="font-weight: bold; color:red;font-size: 15px;" />
+                        
+                        <p:commandButton value="CAMBIAR VALOR" actionListener="#{configuracionesController.validarNuevoValor()}" oncomplete="submitConfirmar(xhr, status, args, cambiarConfigDialog, confirmarCambioDialog)" process="@form" update=":gwReglas,:frmCambiarConfig" style="float: right"/>
+                        <p:commandButton value="CANCELAR OPERACION" oncomplete="cambiarConfigDialog.hide()" style="float: right"/>
+                    
+                    </p:panelGrid>
+                </h:panelGroup>
+            </h:form>
+
+        </p:dialog>
+        
+        
+         
+         <!-- CONFIRMAR CAMBIO DE VARIABLE -->
+        <p:dialog id="dlgConfirmarCambio" widgetVar="confirmarCambioDialog" modal="true" resizable="false" appendTo="@(body)" header="CONFIRMAR CAMBIO DE CONFIGURACION"  > 
+            <h:form id="frmConfirmarCambio" >
+                <br/>
+                <p align="center" style="font-weight: bold; font-size: 12; color: red">
+                    SEGURO QUE DESEA CAMBIAR LA CONFIGURACION DE NEGOCIO ... </p>
+                    <p align="center" style="font-weight: bold; font-size: 12; color: red">
+                        TENGA EN CUENTA QUE LOS CAMBIOS SE APLICARAN GLOBALMENTE</p>
+                <br/><br/>
+                <p:commandButton value="SI ESTOY SEGURO" actionListener="#{configuracionesController.cambiarConfiguracion()}" oncomplete="confirmarCambioDialog.hide()" process="@this" update=":gwReglas,:frmReglas" />
+                <p:commandButton value="NO, CANCELAR OPERACION" onclick="confirmarCambioDialog.hide();" type="button" style="float: right"/>
+            </h:form>
+        </p:dialog>
+        
+         
+         
+         
+         
+         
+         
+         
+        </c:when>
+            
+            
+            <!-- SI NO TIENE LOS PERMISOS DA MSJ DE ERROR -->
+            <c:otherwise>
+                   <h:form>
+                        <div style="min-height: 300px; text-align: center; margin-top: 100px;">
+                            <p:outputLabel value="ACCESO DENEGADO" style="font-size: 30px;font-weight: bold;color:red"/>
+                            <br/><br/>
+                            <h:graphicImage url="/faces/resources/imagenes/locked.png" alt="ZONA RESTRINGIDA" width="200" />
+                            <br/><br/>
+                            <p:outputLabel value="NO TIENE PERMISO PARA VER ESTA PAGINA" style="font-size: 20px;font-weight: bold;color:red"/>
+                            <br/>
+                            <p:outputLabel value="CONSULTE CON EL ADMINISTRADOR DEL SISTEMA" style="font-size: 20px;font-weight: bold;"/>
+                        </div>
+                    </h:form>
+             </c:otherwise>
+        </c:choose>
+         
+         
+         
+    </ui:define>
+    
+
+</ui:composition>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <ui:composition>
+
+        <p:dialog id="dlgEditarProveedor" widgetVar="editarProveedorDialog" modal="true" resizable="false" appendTo="@(body)"  header="Datos del Proveedor">
+
+            <h:form id="frmEditarProveedor">
+                 
+                <h:panelGroup id="displayProveedor">
+                    <p:panelGrid id="pgdEditar" columns="2" rendered="#{proveedorController.selected != null}">
+                        
+                        <p:outputLabel value="Nombre Proveedor:" for="nombreProveedor" />
+                        <p:inputText id="nombreProveedor" value="#{proveedorController.selected.nombreProveedor}" title="Nombre del Proveedor" required="true" requiredMessage="Ingrese nombre del proveedor" />
+                        
+                        <p:outputLabel value="DUI Proveedor:" for="duiProveedor" />
+                        <p:inputMask  mask="99999999-9" id="duiProveedor" value="#{proveedorController.selected.duiProveedor}" title="Documento Unico de Identidad del Proveedor" />
+                        
+                        <p:outputLabel value="NIT Proveedor:" for="nitProveedor" />
+                        <p:inputMask  mask="9999-999999-999-9"  id="nitProveedor" value="#{proveedorController.selected.nitProveedor}" title="Numero de Identidad Tributaria del Proveedor" />
+                        
+                        <p:outputLabel value="NRC/RUC:" for="nrcProveedor" />
+                        <p:inputText id="nrcProveedor" value="#{proveedorController.selected.nrcProveedor}" title="Numero de Registro de Comercio" />
+                        
+                        <p:outputLabel value="Rubro:" for="rubroProveedor" />
+                        <p:inputText id="rubroProveedor" value="#{proveedorController.selected.rubroProveedor}" title="industria donde se desenvuelve" />
+
+                        <p:outputLabel value="Direccion:" for="direccionProveedor" />
+                        <p:inputTextarea id="direccionProveedor" value="#{proveedorController.selected.direccionProveedor}" title="Direccion del Proveedor" cols="30" rows="4" />
+                        
+                        <p:outputLabel value="Pais de Domicilio:" for="paisProveedor" />
+                        <p:inputText id="paisProveedor" value="#{proveedorController.selected.paisProveedor}" title="Pais de Domicilio del Proveedor" />
+                        
+                        <p:outputLabel value="Telefono:" for="telProveedor" />
+                        <p:inputText id="telProveedor" value="#{proveedorController.selected.telProveedor}" title="Numero de telefono del proveedor" />
+                        
+                        <p:outputLabel value="Contacto:" for="contactoProveedor" />
+                        <p:inputText id="contactoProveedor" value="#{proveedorController.selected.nombreContacto}" title="Nombre de la persona de contacto" />
+                        
+                        <p:outputLabel value="Tel Contacto:" for="telContactoProveedor" />
+                        <p:inputText  id="telContactoProveedor" value="#{proveedorController.selected.telContacto}" title="Numero de telefono del contacto" />
+                        
+                        <p:outputLabel value="NOTA:" for="notaProveedor" />
+                        <p:inputTextarea id="notaProveedor" value="#{proveedorController.selected.notaProveedor}" title="Alguna nota o comentario importante" cols="30" rows="5" />
+
+                    </p:panelGrid>
+                    <br/>
+                    &nbsp;&ensp;<p:commandButton actionListener="#{proveedorController.Actualizar(e)}" value="Confirmar Cambios" icon="ui-icon-disk"  update=":frmEditarProveedor,:frmListaProveedores,:gwMsgProveedores" oncomplete="handleSubmit(xhr,status,args,editarProveedorDialog);" />&nbsp;&ensp;
+                    &nbsp;&ensp;<p:commandButton value="Cancelar" icon="ui-icon-delete" update=":frmEditarProveedor" onclick="editarProveedorDialog.hide()" />
+                </h:panelGroup>
+
+            </h:form>
+
+        </p:dialog>
+
+    </ui:composition>
+
+</html>

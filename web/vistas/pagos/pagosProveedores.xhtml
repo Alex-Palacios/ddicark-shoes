@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/resources/plantillas/plantillaPrincipal.xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+    <ui:define name="title">
+        <h:outputText value="Pagar Factura"/>
+    </ui:define>
+
+    <ui:define name="body">
+        
+        
+        <c:choose>
+        <!-- VERIFICA QUE TENGA PERMISOS -->
+        <c:when test="${empleadoController.verificarPermiso('COMPRAS', 'PAGOS A PROVEEDORES')}" >
+
+        
+        <p:panel  header="REGISTRO DE PAGOS A PROVEEDORES" style="height:99.3%; width: 99.5%;" >
+            <p:growl id="gwPagosProveedores"/>
+            
+            <h:form id="frmPagosProveedores">
+                            
+                        
+                <!-- DETALLE DEL ENVIO -->
+                <p:dataTable id="dtFacturasProveedores" var="factura" value="#{facturaIngresoController.facturasCreditosActivos}"
+                             emptyMessage="NO HAY DEUDAS PENDIENTES" selection="#{facturaIngresoController.facturaCredito}" selectionMode="single" rowKey="#{factura.facturaIngresoPK}" 
+                             style="text-align: center;">  
+
+                    <f:facet name="header">FACTURAS DE COMPRAS AL CREDITO</f:facet>
+
+                    <p:column>  
+                        <p:rowToggler />  
+                    </p:column>  
+                    
+                    <p:column   headerText="FECHA" width="50">  
+                        <h:outputText value="#{funciones.setFechaFormateada(factura.facturaIngresoPK.fechaDocumento,1)}" style="width: 30px;" />
+                    </p:column>
+                    
+                    <p:column   headerText="FACTURA">  
+                        <h:outputText value="#{factura.facturaIngresoPK.documentoCompra}" />
+                    </p:column>
+                    
+                    <p:column   headerText="NATURALEZA" width="50">  
+                        <h:outputText value="#{factura.naturalezaCompra}" />
+                    </p:column>
+                    
+                    <p:column   headerText="PROVEEDOR" width="150">  
+                        <h:outputText value="#{factura.proveedor.nombreProveedor}" />
+                    </p:column>
+                    
+                    <p:column   headerText="TIPO PAGO">  
+                        <h:outputText value="#{factura.tipoCompra}" />
+                    </p:column>
+                    
+                    <p:column   headerText="UNI" width="20">  
+                        <h:outputText value="#{factura.totalUnidadesCompra}" />
+                    </p:column>
+                    
+                    <p:column   headerText="BLTS" width="20">  
+                        <h:outputText value="#{factura.totalBultosCompra}" />
+                    </p:column>
+                    
+                    <p:column   headerText="SUB TOTAL" >  
+                        <h:outputText value="#{funciones.redondearMas(factura.montoCompra,2)}" />
+                    </p:column>
+                    
+                    <p:column   headerText="SALIDA" >  
+                        <h:outputText value="#{funciones.redondearMas(factura.salidaCompra,2)}" />
+                    </p:column>
+
+                    <p:column   headerText="DESCUENTO" >  
+                        <h:outputText value="#{funciones.redondearMas(factura.descuentoCompra,2)}" />
+                    </p:column>
+
+                    <p:column   headerText="TOTAL">  
+                        <h:outputText value="#{funciones.redondearMas(factura.totalCompra,2)}" />
+                    </p:column>
+                    
+                    <p:column   headerText="SALDO">  
+                        <h:outputText value="#{funciones.redondearMas(factura.saldoCreditoCompra,2)}" />
+                    </p:column>
+                    
+                    <p:column   headerText="VENCE">  
+                        <h:outputText value="#{funciones.setFechaFormateada(factura.fechavencCreditoCompra,1)}" />
+                    </p:column>
+                    
+                    <p:column   headerText="ESTADO">  
+                        <h:outputText value="#{factura.estadoCreditoCompra}" />
+                    </p:column>
+                    
+                    <p:column>  
+                        <p:commandButton actionListener="#{facturaIngresoController.prepararPago()}" oncomplete="registrarPagoDialog.show()" icon="ui-icon-cart" title="Cancelar" style="height: 15px; width:15px;" update=":frmPagosProveedores, :frmPago">
+                            <f:setPropertyActionListener value="#{factura}" target="#{facturaIngresoController.facturaCredito}" />
+                        </p:commandButton>
+                    </p:column>
+
+                    <p:rowExpansion >  
+                        <p:dataTable id="dtPagos" var="pago" value="#{factura.pagoCompraCollection}"
+                                     emptyMessage="NO SE HA HECHO NINGUN PAGO AL PROVEEDOR" style="text-align: center; "  
+                                     scrollable="true" scrollHeight="100" >  
+
+                                <f:facet name="header">HISTORIAL DE PAGOS</f:facet>
+
+                                
+                                <p:column   headerText="FECHA PAGO" >  
+                                    <h:outputText value="#{funciones.setFechaFormateada(pago.idtransac.fechaTransac,1)}" />
+                                </p:column> 
+                                
+                                <p:column headerText="REGISTRADO POR">
+                                    <h:outputText value="#{pago.idtransac.responsableTransac.nombreEmpleado}"/>
+                                </p:column>
+                                                 
+                                <p:column headerText="ABONO">
+                                    <h:outputText value="#{funciones.redondearMas(pago.abonoPagoCompra,2)}"/>
+                                </p:column>
+                                
+                                <p:column headerText="INTERES">
+                                    <h:outputText value="#{funciones.redondearMas(pago.interesPagoCompra,2)}"/>
+                                </p:column>
+                                
+                                <p:column headerText="MORA">
+                                    <h:outputText value="#{funciones.redondearMas(pago.moraPagoCompra,2)}"/>
+                                </p:column>
+                                                                
+                                <p:column headerText="TOTAL PAGO">
+                                    <h:outputText value="#{funciones.redondearMas(pago.totalPagoCompra,2)}"/>
+                                </p:column>
+                                
+                                <p:columnGroup type="footer">
+                                    <p:row>
+                                        <p:column rendered="false" />
+                                        <p:column rendered="false" />
+                                        <p:column rendered="false" />
+                                        <p:column rendered="false" />
+                                        <p:column rendered="false" />
+                                    </p:row>
+                                    <p:row>  
+                                        <p:column colspan="4" footerText="TOTAL PAGADO: " style="text-align:right"/>  
+                                        <p:column footerText="#{facturaIngresoController.calcularTotalPagosFactura(factura)}" />   
+                                    </p:row> 
+                                    <p:row>  
+                                        <p:column colspan="4" footerText="SALDO ACTUAL: " style="text-align:right"/>  
+                                        <p:column footerText="#{funciones.redondearMas(factura.saldoCreditoCompra,2)}" />   
+                                    </p:row> 
+                                </p:columnGroup>  
+                            </p:dataTable>
+                    </p:rowExpansion> 
+                    
+                </p:dataTable>
+                    
+                
+            </h:form>
+                
+       </p:panel>
+        
+        
+        
+        
+        
+        <!-- CONFIRMAR REGISTRAR PAGO-->
+        <p:dialog id="dlgRegistrarPago" widgetVar="registrarPagoDialog" modal="true" resizable="false" appendTo="@(body)" header="REGISTRO DE PAGO"  >
+            <h:form id="frmPago">
+                <h:panelGrid columns="2">
+                    <p:outputLabel value="FACTURA N°:" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{facturaIngresoController.facturaCredito.facturaIngresoPK.documentoCompra}" />
+                    <p:outputLabel value="FECHA:" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{funciones.setFechaFormateada(facturaIngresoController.facturaCredito.facturaIngresoPK.fechaDocumento,1)}" />
+                    <p:outputLabel value="MONTO DEUDA:" style="font-weight: bold;font-size: 12px;" />
+                    <p:outputLabel value="$ #{funciones.redondearMas(facturaIngresoController.facturaCredito.totalCompra,2)}" style="font-weight: bold; font-size: 12px;"/>
+                    <p:outputLabel value="SALDO ACTUAL:" style="font-weight: bold; font-size: 12px; color: green" />
+                    <p:outputLabel value="$ #{funciones.redondearMas(facturaIngresoController.facturaCredito.saldoCreditoCompra,2)}" style="font-weight: bold; font-size: 12px;color: green"/>
+                    <p:outputLabel value="TOTAL A PAGAR :" style="font-weight: bold; color: red; font-size: 14px;"/>
+                    <p:inputText value="#{facturaIngresoController.pago}" style="font-weight: bold; color: red; font-size: 14px;" rendered="#{!facturaIngresoController.pagoValido}" required="true" requiredMessage="Ingrese el monto del PAGO"/>
+                    <p:outputLabel value="$ #{facturaIngresoController.pago}" style="font-weight: bold; color: red; font-size: 14px;" rendered="#{facturaIngresoController.pagoValido}" />
+                    <p:outputLabel value="INTERESES :" style="font-weight: bold; font-size: 14px;"/>
+                    <p:inputText value="#{facturaIngresoController.intereses}" style="font-weight: bold; font-size: 14px;" rendered="#{!facturaIngresoController.pagoValido}" required="true" requiredMessage="Ingrese monto de Intereses"/>
+                    <p:outputLabel value="$ #{facturaIngresoController.intereses}" style="font-weight: bold; font-size: 14px;" rendered="#{facturaIngresoController.pagoValido}" />
+                    <p:outputLabel value="MORA :" style="font-weight: bold; font-size: 14px;"/>
+                    <p:inputText value="#{facturaIngresoController.mora}" style="font-weight: bold; font-size: 14px;" rendered="#{!facturaIngresoController.pagoValido}" required="true" requiredMessage="Ingrese el monto de mora"/>
+                    <p:outputLabel value="$ #{facturaIngresoController.mora}" style="font-weight: bold; font-size: 14px;" rendered="#{facturaIngresoController.pagoValido}" />
+                    <p:outputLabel value="NUEVO SALDO:" style="font-weight: bold; color: blue; font-size: 14px;" rendered="#{facturaIngresoController.pagoValido}" />
+                    <p:outputLabel value="$ #{facturaIngresoController.nuevoSaldo}" style="font-weight: bold; color: blue; font-size: 14px;" rendered="#{facturaIngresoController.pagoValido}"/>
+                </h:panelGrid>
+                <br/>
+                <p:commandButton value="VERIFICAR PAGO" actionListener="#{facturaIngresoController.validarPago()}" oncomplete="editarUnidad(args,registrarPagoDialog)" update=":frmPago, :gwPagosProveedores" rendered="#{!facturaIngresoController.pagoValido}"/>
+                <p:commandButton value="CANCELAR" onclick="registrarPagoDialog.hide();" type="button" style="float: right" rendered="#{!facturaIngresoController.pagoValido}"/>
+                <p:commandButton value="REGISTRAR PAGO" actionListener="#{facturaIngresoController.registrarPagoFacturaCredito()}" oncomplete="registrarPagoDialog.hide();" update=":frmPagosProveedores, :gwPagosProveedores" rendered="#{facturaIngresoController.pagoValido}"/>
+                <p:commandButton value="CAMBIAR MONTO" actionListener="#{facturaIngresoController.prepararPago()}" update=":frmPago " style="float: right" rendered="#{facturaIngresoController.pagoValido}"/>
+                
+            </h:form>
+         </p:dialog>
+        
+        
+        
+        
+        
+        
+        
+        </c:when>
+            
+            
+            <!-- SI NO TIENE LOS PERMISOS DA MSJ DE ERROR -->
+            <c:otherwise>
+                   <h:form>
+                        <div style="min-height: 300px; text-align: center; margin-top: 100px;">
+                            <p:outputLabel value="ACCESO DENEGADO" style="font-size: 30px;font-weight: bold;color:red"/>
+                            <br/><br/>
+                            <h:graphicImage url="/faces/resources/imagenes/locked.png" alt="ZONA RESTRINGIDA" width="200" />
+                            <br/><br/>
+                            <p:outputLabel value="NO TIENE PERMISO PARA VER ESTA PAGINA" style="font-size: 20px;font-weight: bold;color:red"/>
+                            <br/>
+                            <p:outputLabel value="CONSULTE CON EL ADMINISTRADOR DEL SISTEMA" style="font-size: 20px;font-weight: bold;"/>
+                        </div>
+                    </h:form>
+             </c:otherwise>
+        </c:choose>
+    </ui:define>
+    
+
+</ui:composition>

@@ -1,0 +1,452 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/resources/plantillas/plantillaPrincipal.xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+    <ui:define name="title">
+        <h:outputText value="CAMBIOS"/>
+    </ui:define>
+
+    <ui:define name="body">
+        
+         <c:choose>
+        <!-- VERIFICA QUE TENGA PERMISOS -->
+        <c:when test="${empleadoController.verificarPermiso('CAD', 'REGISTRAR CAMBIO DE PRODUCTO')}" >
+
+        #{devolucionController.prepararCambio()}
+        
+        <p:panel  header="CAMBIO DE PRODUCTOS" style="height:99.3%; width: 99.5%;" >
+            <p:growl id="gwCambios"/>
+           
+                        
+                <p:fieldset legend="FACTURA" style="float: left; width: 540px;height: 480px;">
+                     
+                    <h:form id="frmFactura">
+
+                        <!-- FACTURA -->
+                        <h:panelGrid columns="3">
+                            <p:outputLabel value="FACTURA N°:" style="font-weight: bold;" />
+                            <p:inputText value="#{devolucionController.numFactura}" required="true" requiredMessage="INGRESE EL NUMERO DE FACTURA"/>
+                            <br/>
+                            <p:outputLabel value="FECHA:" style="font-weight: bold;"/>
+                            <p:calendar value="#{devolucionController.fechaFactura}"  mode="popup" showOn="button" readonlyInput="true" effect="slideDown" pattern="dd/MM/yyyy" required="true" requiredMessage="INGRESE FECHA DE LA FACTURA" />
+                            <p:commandButton value="BUSCAR FACTURA" actionListener="#{devolucionController.buscarFactura()}" process="@form" update=":gwCambios,:frmFactura,:frmCambios" />
+                        </h:panelGrid>
+                        <h:panelGrid id="pngDatosfactura" columns="4">
+                            <p:outputLabel value="FACTURA N°:" style="font-weight: bold;" />
+                            <p:outputLabel value="#{devolucionController.factura.facturaPK.numfactura}" />
+                            <p:outputLabel value="TIPO:" style="font-weight: bold;" />
+                            <p:outputLabel value="#{devolucionController.factura.tipoFactura}" />
+                            <p:outputLabel value="FECHA:" style="font-weight: bold;"/>
+                            <p:outputLabel value="#{funciones.setFechaFormateada(devolucionController.factura.facturaPK.fechaFactura,1)}" />
+                            <p:outputLabel value="CONDICION DE PAGO:" style="font-weight: bold;"/>
+                            <p:outputLabel value="#{devolucionController.factura.condicionPago}" />
+                            <p:outputLabel value="CLIENTE:" style="font-weight: bold;"/>
+                            <p:outputLabel value="#{funciones.getNombreCliente(devolucionController.factura.cliente)}" />
+                            <p:outputLabel value="DUI:" style="font-weight: bold;" rendered="#{devolucionController.factura.tipoFactura == 'FCF'}" />
+                            <p:outputLabel value="#{devolucionController.factura.cliente.duiCliente}" rendered="#{devolucionController.factura.tipoFactura == 'FCF'}"  />
+                            <p:outputLabel value="NIT:" style="font-weight: bold;" />
+                            <p:outputLabel value="#{devolucionController.factura.cliente.nitCliente}"  />
+                            <p:outputLabel value="NRC:" style="font-weight: bold;" rendered="#{devolucionController.factura.tipoFactura == 'CCF'}" />
+                            <p:outputLabel value="#{devolucionController.factura.cliente.nrcCliente}" rendered="#{devolucionController.factura.tipoFactura == 'CCF'}" />
+                            
+                            <p:outputLabel value="ESTADO:" styleClass="#{(devolucionController.factura.estado == 'ACTIVA')?'color-activa':'color-cancelada'}" />
+                            <p:outputLabel value="#{devolucionController.factura.estado}" styleClass="#{(devolucionController.factura.estado == 'ACTIVA')?'color-activa':'color-cancelada'}"  />
+                            <p:outputLabel value="OBSERVACIONES:" />
+                            <p:outputLabel value="#{devolucionController.factura.observaciones}" />
+                            <p:outputLabel value="VENCIMIENTO CREDITO:" style="font-weight: bold; color: red" rendered="#{devolucionController.factura.condicionPago == 'AL CREDITO'}"/>
+                            <p:outputLabel value="#{funciones.setFechaFormateada(devolucionController.factura.fechaVencimiento,1)}" rendered="#{devolucionController.factura.condicionPago == 'AL CREDITO'}" style="font-weight: bold; color: red"/>
+                            
+
+                        </h:panelGrid>
+                        <br/>
+                        <p:dataTable id="dtDetalleFactura" var="detalleFactura" value="#{devolucionController.factura.detalleFacturaCollection}"
+                                     emptyMessage="NO HA ESPECIFICADO FACTURA" style="text-align: center">  
+
+                            <f:facet name="header">DETALLE DE FACTURA</f:facet>
+
+                            <p:column style="width:2%"  >  
+                               <p:rowToggler  />  
+                           </p:column>
+                            
+                            <p:column headerText="CANTIDAD" width="5">  
+                                <h:outputText value="#{detalleFactura.cantidad}" />
+                            </p:column>
+
+                            <p:column headerText="ESTILO">  
+                                <h:outputText value="#{detalleFactura.estilo}" />
+                            </p:column>
+
+                            <p:column headerText="COLORES">  
+                                <h:outputText value="#{detalleFactura.colores}" />
+                            </p:column>
+
+                            <p:column headerText="PU">  
+                                <h:outputText value="$ #{funciones.redondearMas(detalleFactura.pu,2)}" />
+                            </p:column>
+
+                            <p:column headerText="MONTO">  
+                                <h:outputText value="$ #{funciones.redondearMas(detalleFactura.montoLinea,2)}" />
+                            </p:column>
+                            
+                            <p:rowExpansion>
+                                <p:dataTable id="detalleLinea" var="detalleLinea"  value="#{detalleFacturaController.getDetalleLineaVenta(detalleFactura)}"
+                                            scrollable="true" scrollHeight="75"
+                                            rowKey="#{detalleLinea.detalleEnvioPK}" style="text-align: center; ">  
+
+                                        <p:column headerText="ESTILO">
+                                            <p:outputLabel value="#{detalleLinea.inventario.producto.productoPK.codestilo}" />
+                                        </p:column>
+                                        
+                                        <p:column headerText="COLOR">
+                                            <p:outputLabel value="#{detalleLinea.inventario.color}" />
+                                        </p:column>
+                                        
+                                        <p:column headerText="TALLA" style="width: 25px;">
+                                            <p:outputLabel value="#{detalleLinea.inventario.talla}" />
+                                        </p:column>
+                                        
+                                        <p:column headerText="NOTA">
+                                            <p:outputLabel value="#{detalleLinea.nota}" />
+                                        </p:column>
+                                        
+                                    <p:column style="width: 14px;">  
+                                        <p:commandButton actionListener="#{devolucionController.cambioProducto(detalleLinea)}" oncomplete="mostrarDialog(xhr,status,args,unidadCambiarDialog)" update=":gwCambios,:frmUnidadCambiar" process="@this"  icon="ui-icon-transferthick-e-w" title="Cambiar" style="height: 15px;" />
+                                    </p:column>
+                               </p:dataTable>
+                           </p:rowExpansion>
+
+                            <p:columnGroup type="footer">
+                                <p:row>  
+                                    <p:column colspan="5" footerText="SUMAS: " style="text-align:right"/>  
+                                    <p:column footerText="$ #{funciones.redondearMas(devolucionController.factura.sumas,2)}" /> 
+                                </p:row>
+                                <p:row>  
+                                    <p:column colspan="5" footerText="#{devolucionController.factura.porcentajeDescuento} % DESCUENTO: " style="text-align:right"/>  
+                                    <p:column footerText="($ #{funciones.redondearMas(devolucionController.factura.descuento,2)})" /> 
+                                </p:row>
+                                <p:row rendered="#{devolucionController.factura.tipoFactura == 'CCF'}">  
+                                    <p:column colspan="5" footerText="SUB TOTAL "  style="text-align:right"/>  
+                                    <p:column footerText="$ #{funciones.redondearMas(devolucionController.factura.subTotal,2)}" /> 
+                                </p:row> 
+                                <p:row rendered="#{devolucionController.factura.tipoFactura == 'CCF'}" >  
+                                    <p:column colspan="5" footerText="IVA: " style="text-align:right"/>  
+                                    <p:column footerText="$ #{funciones.redondearMas(devolucionController.factura.iva,2)}" /> 
+                                </p:row>
+                                <p:row>  
+                                    <p:column colspan="5" footerText="TOTAL A PAGAR: " style="text-align:right"/>  
+                                    <p:column footerText="$ #{funciones.redondearMas(devolucionController.factura.total,2)}" /> 
+                                </p:row>  
+                            </p:columnGroup>  
+                        </p:dataTable>
+                
+                    </h:form>
+                </p:fieldset>
+            
+            <p:fieldset legend="CAMBIO DE PRODUCTOS" style="float: left; width: 550px;height: 480px;">
+                <h:form id="frmCambios">
+                    <p:dataTable id="dtCambios" var="cambio"  value="#{devolucionController.cambios}"
+                                 emptyMessage="NO HA REGISTRADO CAMBIOS"
+                                  rowKey="#{cambio.detalleEnvioPK}" style="text-align: center; ">  
+
+                        <p:columnGroup type="header">  
+                            <p:row>  
+                                <p:column colspan="5" headerText="DEVOLUCION" />  
+                                <p:column colspan="4" headerText="CAMBIO" />  
+                            </p:row>  
+                            <p:row>
+                                <p:column headerText="ESTILO" />
+                                <p:column headerText="COLOR" />
+                                <p:column headerText="TALLA" />
+                                <p:column headerText="ESTADO" />
+                                <p:column headerText="PRECIO" />
+                                <p:column headerText="ESTILO" />
+                                <p:column headerText="COLOR" />
+                                <p:column headerText="TALLA" />
+                                <p:column headerText="PRECIO" />
+                            </p:row>
+                        </p:columnGroup>  
+                                                
+                        <p:column headerText="ESTILO">
+                            <p:outputLabel value="#{cambio.inventario.producto.productoPK.codestilo}" />
+                        </p:column>
+                        
+                        <p:column headerText="COLOR">
+                            <p:outputLabel value="#{cambio.inventario.color}" />
+                        </p:column>
+
+                        <p:column headerText="TALLA" style="width: 25px;">
+                            <p:outputLabel value="#{cambio.inventario.talla}" />
+                        </p:column>
+                        
+                        <p:column headerText="ESTADO" style="width: 25px;">
+                            <p:outputLabel value="#{cambio.inventario.estadoproducto}" />
+                        </p:column>
+                        
+                        <p:column headerText="PRECIO" style="width: 25px;">
+                            <p:outputLabel value="$ #{funciones.redondearMas(cambio.inventario.preciomayoreo,2)}" />
+                        </p:column>
+                        
+                        <p:column headerText="ESTILO">
+                            <p:outputLabel value="#{cambio.cambioProducto.producto.productoPK.codestilo}" />
+                        </p:column>
+                        
+                        <p:column headerText="COLOR">
+                            <p:outputLabel value="#{cambio.cambioProducto.color}" />
+                        </p:column>
+
+                        <p:column headerText="TALLA" style="width: 25px;">
+                            <p:outputLabel value="#{cambio.cambioProducto.talla}" />
+                        </p:column>
+                        
+                        <p:column headerText="PRECIO" style="width: 25px;">
+                            <p:outputLabel value="$ #{funciones.redondearMas(cambio.cambioProducto.preciomayoreo,2)}" />
+                        </p:column>
+               </p:dataTable>
+                    
+                    <br/><br/>
+                    <p:commandButton value="LIMPIAR" actionListener="#{devolucionController.limpiarListaCambios()}" update=":gwCambios,:frmCambios" />
+                    <p:commandButton value="CONFIRMAR CAMBIOS" oncomplete="cfdConfirmarCambio.show()" update=":frmConfirmarCambio" style="float: right" />
+                </h:form> 
+            </p:fieldset>
+       </p:panel>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        <!-- CAMBIAR PRODUCTO-->
+        <p:dialog id="dlgUnidadCambiar" widgetVar="unidadCambiarDialog" modal="true" resizable="false" appendTo="@(body)" header="CAMBIANDO PRODUCTO"  >
+
+            <h:form id="frmUnidadCambiar">
+                
+                <h:panelGroup rendered="#{devolucionController.de != null}">
+                    <p:panelGrid columns="2" styleClass="noBorderPanelGrid" >
+                        <p:outputLabel value="CODIGO:"/>
+                        <p:outputLabel value="#{devolucionController.de.inventario.codigo}" />
+                        <p:outputLabel value="ESTILO:"/>
+                        <p:outputLabel value="#{devolucionController.de.inventario.producto.productoPK.codestilo}" />
+                        <p:outputLabel value="COLOR:"/>
+                        <p:outputLabel value="#{devolucionController.de.inventario.color}" />
+                        <p:outputLabel value="TALLA:"/>
+                        <p:outputLabel value="#{devolucionController.de.inventario.talla}" />
+                        <p:outputLabel value="PRECIO:"/>
+                        <p:outputLabel value="$ #{funciones.redondearMas(devolucionController.de.inventario.preciomayoreo,2)}" />
+                        
+                        
+                        <p:inputText value="#{devolucionController.codigoCambio}" required="true" requiredMessage="Ingrese el CODIGO de barra" rendered="#{!devolucionController.unidadCambioLista}" />
+                        <p:commandButton value="CAMBIAR POR :" actionListener="#{devolucionController.buscarCambio()}" oncomplete="buscarCambioDevolucion(xhr, status, args,unidadCambiarDialog,unidadDialog,cajaDialog) " update=":gwCambios,:frmUnidadCambiar,:frmUnidad,:frmCaja" rendered="#{!devolucionController.unidadCambioLista}" />
+                        <p:outputLabel value="CAMBIAR POR:" style="font-weight: bold;" rendered="#{devolucionController.unidadCambioLista}"/>
+                        <p:commandButton value="RESET CAMBIO" actionListener="#{devolucionController.resetCambio()}" oncomplete="unidadCambiarDialog.hide();unidadCambiarDialog.show();" update=":frmUnidadCambiar" rendered="#{devolucionController.unidadCambioLista}" />
+                    
+                        <p:outputLabel value="CODIGO:"/>
+                        <p:outputLabel value="#{devolucionController.de.cambioProducto.codigo}" />
+                        <p:outputLabel value="ESTILO:"/>
+                        <p:outputLabel value="#{devolucionController.de.cambioProducto.producto.productoPK.codestilo}" />
+                        <p:outputLabel value="COLOR:"/>
+                        <p:outputLabel value="#{devolucionController.de.cambioProducto.color}" />
+                        <p:outputLabel value="TALLA:"/>
+                        <p:outputLabel value="#{devolucionController.de.cambioProducto.talla}" />
+                        <p:outputLabel value="PRECIO:"/>
+                        <p:outputLabel value="$ #{funciones.redondearMas(devolucionController.de.cambioProducto.preciomayoreo,2)}" />
+                    </p:panelGrid>
+                    <p:commandButton value="CAMBIAR UNIDAD" actionListener="#{devolucionController.prepararListarCambio()}"   oncomplete="mostrarDialogConfirmarCambio(xhr,status,args,cfdEstadoproducto,unidadCambiarDialog)" process="@this" update=":gwCambios,:frmEstadoProducto" />
+                    <p:commandButton value="CANCELAR CAMBIO" oncomplete="unidadCambiarDialog.hide()" style="float:right" />
+                </h:panelGroup>
+            </h:form>
+
+        </p:dialog>
+        
+        
+        
+    
+    
+    
+    
+    
+        <!-- CAMBIAR PRODUCTO-->
+        <p:dialog id="dlgUnidad" widgetVar="unidadDialog" modal="true" resizable="false" appendTo="@(body)" header="DETALLE DE ARTICULO"  >
+
+            <h:form id="frmUnidad">
+                
+                <h:panelGroup rendered="#{devolucionController.cambioUnidad != null}">
+                    <p:panelGrid columns="2" styleClass="noBorderPanelGrid" >
+                        <p:outputLabel value="CODIGO UNIDAD:"/>
+                        <p:outputLabel value="#{devolucionController.cambioUnidad.codigo}" />
+                        <p:outputLabel value="ESTILO:"/>
+                        <p:outputLabel value="#{devolucionController.cambioUnidad.producto.productoPK.codestilo}" />
+                        <p:outputLabel value="COLOR:"/>
+                        <p:outputLabel value="#{devolucionController.cambioUnidad.color}" />
+                        <p:outputLabel value="TALLA:"/>
+                        <p:outputLabel value="#{devolucionController.cambioUnidad.talla}" />
+                        <p:outputLabel value="PRECIO:"/>
+                        <p:outputLabel value="$ #{funciones.redondearMas(devolucionController.cambioUnidad.preciomayoreo,2)}" />
+                        <p:outputLabel value="CODIGO CAJA:" rendered="#{devolucionController.cambioUnidad.numcaja != null}"/>
+                        <p:outputLabel value="#{devolucionController.cambioUnidad.numcaja.numcaja}" rendered="#{devolucionController.cambioUnidad.numcaja != null}"/>
+                        <p:outputLabel value="ESTADO:"/>
+                        <p:outputLabel value="#{devolucionController.cambioUnidad.estadoproducto}" />
+                    </p:panelGrid>
+                    <p:commandButton value="OK" actionListener="#{devolucionController.cambiarUnidad()}" oncomplete="handleSubmit(xhr, status, args, unidadDialog)" update=":gwCambios, :frmUnidadCambiar"  />
+                    <p:commandButton value="CANCELAR" oncomplete="unidadDialog.hide()" style="float:right"/>
+                </h:panelGroup>
+            </h:form>
+
+        </p:dialog>
+        
+        
+        
+        
+        <!-- CAMBIAR CAJA PRODUCTO-->
+        <p:dialog id="dlgCajaCambiar" widgetVar="cajaDialog" modal="true" resizable="false" appendTo="@(body)" header="DETALLE CAJA"  width="600" >
+
+            <h:form id="frmCaja">
+                
+                    <h:panelGroup rendered="#{devolucionController.cambioCaja != null}">
+                    <p:panelGrid id="pnlCaja" columns="2" styleClass="noBorderPanelGrid">
+                        <p:outputLabel value="CODIGO CAJA:" style="font-weight: bold;"/>
+                        <p:outputLabel value="#{devolucionController.cambioCaja.numcaja}" style="font-weight: bold;color: red"/>
+                        <p:outputLabel value="ESTILO:" style="font-weight: bold;"/>
+                        <p:outputLabel value="#{devolucionController.cambioCaja.producto.productoPK.codestilo}" style="font-weight: bold;color: blue"/>
+                        <p:outputLabel value="UNIDADES CAJA:" style="font-weight: bold;"/>
+                        <p:outputLabel value="#{devolucionController.cambioCaja.unidadesCaja}"/>
+                        <p:outputLabel value="CAJA COMPLETA:" style="font-weight: bold;"/>
+                        <p:outputLabel value="#{devolucionController.cambioCaja.completa?'SI':'NO'}"/>
+                    </p:panelGrid>
+                        <p:dataTable id="dtDetalleCaja" var="articulo" value="#{cajaController.getUnidadesCaja(devolucionController.cambioCaja)}" 
+                                 emptyMessage="CAJA VACIA" scrollable="true" scrollHeight="200"   style="text-align: center;width: 100%;overflow-x: hidden " >  
+
+                            <f:facet name="header">DETALLE DE LA CAJA</f:facet>
+
+                            <p:column   headerText="CODIGO UNIDAD" >  
+                                <h:outputText value="#{articulo.codigo}" />
+                            </p:column>
+
+                            <p:column   headerText="ESTILO" >  
+                                <h:outputText value="#{articulo.producto.productoPK.codestilo}" />
+                            </p:column>
+
+                            <p:column   headerText="COLOR" >  
+                                <h:outputText value="#{articulo.color}" />
+                            </p:column>
+
+                            <p:column   headerText="T" width="10" >  
+                                <h:outputText value="#{articulo.talla}" />
+                            </p:column>
+
+                            <p:column   headerText="PRECIO" >  
+                                <h:outputText value="$ #{funciones.redondearMas(articulo.preciomayoreo,2)}" />
+                            </p:column>
+
+                            <p:column   headerText="ESTADO" >  
+                                <h:outputText value="#{articulo.estadoproducto}" />
+                            </p:column>
+
+                            <p:column width="3%" >  
+                                <div align="center">
+                                    <p:commandButton actionListener="#{devolucionController.cambiarUnidadCaja(articulo)}" oncomplete="handleSubmit(xhr, status, args, cajaDialog)" update=":gwCambios, :frmUnidadCambiar" icon="ui-icon-check" title="Cambiar" style="height: 15px; width:15px;"  />
+                                </div>
+                            </p:column>
+
+                    </p:dataTable>
+                    <p:commandButton value="CERRAR" oncomplete="cajaDialog.hide()" />
+                </h:panelGroup>
+            </h:form>
+
+        </p:dialog>
+
+        
+        
+         <!-- CONFIRMAR DESPACHAR VENTA -->
+        <p:confirmDialog message="ESTADO DEL PRODUCTO DEVUELTO:" appendTo="@(body)" header="LISTANDO CAMBIO" severity="info"  widgetVar="cfdEstadoproducto">
+            <h:form id="frmEstadoProducto">
+                <h:panelGrid columns="2">
+                    <p:outputLabel value="REINGRESAR A INVENTARIO COMO:" />
+                    <p:selectOneMenu value="#{devolucionController.nuevoEstado}" required="true" requiredMessage="Debe especificar NUEVO ESTADO DEL PRODUCTO DEVUELTO" style="  width: 150px "  >
+                        <f:selectItem itemLabel="Nuevo Estado" itemValue="" />
+                        <f:selectItem itemLabel="EN EXISTENCIA" itemValue="EN EXISTENCIA"/> 
+                        <f:selectItem itemLabel="DEFECTUOSO" itemValue="DEFECTUOSO"/> 
+                    </p:selectOneMenu>
+                    <p:outputLabel value="UBICACION PRODUCTO:" />
+                    <p:inputText value="#{devolucionController.de.inventario.ubicacionProducto}" required="#{devolucionController.de.inventario.numcaja eq null}" requiredMessage="INGRESE NUEVA UBICACION" />
+                    <p:outputLabel value="NOTA PRODUCTO:" />
+                    <p:inputTextarea value="#{devolucionController.de.inventario.notaProducto}" cols="30" rows="3" />
+                </h:panelGrid>
+                <br/><br/>
+                <p:commandButton value="CONFIRMAR" actionListener="#{devolucionController.listarCambio()}"  oncomplete="listarCambio(xhr, status, args,cfdEstadoproducto, unidadCambiarDialog)" update=":gwCambios, :frmUnidadCambiar, :frmCambios,:frmEstadoProducto"  />
+                <p:commandButton value="CANCELAR " onclick="cfdEstadoproducto.hide();" type="button" style="float: right" />
+            </h:form>
+            
+        </p:confirmDialog>
+         
+         <!-- CONFIRMAR CAMBIOS EN FACTURA -->
+        <p:confirmDialog message="SEGURO QUE DESEA GUARDAR LOS CAMBIOS INGRESADOS?" appendTo="@(body)" header="CONFIRMANDO CAMBIO" severity="info"  widgetVar="cfdConfirmarCambio">
+            <h:form id="frmConfirmarCambio">
+                <h:panelGrid columns="2">
+                    <p:outputLabel value="FACTURA:" style="font-weight: bold" />
+                    <p:outputLabel value="#{devolucionController.factura.facturaPK.numfactura}" />
+                    <p:outputLabel value="FECHA:" style="font-weight: bold"/>
+                    <p:outputLabel value="#{funciones.setFechaFormateada(devolucionController.factura.facturaPK.fechaFactura,1)}" />
+                    <p:outputLabel value="UNIDADES CAMBIADAS:" style="font-weight: bold"/>
+                    <p:outputLabel value="#{devolucionController.cambios.size()}" />
+                </h:panelGrid>
+                <br/><br/>
+                <p:commandButton value="GUARDAR CAMBIOS" actionListener="#{devolucionController.guardarListaCambios()}" oncomplete="cfdConfirmarCambio.hide()" update=":gwCambios,:frmFactura,:frmCambios"  />
+                <p:commandButton value="CANCELAR " onclick="cfdConfirmarCambio.hide();" type="button" style="float: right" />
+            </h:form>
+            
+        </p:confirmDialog>
+         
+         
+         
+         
+         
+         
+         
+         
+         
+        </c:when>
+            
+            
+            <!-- SI NO TIENE LOS PERMISOS DA MSJ DE ERROR -->
+            <c:otherwise>
+                   <h:form>
+                        <div style="min-height: 300px; text-align: center; margin-top: 100px;">
+                            <p:outputLabel value="ACCESO DENEGADO" style="font-size: 30px;font-weight: bold;color:red"/>
+                            <br/><br/>
+                            <h:graphicImage url="/faces/resources/imagenes/locked.png" alt="ZONA RESTRINGIDA" width="200" />
+                            <br/><br/>
+                            <p:outputLabel value="NO TIENE PERMISO PARA VER ESTA PAGINA" style="font-size: 20px;font-weight: bold;color:red"/>
+                            <br/>
+                            <p:outputLabel value="CONSULTE CON EL ADMINISTRADOR DEL SISTEMA" style="font-size: 20px;font-weight: bold;"/>
+                        </div>
+                    </h:form>
+             </c:otherwise>
+        </c:choose>
+         
+         
+         
+    </ui:define>
+</ui:composition>

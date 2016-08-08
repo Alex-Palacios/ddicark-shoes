@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/resources/plantillas/plantillaPrincipal.xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+    <ui:define name="title">
+        <h:outputText value="Pre-Ingresos"/>
+    </ui:define>
+
+    <ui:define name="body">
+        
+        <c:choose>
+        <!-- VERIFICA QUE TENGA PERMISOS -->
+        <c:when test="${empleadoController.verificarPermiso('INGRESOS', 'PREINGRESO DE FACTURA')}" >
+
+        #{preingresoController.nuevoPreIngreso(event)} 
+        <p:panel  header="P R E I N G R E S O &nbsp;&nbsp;D E &nbsp;&nbsp;P R O D U C T O" style="height:99.3%; width: 99.5%;" >
+            <p:growl id="gwIngreso"/>
+            
+            <h:form id="frmIngreso">
+                
+                <p:wizard id="wzdPPL" nextLabel="Detallar Producto" backLabel="Escoger Otra Factura" flowListener="#{preingresoController.onFlowProcess}" style="overflow-y: hidden; ">
+                    
+                    <!-- DETALLE FACTURA -->
+                    <p:tab id="tbFactura" title="FACTURA" titleStyle="font-size: 15px;" >
+                        
+                        
+                        <p:panel style="height: 300px; width: 99%;">
+                            <p:growl id="gwTabFactura"/>
+                            <!-- PANEL para escoger Factura a Procesar -->
+                            <div style="float: left; width: 400px;">
+                                
+                                <p:remoteCommand name="actualizarF" update="datosFactura,dtFacturasAnteriores" />
+                                <p:outputLabel value="FACTURA N°: " for="factura" style="font-weight: bold;"/>
+                                &nbsp;&nbsp;
+                                <p:selectOneMenu id="factura" value="#{preingresoController.selected.facturaIngreso}" onchange="actualizarF()"  required="true" requiredMessage="Debe escoger la Factura a Procesar" style=" margin-bottom: -7px; " styleClass="ui-selectonemenu-label" >
+                                    <f:selectItem itemLabel="Selecciona Factura" noSelectionOption="true"/>
+                                    <f:selectItems value="#{facturaIngresoController.facturasPreIngreso}"
+                                                   var="factura"
+                                                   itemValue="#{factura}"
+                                                   itemLabel="#{factura.tipoDocumento}-#{factura.facturaIngresoPK.documentoCompra}"
+                                                   itemDescription="#{funciones.setFechaFormateada(factura.facturaIngresoPK.fechaDocumento,2)}"
+                                                    />
+                                    <f:converter binding="#{facturaIngresoConverter}"/>  
+                                </p:selectOneMenu>
+                                
+                                <br/><br/>
+                                <h:panelGrid id="datosFactura" columns="2" cellspacing="10"> 
+                                    <p:outputLabel value="FECHA DOCUMENTO: " style="font-weight: bold;"/>
+                                    <p:outputLabel value="#{funciones.setFechaFormateada(preingresoController.selected.facturaIngreso.facturaIngresoPK.fechaDocumento,1)}"/>
+                                    <p:outputLabel value="PROVEEDOR: " style="font-weight: bold;"/>
+                                    <p:outputLabel value="#{preingresoController.selected.facturaIngreso.proveedor.nombreProveedor}"/>
+                                    <p:outputLabel value="TIPO COMPRA: " style="font-weight: bold;"/>
+                                    <p:outputLabel value="#{preingresoController.selected.facturaIngreso.tipoCompra}"/>
+                                    <p:outputLabel value="UNIDADES: " style="font-weight: bold;"/>
+                                    <p:outputLabel value="#{preingresoController.selected.facturaIngreso.totalUnidadesCompra}"/>
+                                    <p:outputLabel value="CAJAS: " style="font-weight: bold;"/>
+                                    <p:outputLabel value="#{preingresoController.selected.facturaIngreso.totalBultosCompra}"/>
+                                    <p:outputLabel value="MONTO COMPRA: " style="font-weight: bold;"/>
+                                    <p:outputLabel value="$ #{preingresoController.selected.facturaIngreso.montoCompra}"/>
+                                    <p:outputLabel value="MONTO SALIDA: " style="font-weight: bold;"/>
+                                    <p:outputLabel value="$ #{preingresoController.selected.facturaIngreso.salidaCompra}"/>
+                                    <p:outputLabel value="MONTO DESCUENTO: " style="font-weight: bold;"/>
+                                    <p:outputLabel value="$ #{preingresoController.selected.facturaIngreso.descuentoCompra}"/>
+                                    <p:outputLabel value="TOTAL FACTURA: " style="font-weight: bold;"/>
+                                    <p:outputLabel value="$ #{preingresoController.selected.facturaIngreso.totalCompra}"/>
+                                </h:panelGrid> 
+                            </div>
+                            <div style="float: left; " >
+                            <!--FACTURACIONES ANTERIORES -->
+                            <p:dataTable id="dtFacturasAnteriores" var="factura" value="#{facturaIngresoController.getFacturasAnterioresProveedor(preingresoController.selected.facturaIngreso.proveedor)}"
+                                             emptyMessage="NO HAY FACTURACIONES ANTERIORES" paginator="true" rows="8" paginatorPosition="bottom"  
+                                             paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"  
+                                             >  
+
+                                    <f:facet name="header">FACTURACIONES ANTERIORES</f:facet>
+
+                                    <p:column   headerText="Proveedor" >  
+                                        <h:outputText value="#{factura.proveedor.nombreProveedor}" />
+                                    </p:column> 
+                                    <p:column headerText="FECHA" > 
+                                         <h:outputText value="#{funciones.setFechaFormateada(factura.facturaIngresoPK.fechaDocumento,1)}"/>
+                                    </p:column>
+                                    <p:column headerText="DOCUMENTO" > 
+                                         <h:outputText value="#{factura.facturaIngresoPK.documentoCompra}"/>
+                                    </p:column>
+                                    <p:column headerText="TOTAL UNIDADES"> 
+                                         <h:outputText value="#{factura.totalUnidadesCompra}"/>
+                                    </p:column>
+                                    <p:column headerText="BULTOS"> 
+                                         <h:outputText value="#{factura.totalBultosCompra}"/>
+                                    </p:column>
+                                    <p:column headerText="ESTADO"> 
+                                         <h:outputText value="#{factura.estadoFactura}"/>
+                                    </p:column>
+                                </p:dataTable>
+                        </div>
+                        </p:panel>
+                    </p:tab>
+                    
+     <!-- &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& -->               
+                    
+                    <!-- DETALLE DEL PRODUCTO -->
+                    <p:tab id="tbDetalle" title="PRODUCTOS" titleStyle="font-size: 15px;" >
+                        
+                        <p:growl id="gwTabDetalle"/>
+                        <br/>
+                        
+                        <br/><br/>
+                        <!-- CREAR VISTA SEGUN TIPO DE PRODUCTO -->
+                        <h:form id="frmSegunTipo" >
+                            
+                            <!--DETALLES DEL PRODUCTO LADO IZQUIERDO -->
+                        <p:outputLabel value="TIPO PRODUCTO:" for="tipoProducto" style="font-weight: bold;"/>&nbsp;&nbsp;
+                        <p:selectOneMenu id="tipoProducto" value="#{preingresoController.tipoProducto}" style=" margin-bottom: -8px;"  >
+                            <f:selectItem itemLabel="CALZADO" itemValue="1"  />
+                            <f:selectItem  itemLabel="CARTERA" itemValue="2" />
+                            <f:selectItem  itemLabel="ROPA" itemValue="3" /> 
+                            <f:selectItem  itemLabel="BOLZONES" itemValue="4" />
+                            <p:ajax update="somEstilo"  />
+                        </p:selectOneMenu> 
+                            <!-- INTERFACE SEGUN TIPO DE PRODUCTO -->
+                            
+                            <ui:include src="tipoProducto.xhtml"/>
+                            
+                        </h:form>
+                        
+                    </p:tab>
+                </p:wizard> 
+                
+            </h:form>
+            
+            <!-- CONFIRMAR VACIAR PRE INGRESO -->
+            <p:confirmDialog message="¿Esta Seguro de querer vaciar la lista Completa de Preingreso?" appendTo="@(body)"
+                                         header="Vaciando Preingreso" severity="alert"  widgetVar="cfdVaciar">
+                            <p:commandButton value="SI Seguro" actionListener="#{preingresoController.vaciarPreingreso()}" update=":gwIngreso,:frmIngreso:frmSegunTipo:dtPreIngreso,:frmIngreso:frmSegunTipo:pnTotales" oncomplete="cfdVaciar.hide()"/>
+                            <p:commandButton value="NO" onclick="cfdVaciar.hide();" type="button" />
+             </p:confirmDialog>
+            
+            <!-- CONFIRMAR CANCELAR PRE INGRESO -->
+            <p:confirmDialog message="¿ESTA SEGURO QUE QUIERE CANCELAR EL PRE-INGRESO ACTUAL?" appendTo="@(body)"
+                                         header="CANCELAR PREINGRESO" severity="alert"  widgetVar="cfdCancelar">
+                            <p:commandButton value="SI CANCELAR PREINGRESO" actionListener="#{preingresoController.cancelarPreingreso()}" update=":gwIngreso,:frmIngreso:frmSegunTipo:dtPreIngreso,:frmIngreso:frmSegunTipo:pnTotales" oncomplete="cfdCancelar.hide()"/>
+                            <p:commandButton value="NO CANCELAR" onclick="cfdCancelar.hide();" type="button" />
+             </p:confirmDialog>
+            
+             <!-- CONFIRMAR GUARDAR PRE INGRESO -->
+            <p:confirmDialog message="¿DESEA GUARDAR EL PREINGRESO PARA COMENZAR SU INGRESO AL INVENTARIO?" appendTo="@(body)"
+                                         header="GUARDAR PREINGRESO" severity="alert"  widgetVar="cfdGuardar">&nbsp;&nbsp;&nbsp;
+                <p:commandButton value="SI GUARDAR" actionListener="#{preingresoController.guardarPreingreso()}" update=":gwIngreso,:frmIngreso:frmSegunTipo:dtPreIngreso,:frmIngreso:frmSegunTipo:pnTotales, :frmAutorizarPreingreso" oncomplete="mostrarCodigoConfirmacion(args, cfdGuardar , autorizarPreingresoDialog); "/>&nbsp;&nbsp;&nbsp;&nbsp;
+                <p:commandButton value="CANCELAR" onclick="cfdGuardar.hide();" type="button" />
+             </p:confirmDialog>
+             <!-- Dialogo para crear un nuevo estilo -->
+             <ui:include src="estilos.xhtml"/>
+             <!-- Dialogo para ingresar Curva -->
+             <ui:include src="curva.xhtml"/>
+             
+             <!-- CONFIRMAR CANCELAR ENVIO -->
+            <p:dialog  id="dlgAutorizarPreingreso" widgetVar="autorizarPreingresoDialog" modal="true" resizable="false" appendTo="@(body)" header="AUTORIZAR PREINGRESO " >
+                <h:form id="frmAutorizarPreingreso">
+                    <p:outputLabel value="AUTORIZAR PREINGRESO CON COSTO INCONSISTENTE CON FACTURA" />
+                    <h:panelGrid columns="2">
+                        <p:outputLabel value="COSTO SEGUN FACTURA:" style="font-weight: bold; color: blue" />
+                        <p:outputLabel value="#{preingresoController.factura.montoCompra}" style="font-weight: bold; color: blue" />
+                        <p:outputLabel value="COSTO PREINGRESADO:" style="font-weight: bold; color: red"/>
+                        <p:outputLabel value="#{preingresoController.costoTotal}" style="font-weight: bold; color: red"/>
+                        <p:outputLabel value="CLAVE DE AUTORIZACION:" />
+                        <p:password id="clave" value="#{preingresoController.claveAutorizacion}" required="true" requiredMessage="CLAVE INCORRECTA" />  
+                    </h:panelGrid><br/>
+                    <p:commandButton value="AUTORIZAR " actionListener="#{preingresoController.autorizarPreingreso()}" oncomplete="handleSubmit(xhr, status, args, autorizarPreingresoDialog)" update=":gwIngreso,:frmAutorizarPreingreso,:frmIngreso:frmSegunTipo:dtPreIngreso,:frmIngreso:frmSegunTipo:pnTotales" />
+                    <p:commandButton value="CERRAR " onclick="autorizarPreingresoDialog.hide();" type="button" style="float: right" />
+                </h:form>
+
+             </p:dialog>
+       </p:panel>
+        
+      
+        <!-- CONFIRMAR ELIMINAR ARTICULO DE LISTA DE PREINGRESO -->
+        <p:confirmDialog message="DESEA ELIMINAR EL PRODUCTO DE LA LISTA ? \n Tenga en cuenta que si pertenece a una caja se eliminara la Caja Completa de la lista" appendTo="@(body)"
+                                     header="CONFIRMAR ELIMINAR DE LISTA" severity="alert"  widgetVar="cfdEliminarProductoLista">
+            <p:commandButton value="SI ELIMINAR" actionListener="#{preingresoController.eliminarDeLista()}" oncomplete="cfdEliminarProductoLista.hide();" update=":gwIngreso , :frmIngreso:frmSegunTipo:dtPreIngreso,:frmIngreso:frmSegunTipo:pnTotales" process="@this" />
+            <p:commandButton value="NO ELIMINAR" onclick="cfdEliminarProductoLista.hide();" type="button" style="float: right"/>
+         </p:confirmDialog>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        </c:when>
+            
+            
+            <!-- SI NO TIENE LOS PERMISOS DA MSJ DE ERROR -->
+            <c:otherwise>
+                   <h:form>
+                        <div style="min-height: 300px; text-align: center; margin-top: 100px;">
+                            <p:outputLabel value="ACCESO DENEGADO" style="font-size: 30px;font-weight: bold;color:red"/>
+                            <br/><br/>
+                            <h:graphicImage url="/faces/resources/imagenes/locked.png" alt="ZONA RESTRINGIDA" width="200" />
+                            <br/><br/>
+                            <p:outputLabel value="NO TIENE PERMISO PARA VER ESTA PAGINA" style="font-size: 20px;font-weight: bold;color:red"/>
+                            <br/>
+                            <p:outputLabel value="CONSULTE CON EL ADMINISTRADOR DEL SISTEMA" style="font-size: 20px;font-weight: bold;"/>
+                        </div>
+                    </h:form>
+             </c:otherwise>
+        </c:choose>
+        
+        
+        
+    </ui:define>
+    
+
+</ui:composition>

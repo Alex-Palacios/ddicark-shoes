@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/resources/plantillas/plantillaPrincipal.xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+    <ui:define name="title">
+        <h:outputText value="REGISTRAR REMESA"/>
+    </ui:define>
+
+    <ui:define name="body">
+         <c:choose>
+        <!-- VERIFICA QUE TENGA PERMISOS -->
+        <c:when test="${empleadoController.verificarPermiso('VENTAS', 'REGISTRAR PAGOS') and (empleadoController.usuario.puestoEmpleado == 'SUPERADMIN' or empleadoController.usuario.puestoEmpleado == 'CONTADOR' or empleadoController.usuario.puestoEmpleado == 'GERENTE')}" >
+
+        #{remesaController.prepararConsultaPagosSinRemesar()}
+        <p:panel  header="R E G I S T R A R &nbsp;&nbsp;R E M E S A" style="height:99.3%; width: 99.5%;" >
+            <p:growl id="gwRemesa"/>
+            
+            <h:form id="frmRemesa">
+                <p:outputLabel value="SELECCIONAR TODOS:" style="font-weight: bold"/>&nbsp;&nbsp;
+                <p:selectBooleanCheckbox  value="#{remesaController.selecAll}">  
+                    <p:ajax update=":gwRemesa,dtPagos,totales" listener="#{remesaController.seleccionarTodos()}" />
+                </p:selectBooleanCheckbox> 
+                <!-- PAGOS A REMESAR-->
+                <p:dataTable id="dtPagos" var="pago" value="#{remesaController.pagosSinRemesar}"
+                             scrollable="true" scrollHeight="200" filteredValue="#{remesaController.filtroPagos}"
+                             emptyMessage="NO SE HAN REGISTRADO PAGOS" style="text-align: center; ">  
+                    
+                    <p:column width="14">  
+                        <p:selectBooleanCheckbox value="#{remesaController.agregado}"  >
+                            <p:ajax update=":gwRemesa,:frmRemesa:totales" listener="#{remesaController.agregarAlista(pago)}" />
+                        </p:selectBooleanCheckbox>  
+                    </p:column>
+
+                    <p:column   headerText="# RECIBO"  width="35" >
+                        <h:outputText value="#{pago.recibo}" />
+                    </p:column>
+                    
+                    <p:column   headerText="FECHA PAGO" width="60" > 
+                        <h:outputText value="#{funciones.setFechaFormateada(pago.fechaPago,1)}" />
+                    </p:column>
+                    
+                    
+                    <p:column   headerText="FACTURA" > 
+                        <h:outputText value="#{pago.factura.facturaPK.numfactura}" />
+                    </p:column>
+                    
+                    <p:column   headerText="FECHA FACTURA" > 
+                        <h:outputText value="#{funciones.setFechaFormateada(pago.factura.facturaPK.fechaFactura,1)}" />
+                    </p:column>
+                    
+                    
+                    <p:column   headerText="EMPLEADO RESPONSABLE" width="100"  > 
+                        <h:outputText value="#{funciones.getNombreEmpleado(pago.responsableCobro)}" />
+                    </p:column>
+                    
+                    <p:column   headerText="TIPO PAGO" > 
+                        <h:outputText value="#{pago.tipoPago}" />
+                    </p:column>
+                    
+                    <p:column   headerText="BANCO" >  
+                        <h:outputText value="#{pago.banco}" />
+                    </p:column>
+                    
+                    <p:column   headerText="REFERENCIA" > 
+                        <h:outputText value="#{pago.identificador}" />
+                    </p:column>
+                    
+                    <p:column   headerText="ABONO" > 
+                        <h:outputText value="#{funciones.redondearMas(pago.abono,2)}" />
+                    </p:column>
+                    
+                    <p:column   headerText="DESCUENTO" > 
+                        <h:outputText value="#{funciones.redondearMas(pago.descuento,2)}" />
+                    </p:column>
+                    
+                    <p:column   headerText="TOTAL PAGO" > 
+                        <h:outputText value="#{funciones.redondearMas(pago.totalPago,2)}" />
+                    </p:column>
+                    
+                   
+                    
+                </p:dataTable>
+                <br/><br/>
+                    <p:fieldset>
+                    
+                        <h:panelGrid id="totales" columns="2" style="float: left">
+                            <p:outputLabel value="PAGOS INCLUIDOS:" style="font-weight: bold;" />
+                            <p:outputLabel value="#{remesaController.listaRemesar.size()}" style="font-weight: bold; color: #e33b06"  />
+                            <p:outputLabel value="MONTO TOTAL:"  style="font-weight: bold;" />
+                            <p:outputLabel value="#{funciones.redondearMas(remesaController.montoTotalRemesa,2)}" style="font-weight: bold;color: #e33b06" />
+                        </h:panelGrid>
+                        
+                        <p:commandButton value="REGISTRAR REMESA" actionListener="#{remesaController.nuevaRemesa()}" process="@form" update=":gwRemesa,:frmRegistrarRemesa" style="float:right; " />
+                       
+                 </p:fieldset>
+                
+                
+            </h:form>
+            <br/><br/>
+            <h:form id="frmPagosRemesa">
+                <p:dataTable id="dtPagosRemesa" var="pagoRemesa" value="#{remesaController.pagosRemesa}"
+                             scrollable="true" scrollHeight="200" filteredValue="#{remesaController.filtroPagos}"
+                             emptyMessage="NO SE HAN REGISTRADO PAGOS" style="text-align: center; " >  
+                    
+                    <f:facet name="header"> REMESAS POR CONFIRMAR</f:facet> 
+                    
+                    
+                    <p:column style="width: 2%" exportable="false">  
+                         <p:commandButton onclick="confirmarRemesaPagoDialog.show()" icon="ui-icon-check" title="Confirmar" style="height: 15px; width:15px;" update=":frmConfirmarRemesa">
+                             <f:setPropertyActionListener value="#{pagoRemesa}" target="#{remesaController.pvRemesa}" />
+                        </p:commandButton>
+                    </p:column>
+                    
+                    <p:column   headerText="# RECIBO"  width="35" >
+                        <h:outputText value="#{pagoRemesa.recibo}" />
+                    </p:column>
+                    
+                    <p:column   headerText="FECHA PAGO" width="60" > 
+                        <h:outputText value="#{funciones.setFechaFormateada(pagoRemesa.fechaPago,1)}" />
+                    </p:column>
+                    
+                    
+                    <p:column   headerText="FACTURA" > 
+                        <h:outputText value="#{pagoRemesa.factura.facturaPK.numfactura}" />
+                    </p:column>
+                    
+                    <p:column   headerText="FECHA FACTURA" > 
+                        <h:outputText value="#{funciones.setFechaFormateada(pagoRemesa.factura.facturaPK.fechaFactura,1)}" />
+                    </p:column>
+                    
+                    
+                    <p:column   headerText="EMPLEADO RESPONSABLE" width="100"  > 
+                        <h:outputText value="#{funciones.getNombreEmpleado(pagoRemesa.responsableCobro)}" />
+                    </p:column>
+                    
+                    <p:column   headerText="TIPO PAGO" > 
+                        <h:outputText value="#{pagoRemesa.tipoPago}" />
+                    </p:column>
+                    
+                    <p:column   headerText="BANCO" >  
+                        <h:outputText value="#{pagoRemesa.banco}" />
+                    </p:column>
+                    
+                    <p:column   headerText="CUENTA" > 
+                        <h:outputText value="#{pagoRemesa.identificador}" />
+                    </p:column>
+                    
+                    <p:column   headerText="ABONO" > 
+                        <h:outputText value="#{funciones.redondearMas(pagoRemesa.abono,2)}" />
+                    </p:column>
+                    
+                    <p:column   headerText="DESCUENTO" > 
+                        <h:outputText value="#{funciones.redondearMas(pagoRemesa.descuento,2)}" />
+                    </p:column>
+                    
+                    <p:column   headerText="TOTAL PAGO" > 
+                        <h:outputText value="#{funciones.redondearMas(pagoRemesa.totalPago,2)}" />
+                    </p:column>
+                    
+                    <p:column   headerText="NOTA" >
+                        <h:outputText value="#{pagoRemesa.nota}" />
+                    </p:column>
+                    
+                    
+                    <p:column width="2%">  
+                        <p:commandButton onclick="confirmarRechazarPago.show();"  icon="ui-icon-close" title="RECHAZAR PAGO" update=":frmRechazarPago,:gwRemesa" style="height: 15px; width:15px;">
+                            <f:setPropertyActionListener value="#{pagoRemesa}" target="#{remesaController.pagoRechazar}" />
+                        </p:commandButton>
+                    </p:column>
+                    
+                </p:dataTable>
+            </h:form>
+                
+       </p:panel>
+        
+            
+            
+            
+            
+        
+        
+        <!-- CONFIRMAR REGISTRAR PAGO-->
+        <p:dialog id="dlgRegistrarRemesa" widgetVar="registrarRemesaDialog" modal="true" resizable="false" appendTo="@(body)" header="REGISTRO DE REMESA"  >
+            <h:form id="frmRegistrarRemesa">
+                
+                <p:dataTable var="pv" value="#{remesaController.listaRemesar}" scrollRows="2" scrollHeight="20"
+                             emptyMessage="NO SE HAN SELECCIONADO PAGOS" style="text-align: center; ">  
+                    
+
+                    <p:column   headerText="# RECIBO"  >
+                        <h:outputText value="#{pv.recibo}" />
+                    </p:column>
+                    
+                    <p:column   headerText="FACTURA" > 
+                        <h:outputText value="#{pv.factura.facturaPK.numfactura}" />
+                    </p:column>
+                    
+                    <p:column   headerText="FECHA FACTURA" > 
+                        <h:outputText value="#{funciones.setFechaFormateada(pv.factura.facturaPK.fechaFactura,1)}" />
+                    </p:column>
+                    
+                    <p:column   headerText="EMPLEADO RESPONSABLE" width="100"  > 
+                        <h:outputText value="#{funciones.getNombreEmpleado(pv.responsableCobro)}" />
+                    </p:column>
+                    
+                    <p:column   headerText="TIPO PAGO" > 
+                        <h:outputText value="#{pv.tipoPago}" />
+                    </p:column>
+                    
+                    <p:column   headerText="TOTAL PAGO" > 
+                        <h:outputText value="#{funciones.redondearMas(pv.totalPago,2)}" />
+                    </p:column>
+                    
+                    <p:columnGroup type="footer">
+                        <p:row>  
+                            <p:column colspan="5" footerText="PAGOS INCLUIDOS: " style="text-align:right"/>  
+                            <p:column footerText="#{remesaController.listaRemesar.size()}" /> 
+                        </p:row>
+                        <p:row>  
+                            <p:column colspan="5" footerText="TOTAL REMESA: " style="text-align:right"/>  
+                            <p:column footerText="#{funciones.redondearMas(remesaController.montoTotalRemesa,2)}" /> 
+                        </p:row>
+                    </p:columnGroup> 
+                    
+                </p:dataTable>
+                <h:panelGrid columns="2" style="margin-left: 40%;">
+                    <p:outputLabel value="BANCO :" style="font-weight: bold;font-size: 12px;" />
+                    <p:selectOneMenu id="banco" value="#{remesaController.banco}" editable="true" required="true" requiredMessage="ESPECIFIQUE BANCO" >
+                        <f:selectItem itemLabel="AGRICOLA" itemValue="AGRICOLA" /> 
+                        <f:selectItem  itemLabel="CITY" itemValue="CITY" />
+                        <f:selectItem  itemLabel="HCBC" itemValue="HCBC" />
+                        <f:selectItem  itemLabel="SCOTIABANCK" itemValue="SCOTIOBANCK" />
+                        <f:selectItem  itemLabel="PROMERICA" itemValue="PROAMERICA" />
+                        <f:selectItem  itemLabel="AZTECA" itemValue="AZTECA" />
+                    </p:selectOneMenu>
+                    <p:outputLabel value="CUENTA:" style="font-weight: bold;font-size: 12px;"/>
+                    <p:inputText value="#{remesaController.cuenta}"  required="true" requiredMessage="Ingrese el Identidicador de CHEQUE o REMESA" />
+                    <p:outputLabel value="NOTA:" />
+                    <p:inputTextarea value="#{remesaController.notaRemesa}" cols="30" rows="3" />
+                </h:panelGrid>
+                <br/>
+                <p:commandButton value="GUARDAR REMESA" actionListener="#{remesaController.registrarRemesa()}" process="@form" oncomplete="handleSubmit(xhr, status, args, registrarRemesaDialog);" update=":gwRemesa,:frmRegistrarRemesa, :frmRemesa" />
+                <p:commandButton value="CANCELAR" onclick="registrarRemesaDialog.hide();" type="button" style="float: right" />
+                
+            </h:form>
+         </p:dialog>
+        
+        
+        
+        
+        
+        
+         <!-- CONFIRMAR REMESA DEL CLIENTE-->
+        <p:dialog id="dlgConfirmarRemesa" widgetVar="confirmarRemesaPagoDialog" modal="true" resizable="false" appendTo="@(body)" header="CONFIRMAR REMESA"  >
+            <h:form id="frmConfirmarRemesa">
+                <h:panelGrid columns="2">
+                    <p:outputLabel value="RECIBO:" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{remesaController.pvRemesa.recibo}" />
+                    <p:outputLabel value="FECHA PAGO:" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{funciones.setFechaFormateada(remesaController.pvRemesa.fechaPago,1)}" />
+                    <p:outputLabel value="VENDEDOR:" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{funciones.getNombreEmpleado(remesaController.pvRemesa.responsableCobro)}" />
+                    <p:outputLabel value="BANCO:" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{remesaController.pvRemesa.banco}" />
+                    <p:outputLabel value="CUENTA:" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{remesaController.pvRemesa.identificador}" />
+                    <p:outputLabel value="MONTO:" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{funciones.redondearMas(remesaController.pvRemesa.totalPago,2)}" />
+                    
+                </h:panelGrid>
+                <br/>
+                <p:commandButton value="CONFIRMAR REMESA" actionListener="#{remesaController.confirmarRemesa()}" oncomplete="confirmarRemesaPagoDialog.hide();" process="@form" update=":gwRemesa,:frmPagosRemesa"  />
+                <p:commandButton value="CANCELAR" onclick="confirmarRemesaPagoDialog.hide();" type="button" style="float: right" />
+                
+            </h:form>
+         </p:dialog>
+         
+         
+         
+         
+          <!-- CONFIRMAR RECHAZAR PAGO -->
+        <p:confirmDialog message="SEGURO QUE DESEA RECHAZAR EL SIGUIENTE PAGO?" appendTo="@(body)" header="REINGRESO DE PRODUCTO" severity="info"  widgetVar="confirmarRechazarPago">
+            <h:form id="frmRechazarPago">
+                <h:panelGrid columns="2" rendered="#{remesaController.pagoRechazar != null}">
+                    <p:outputLabel value="RECIBO: " style="font-weight: bold;"/>
+                    <p:outputLabel value="#{remesaController.pagoRechazar.recibo}"/>
+                    <p:outputLabel value="FECHA PAGO: " style="font-weight: bold;"/>
+                    <p:outputLabel value="#{funciones.setFechaFormateada(remesaController.pagoRechazar.fechaPago,1)}"/>
+                    <p:outputLabel value="FACTURA: " style="font-weight: bold;"/>
+                    <p:outputLabel value="#{remesaController.pagoRechazar.factura.facturaPK.numfactura} - #{funciones.setFechaFormateada(remesaController.pagoRechazar.factura.facturaPK.fechaFactura,1)}"/>
+                    <p:outputLabel value="VENDEDOR: " style="font-weight: bold;"/>
+                    <p:outputLabel value="#{funciones.getNombreEmpleado(remesaController.pagoRechazar.responsableCobro)}"/>
+                    <p:outputLabel value="TIPO PAGO: " style="font-weight: bold;"/>
+                    <p:outputLabel value="#{remesaController.pagoRechazar.tipoPago}"/>
+                    <p:outputLabel value="ABONO: " style="font-weight: bold;"/>
+                    <p:outputLabel value="#{funciones.redondearMas(remesaController.pagoRechazar.abono,2)}"/>
+                    <p:outputLabel value="DESCUENTO: " style="font-weight: bold;"/>
+                    <p:outputLabel value="#{funciones.redondearMas(remesaController.pagoRechazar.descuento,2)}"/>
+                    <p:outputLabel value="TOTAL: " style="font-weight: bold;"/>
+                    <p:outputLabel value="#{funciones.redondearMas(remesaController.pagoRechazar.totalPago,2)}"/>
+                    <p:outputLabel value="NOTA PRODUCTO:" />
+                    <p:inputTextarea value="#{remesaController.pagoRechazar.nota}" cols="30" rows="3" />
+                </h:panelGrid>
+                <br/><br/>
+                <p:commandButton value="RECHAZAR PAGO" actionListener="#{remesaController.rechazarPago()}"  oncomplete="confirmarRechazarPago.hide();" update=":gwRemesa, :frmRemesa,:frmPagosRemesa"  />
+                <p:commandButton value="CANCELAR " onclick="confirmarRechazarPago.hide();" type="button" style="float: right" />
+            </h:form>
+            
+        </p:confirmDialog>
+       
+        </c:when>
+            
+            
+            <!-- SI NO TIENE LOS PERMISOS DA MSJ DE ERROR -->
+            <c:otherwise>
+                   <h:form>
+                        <div style="min-height: 300px; text-align: center; margin-top: 100px;">
+                            <p:outputLabel value="ACCESO DENEGADO" style="font-size: 30px;font-weight: bold;color:red"/>
+                            <br/><br/>
+                            <h:graphicImage url="/faces/resources/imagenes/locked.png" alt="ZONA RESTRINGIDA" width="200" />
+                            <br/><br/>
+                            <p:outputLabel value="NO TIENE PERMISO PARA VER ESTA PAGINA" style="font-size: 20px;font-weight: bold;color:red"/>
+                            <br/>
+                            <p:outputLabel value="CONSULTE CON EL ADMINISTRADOR DEL SISTEMA" style="font-size: 20px;font-weight: bold;"/>
+                        </div>
+                    </h:form>
+             </c:otherwise>
+        </c:choose>
+        
+        
+    </ui:define>
+    
+
+</ui:composition>

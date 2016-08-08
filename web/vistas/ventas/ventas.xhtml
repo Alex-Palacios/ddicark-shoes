@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/resources/plantillas/plantillaPrincipal.xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+
+    <ui:define name="title">
+        <h:outputText value="VENTAS" />
+    </ui:define>
+
+    <ui:define name="body">
+        <c:choose>
+        <!-- VERIFICA QUE TENGA PERMISOS -->
+        <c:when test="${empleadoController.verificarPermiso('VENTAS', 'VENTAS')}" >
+            #{facturaController.prepararConsultaVentas()}
+        <p:panel  header="V E N T A S  &nbsp;&nbsp;&nbsp;  R E A L I Z A D A S" style="height:99.3%; width: 99.5%;" >
+            <p:growl id="gwVentas" />
+            
+             <h:form id="frmVentas">
+                 
+                 
+                 <p:fieldset>
+                        <h:panelGrid columns="2" style="float: left">
+                            <p:outputLabel value="MES:" />
+                            <p:selectOneMenu value="#{facturaController.month}"  >
+                                <f:selectItem itemLabel="ENERO" itemValue="1" />
+                                <f:selectItem itemLabel="FEBRERO" itemValue="2"/>
+                                <f:selectItem itemLabel="MARZO" itemValue="3"/>
+                                <f:selectItem itemLabel="ABRIL" itemValue="4"/>
+                                <f:selectItem itemLabel="MAYO" itemValue="5"/>
+                                <f:selectItem itemLabel="JUNIO" itemValue="6"/>
+                                <f:selectItem itemLabel="JULIO" itemValue="7"/>
+                                <f:selectItem itemLabel="AGOSTO" itemValue="8"/>
+                                <f:selectItem itemLabel="SEPTIEMBRE" itemValue="9"/>
+                                <f:selectItem itemLabel="OCTUBRE" itemValue="10"/>
+                                <f:selectItem itemLabel="NOVIEMBRE" itemValue="11"/>
+                                <f:selectItem itemLabel="DICIEMBRE" itemValue="12"/>
+                            </p:selectOneMenu>
+                            <p:outputLabel value="AÑO:" style="font-weight: bold;" />
+                            <p:selectOneMenu value="#{facturaController.year}" editable="true">
+                                <f:selectItem itemLabel="2012" itemValue="2012"/>
+                                <f:selectItem itemLabel="2013" itemValue="2013"/>
+                                <f:selectItem itemLabel="2014" itemValue="2014"/>
+                                <f:selectItem itemLabel="2015" itemValue="2015"/>
+                                <f:selectItem itemLabel="2016" itemValue="2016"/>
+                            </p:selectOneMenu>
+                        </h:panelGrid>
+                        
+                     <p:commandButton value="CONSULTAR" actionListener="#{facturaController.actualizarConsultaVentas()}" process="@form" update="dtVentas" />
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <h:commandLink> 
+                           <p:graphicImage library="imagenes" name="excel.png" title="Exportar a Excel" />  
+                           <p:dataExporter type="xls" target="dtVentas" fileName="Ventas" postProcessor="#{inventarioController.postProcessXLS}" />  
+                        </h:commandLink> 
+                        <h:commandLink rendered="false">  
+                           <p:graphicImage library="imagenes" name="pdf.png" title="Exportar en PDF"/>  
+                           <p:dataExporter type="pdf" target="dtVentas" fileName="Ventas" preProcessor="#{inventarioController.preProcessPDF}"/>  
+                        </h:commandLink>
+                 </p:fieldset>
+                 
+                 
+                 <p:dataTable id="dtVentas" var="venta" value="#{facturaController.ventas}"
+                              filteredValue="#{facturaController.filtroFacturas}"
+                              emptyMessage="NO HAY VENTAS REGISTRADAS" style="text-align: center"> 
+                     
+                     <p:column style="width:2%" exportable="false" >  
+                        <p:rowToggler  />  
+                    </p:column>   
+                     
+                     <p:column   headerText="FECHA" style=" font-size: 10px;">  
+                         <h:outputText value="#{funciones.setFechaFormateada(venta.facturaPK.fechaFactura,1)}" />
+                     </p:column>
+                     
+                     <p:column   headerText="# FACTURA" style=" font-size: 10px;"
+                                 filterBy="#{venta.facturaPK.numfactura}" >  
+                         <h:outputText value="#{venta.facturaPK.numfactura}" />
+                     </p:column>
+                     
+                     <p:column   headerText="TIPO" style=" font-size: 10px;" width="15"
+                                 filterBy="#{venta.tipoFactura}" filterOptions="#{facturaController.tipoOptions}" filterMatchMode="exact">  
+                         <h:outputText value="#{venta.tipoFactura}" />
+                     </p:column>
+                     
+                     <p:column   headerText="CONDICION PAGO" style=" font-size: 10px;" 
+                                 filterBy="#{venta.condicionPago}" filterOptions="#{facturaController.condicionOptions}" filterMatchMode="exact">  
+                         <h:outputText value="#{venta.condicionPago}" />
+                     </p:column>
+                     
+                     <p:column   headerText="CLIENTE" style=" font-size: 10px;">  
+                         <h:outputText value="#{funciones.getNombreCliente(venta.cliente)}" />
+                     </p:column>
+
+                     <p:column   headerText="SUB TOTAL" style=" font-size: 10px;">  
+                         <h:outputText value="#{funciones.redondearMas(venta.subTotal,2)}" />
+                     </p:column>
+                     <p:column   headerText="TOTAL" style=" font-size: 10px;">  
+                         <h:outputText value="#{funciones.redondearMas(venta.total,2)}" />
+                     </p:column>
+                     
+                     
+                     <p:column   headerText="DESCUENTO AUTORIZADO " style=" font-size: 10px;">  
+                         <h:outputText value="#{funciones.redondearMas(venta.descuento,2)}" />
+                     </p:column>
+
+                     <p:column   headerText="ESTADO" style=" font-size: 10px;">  
+                         <h:outputText value="#{venta.estado}" />
+                     </p:column>
+                     
+                     
+                     <p:rowExpansion >  
+                        <p:dataTable id="dtPagos" var="pago" value="#{venta.pagoVentaCollection}"
+                                     emptyMessage="EL CLIENTE NO HA REALIZADO NINGUN PAGO" style="text-align: center; "  
+                                     scrollable="true" scrollHeight="100" >  
+
+                                <f:facet name="header">HISTORIAL DE PAGOS</f:facet>
+
+                                
+                                <p:column   headerText="FECHA PAGO" >  
+                                    <h:outputText value="#{funciones.setFechaFormateada(pago.fechaPago,1)}" />
+                                </p:column> 
+                                
+                                <p:column headerText="RECIBIDO POR">
+                                    <h:outputText value="#{pago.idtransac.responsableTransac.nombreEmpleado}"/>
+                                </p:column>
+                                
+                                <p:column   headerText="DETALLE PAGO" >  
+                                    <h:outputText value="#{pago.detallePago}" />
+                                </p:column> 
+                                                   
+                                <p:column headerText="ABONO">
+                                    <h:outputText value="#{funciones.redondearMas(pago.abono,2)}"/>
+                                </p:column>
+                                
+                                <p:column headerText="DESCUENTO">
+                                    <h:outputText value="#{funciones.redondearMas(pago.descuento,2)}"/>
+                                </p:column>
+                                                                
+                                <p:column headerText="TOTAL PAGO">
+                                    <h:outputText value="#{funciones.redondearMas(pago.totalPago,2)}"/>
+                                </p:column>
+                                
+                                <p:column   headerText="ESTADO" >  
+                                    <h:outputText value="#{pago.estado}" />
+                                </p:column> 
+                                <p:columnGroup type="footer">
+                                    <p:row>
+                                        <p:column rendered="false" />
+                                        <p:column rendered="false" />
+                                        <p:column rendered="false" />
+                                        <p:column rendered="false" />
+                                        <p:column rendered="false" />
+                                    </p:row>
+                                    <p:row>  
+                                        <p:column colspan="4" footerText="TOTAL PAGADO: " style="text-align:right"/>  
+                                        <p:column footerText="#{facturaController.calcularTotalPagosFactura(venta)}" />   
+                                    </p:row> 
+                                    <p:row>  
+                                        <p:column colspan="4" footerText="SALDO ACTUAL: " style="text-align:right"/>  
+                                        <p:column footerText="#{funciones.redondearMas(venta.saldo,2)}" />   
+                                    </p:row> 
+                                </p:columnGroup>  
+                            </p:dataTable>
+                    </p:rowExpansion>  
+                 </p:dataTable>  
+             </h:form>
+       </p:panel>
+        
+        
+        
+        
+        </c:when>
+            
+            
+            <!-- SI NO TIENE LOS PERMISOS DA MSJ DE ERROR -->
+            <c:otherwise>
+                   <h:form>
+                        <div style="min-height: 300px; text-align: center; margin-top: 100px;">
+                            <p:outputLabel value="ACCESO DENEGADO" style="font-size: 30px;font-weight: bold;color:red"/>
+                            <br/><br/>
+                            <h:graphicImage url="/faces/resources/imagenes/locked.png" alt="ZONA RESTRINGIDA" width="200" />
+                            <br/><br/>
+                            <p:outputLabel value="NO TIENE PERMISO PARA VER ESTA PAGINA" style="font-size: 20px;font-weight: bold;color:red"/>
+                            <br/>
+                            <p:outputLabel value="CONSULTE CON EL ADMINISTRADOR DEL SISTEMA" style="font-size: 20px;font-weight: bold;"/>
+                        </div>
+                    </h:form>
+             </c:otherwise>
+        </c:choose>
+         
+    </ui:define>
+    
+
+</ui:composition>
+    

@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/resources/plantillas/plantillaPrincipal.xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+    <ui:define name="title">
+        <h:outputText value="REMESAS"/>
+    </ui:define>
+
+    <ui:define name="body">
+         <c:choose>
+        <!-- VERIFICA QUE TENGA PERMISOS -->
+        <c:when test="${empleadoController.verificarPermiso('VENTAS', 'REGISTRAR PAGOS') and (empleadoController.usuario.puestoEmpleado == 'SUPERADMIN' or empleadoController.usuario.puestoEmpleado == 'CONTADOR' or empleadoController.usuario.puestoEmpleado == 'GERENTE')}" >
+
+        #{remesaController.prepararConsultaRemesas()}
+        <p:panel  header="R E M E S A S" style="height:99.3%; width: 99.5%;" >
+            <p:growl id="gwRemesas"/>
+            
+            <h:form id="frmRemesas">
+                
+                <p:fieldset>
+                    
+                    <h:panelGrid id="consulta" columns="2" style="float: left">
+                        <p:outputLabel value="MES:" />
+                        <p:selectOneMenu value="#{remesaController.month}"  >
+                            <f:selectItem itemLabel="ENERO" itemValue="1" />
+                            <f:selectItem itemLabel="FEBRERO" itemValue="2"/>
+                            <f:selectItem itemLabel="MARZO" itemValue="3"/>
+                            <f:selectItem itemLabel="ABRIL" itemValue="4"/>
+                            <f:selectItem itemLabel="MAYO" itemValue="5"/>
+                            <f:selectItem itemLabel="JUNIO" itemValue="6"/>
+                            <f:selectItem itemLabel="JULIO" itemValue="7"/>
+                            <f:selectItem itemLabel="AGOSTO" itemValue="8"/>
+                            <f:selectItem itemLabel="SEPTIEMBRE" itemValue="9"/>
+                            <f:selectItem itemLabel="OCTUBRE" itemValue="10"/>
+                            <f:selectItem itemLabel="NOVIEMBRE" itemValue="11"/>
+                            <f:selectItem itemLabel="DICIEMBRE" itemValue="12"/>
+                        </p:selectOneMenu>
+                        <p:outputLabel value="AÑO:" style="font-weight: bold;" />
+                        <p:selectOneMenu value="#{remesaController.year}" >
+                            <f:selectItem itemLabel="2012" itemValue="2012"/>
+                            <f:selectItem itemLabel="2013" itemValue="2013"/>
+                            <f:selectItem itemLabel="2014" itemValue="2014"/>
+                            <f:selectItem itemLabel="2015" itemValue="2015"/>
+                        </p:selectOneMenu>
+                    </h:panelGrid>
+
+                    <p:commandButton value="CONSULTAR" actionListener="#{remesaController.actualizarConsultaRemesas()}" process="@form" update="dtRemesas" />
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <h:commandLink> 
+                           <p:graphicImage library="imagenes" name="excel.png" title="Exportar a Excel" />  
+                           <p:dataExporter type="xls" target="dtRemesas" fileName="Remesas" postProcessor="#{inventarioController.postProcessXLS}" />  
+                        </h:commandLink> 
+                        <h:commandLink rendered="false">  
+                           <p:graphicImage library="imagenes" name="pdf.png" title="Exportar en PDF"/>  
+                           <p:dataExporter type="pdf" target="dtRemesas" fileName="Remesas" preProcessor="#{inventarioController.preProcessPDF}"/>  
+                        </h:commandLink>
+                 </p:fieldset>
+                        
+                <!-- PAGOS A REMESAR -->
+                <p:dataTable id="dtRemesas" var="remesa" value="#{remesaController.remesas}"
+                             emptyMessage="NO HAY REMESAS" style="text-align: center;">  
+                    
+                    <p:column style="width:2%" exportable="false"  >  
+                        <p:rowToggler  />  
+                    </p:column> 
+
+                    <p:column   headerText="ID REMESA" > 
+                        <f:facet name="header">  
+                            <h:outputText value="ID REMESA" />  
+                        </f:facet> 
+                        <h:outputText value="#{remesa.idremesa}" />
+                    </p:column>
+                    
+                    <p:column   headerText="FECHA REGISTRO" width="15" > 
+                        <f:facet name="header">  
+                            <h:outputText value="FECHA REGISTRO" />  
+                        </f:facet> 
+                        <h:outputText value="#{funciones.setFechaFormateada(remesa.idtransac.fechaTransac,2)}" />
+                    </p:column>
+                    
+                    
+                    <p:column   headerText="REGISTRADO POR" filterBy="idtransac.responsableTransac.nombreEmpleado" width="15" > 
+                        <f:facet name="header">  
+                            <h:outputText value="REGISTRADO POR" />  
+                        </f:facet> 
+                        <h:outputText value="#{funciones.getNombreEmpleado(remesa.idtransac.responsableTransac)}" />
+                    </p:column>
+                    
+                    
+                    <p:column   headerText="BANCO" > 
+                        <f:facet name="header">  
+                            <h:outputText value="BANCO" />  
+                        </f:facet> 
+                        <h:outputText value="#{remesa.banco}" />
+                    </p:column>
+                    
+                    <p:column   headerText="CUENTA" > 
+                        <f:facet name="header">  
+                            <h:outputText value="CUENTA" />  
+                        </f:facet> 
+                        <h:outputText value="#{remesa.cuenta}" />
+                    </p:column>
+                    
+                    <p:column   headerText="TOTAL REMESADO" > 
+                        <f:facet name="header">  
+                            <h:outputText value="TOTAL REMESADO" />  
+                        </f:facet> 
+                        <h:outputText value="#{funciones.redondearMas(remesa.totalRemesa,2)}" />
+                    </p:column>
+                    
+                    
+                    <p:column   headerText="NOTA" > 
+                        <f:facet name="header">  
+                            <h:outputText value="NOTA" />  
+                        </f:facet> 
+                        <h:outputText value="#{remesa.nota}" />
+                    </p:column>
+                    
+                    <p:rowExpansion>  
+                        <p:dataTable id="dtPagos" var="pago" value="#{remesaController.getPagos(remesa)}"
+                                     emptyMessage="NO HAY PAGOS ASOCIADOS A LA REMESA" style="text-align: center; "  
+                                     scrollable="true" scrollHeight="100" >  
+
+                                <f:facet name="header">PAGOS ASOCIADOS</f:facet>
+
+                                <p:column   headerText="# RECIBO" filterBy="recibo" filterStyle="width:30px;" >
+                                    <h:outputText value="#{pago.recibo}" />
+                                </p:column>
+                                
+                                <p:column   headerText="FECHA PAGO" >  
+                                    <h:outputText value="#{funciones.setFechaFormateada(pago.fechaPago,1)}" />
+                                </p:column> 
+                                
+                                <p:column   headerText="FACTURA" > 
+                                    <h:outputText value="#{pago.factura.facturaPK.numfactura}" />
+                                </p:column>
+                                
+                                <p:column   headerText="DETALLE" > 
+                                    <h:outputText value="#{pago.detallePago}" />
+                                </p:column>
+                                       
+                                <p:column headerText="ABONO">
+                                    <h:outputText value="#{funciones.redondearMas(pago.abono,2)}"/>
+                                </p:column>
+                                
+                                <p:column headerText="DESCUENTO">
+                                    <h:outputText value="#{funciones.redondearMas(pago.descuento,2)}"/>
+                                </p:column>
+                                                                
+                                <p:column headerText="TOTAL PAGO">
+                                    <h:outputText value="#{funciones.redondearMas(pago.totalPago,2)}"/>
+                                </p:column>
+                                 
+                            </p:dataTable>
+                    </p:rowExpansion>  
+                    
+                </p:dataTable>
+                    
+                
+            </h:form>
+                
+       </p:panel>
+        
+        
+        
+        
+        
+        
+       
+        </c:when>
+            
+            
+            <!-- SI NO TIENE LOS PERMISOS DA MSJ DE ERROR -->
+            <c:otherwise>
+                   <h:form>
+                        <div style="min-height: 300px; text-align: center; margin-top: 100px;">
+                            <p:outputLabel value="ACCESO DENEGADO" style="font-size: 30px;font-weight: bold;color:red"/>
+                            <br/><br/>
+                            <h:graphicImage url="/faces/resources/imagenes/locked.png" alt="ZONA RESTRINGIDA" width="200" />
+                            <br/><br/>
+                            <p:outputLabel value="NO TIENE PERMISO PARA VER ESTA PAGINA" style="font-size: 20px;font-weight: bold;color:red"/>
+                            <br/>
+                            <p:outputLabel value="CONSULTE CON EL ADMINISTRADOR DEL SISTEMA" style="font-size: 20px;font-weight: bold;"/>
+                        </div>
+                    </h:form>
+             </c:otherwise>
+        </c:choose>
+        
+        
+    </ui:define>
+    
+
+</ui:composition>

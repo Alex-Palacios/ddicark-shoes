@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/resources/plantillas/plantillaPrincipal.xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+    <ui:define name="title">
+        <h:outputText value="Retaceos y Aprobaciones"/>
+    </ui:define>
+
+    <ui:define name="body">
+        
+         <c:choose>
+        <!-- VERIFICA QUE TENGA PERMISOS -->
+        <c:when test="${empleadoController.verificarPermiso('INGRESOS', 'APROBAR INGRESOS')}" >
+
+        
+        <p:growl id="gwRetaceos" life="3500"/>
+        
+         <h:form id="frmListaRetaceos">
+             <p:panel header="Tabla de Retaceos">
+                <p:tabView id="tvPPL">
+                    <p:tab id="importaciones" title="IMPORTACIONES">
+                        <p align="center">R&nbsp;E&nbsp;T&nbsp;A&nbsp;C&nbsp;E&nbsp;O&nbsp;S&nbsp;&nbsp;&nbsp;P&nbsp;O&nbsp;R&nbsp;&nbsp;&nbsp;I&nbsp;M&nbsp;P&nbsp;O&nbsp;R&nbsp;T&nbsp;A&nbsp;C&nbsp;I&nbsp;O&nbsp;N</p>
+                        <br/>
+                        <p:tabView id="tvIMP">
+                            <p:tab title="POR APROBAR">
+                                <p:dataTable id="dtRetaceosImportaciones" var="retaceoIMP" value="#{retaceoController.itemsRetaceosIMP}"
+                                    selectionMode="single" selection="#{retaceoController.selected}" rowKey="#{retaceoIMP.numretaceo}" 
+                                    emptyMessage="NO HAY RETECEOS POR APROBAR">   
+                            
+                                        <p:ajax event="rowSelect" update=":frmShowRetaceo" oncomplete="showRetaceoDialog.show();" />  
+                                        <p:ajax event="rowUnselect" update=":gwRetaceos"/>
+
+                                        <p:column styleClass="dataTable-text" headerText="APROBAR" width="5" > 
+                                            <div align="center">
+                                                <p:commandButton oncomplete="confirmar.show()" icon="ui-icon-check" title="Aprobar" style="height: 15px; width:15px;" update=":frmConfirmar:pnAprobarRetaceo">
+                                                    <f:setPropertyActionListener value="#{retaceoIMP}" target="#{retaceoController.selected}" />
+                                                </p:commandButton>
+                                            </div>
+                                        </p:column>
+                                        <p:column headerText="NUMERO" style="text-align: center;">  
+                                                #{retaceoIMP.numretaceo}
+                                        </p:column>  
+
+                                        <p:column headerText="FACTURAS" style="text-align: center;">  
+                                                #{retaceoIMP.montoFacturas}
+                                        </p:column> 
+
+                                        <p:column headerText="SALIDA" style="text-align: center;">  
+                                                #{retaceoIMP.montoSalida}
+                                        </p:column> 
+
+                                        <p:column headerText="TOTAL GASTOS IMPORTACION" style="text-align: center;">  
+                                                #{retaceoIMP.montoFlete + retaceoIMP.montoAgenteAduanal + retaceoIMP.montoArancel + retaceoIMP.montoBodegaje + retaceoIMP.montoTransporte - retaceoIMP.montoDescuentos}
+                                        </p:column> 
+
+                                        <p:column headerText="OTROS GCCF" style="text-align: center;">  
+                                                #{retaceoIMP.otrosGastosCcf}
+                                        </p:column>
+
+                                        <p:column headerText="FACTOR RETACEO" style="text-align: center;">  
+                                                #{funciones.redondearMas(retaceoIMP.factorRetaceo,4)}
+                                        </p:column>
+
+                                        <p:column headerText="SEGURO" style="text-align: center;">  
+                                                #{retaceoIMP.montoSeguro}
+                                        </p:column>
+
+                                        <p:column headerText="SEGURIDAD" style="text-align: center;">  
+                                                #{retaceoIMP.montoSeguridad}
+                                        </p:column>
+
+                                        <p:column headerText="OTROS GSCF" style="text-align: center;">  
+                                                #{retaceoIMP.otrosGastos}
+                                        </p:column>
+
+                                        <p:column headerText="FACTOR VIAJE" style="text-align: center;">  
+                                                #{funciones.redondearMas(retaceoIMP.factorCostoViaje,4)}
+                                        </p:column>
+
+                                        <p:column headerText="APROBADO" style="text-align: center;" >  
+                                            #{funciones.aprobadoLabel(retaceoIMP.aprobado)}
+                                        </p:column>
+
+                                </p:dataTable>
+                            </p:tab>
+                            <p:tab id="tabAprobadosIMP" title="APROBADOS">
+                                <p:dataTable id="dtRetaceosImportacionesAprobadas" var="retaceoIMP" value="#{retaceoController.itemsRetaceosIMPAprobados}"
+                                    selectionMode="single" selection="#{retaceoController.selected}" rowKey="#{retaceoIMP.numretaceo}" >   
+                            
+                                        <p:ajax event="rowSelect" update=":frmShowRetaceo" oncomplete="showRetaceoDialog.show();" />  
+                                        <p:ajax event="rowUnselect" update=":gwRetaceos"/>
+
+                                        <p:column headerText="NUMERO" style="text-align: center;">  
+                                                #{retaceoIMP.numretaceo}
+                                        </p:column> 
+
+                                        <p:column headerText="FACTOR RETACEO" style="text-align: center;">  
+                                                #{funciones.redondearMas(retaceoIMP.factorRetaceo,4)}
+                                        </p:column>
+                                        
+                                        <p:column headerText="FACTOR VIAJE" style="text-align: center;">  
+                                                #{funciones.redondearMas(retaceoIMP.factorCostoViaje,4)}
+                                        </p:column>
+                                        
+                                        <p:column headerText="APROBADO" style="text-align: center;" >  
+                                            #{funciones.aprobadoLabel(retaceoIMP.aprobado)}
+                                        </p:column>
+                                        
+                                        <p:column headerText="NOTA" style="text-align: center;" width="300">  
+                                                #{retaceoIMP.notaRetaceo}
+                                        </p:column>
+
+
+                                </p:dataTable>
+                            </p:tab>
+                        </p:tabView>
+                       
+                    </p:tab>
+                    <p:tab id="comprasNacionales" title="COMPRAS -- NACIONALES" rendered="false">
+                        <p align="center">R&nbsp;E&nbsp;T&nbsp;A&nbsp;C&nbsp;E&nbsp;O&nbsp;S&nbsp;&nbsp;&nbsp;P&nbsp;O&nbsp;R&nbsp;&nbsp;&nbsp;C&nbsp;O&nbsp;M&nbsp;P&nbsp;R&nbsp;A&nbsp;S&nbsp;&nbsp;&nbsp;N&nbsp;A&nbsp;C&nbsp;I&nbsp;O&nbsp;N&nbsp;A&nbsp;L&nbsp;E&nbsp;S</p>
+                        <br/>
+                        <p:tabView id="tvNAC">
+                            <p:tab title="POR APROBAR">
+                                <p:dataTable id="dtRetaceosNacionales" var="retaceoNAC" value="#{retaceoController.itemsRetaceosNAC}"
+                                     selectionMode="single" selection="#{retaceoController.selected}" rowKey="#{retaceoNAC.numretaceo}" 
+                                     emptyMessage="NO HAY RETACEOS QUE APROBAR">  
+                                    
+                                        <p:column styleClass="dataTable-text" headerText="Aprobar" width="5" > 
+                                            <div align="center">
+                                                <p:commandButton oncomplete="confirmarNAC.show()" icon="ui-icon-check" title="APROBAR" style="height: 15px; width:15px;" update=":frmConfirmarNAC:pnAprobarRetaceoNAC">
+                                                    <f:setPropertyActionListener value="#{retaceoNAC}" target="#{retaceoController.selected}" />
+                                                </p:commandButton>
+                                            </div>
+                                        </p:column>
+
+                                         <p:column headerText="NUM RETACEO">  
+                                                    #{retaceoNAC.numretaceo}
+                                         </p:column>  
+
+                                         <p:column headerText="TOTAL FACTURAS">  
+                                                #{retaceoNAC.montoFacturas}
+                                         </p:column> 
+
+                                         <p:column headerText="TOTAL DESCUENTOS">  
+                                                #{retaceoNAC.montoDescuentos}
+                                         </p:column> 
+
+                                         <p:column headerText="FACTOR RETACEO" style="text-align: center;">  
+                                                #{funciones.redondearMas(retaceoNAC.factorRetaceo,4)}
+                                        </p:column>
+                                        
+                                         <p:column headerText="FECHA DE INGRESO">  
+                                                #{funciones.setFechaFormateada(retaceoNAC.idtransac.fechaTransac,1)}
+                                         </p:column>
+
+                                         <p:column headerText="APROBADO">  
+                                                #{funciones.aprobadoLabel(retaceoNAC.aprobado)}
+                                         </p:column>
+                                    
+                                        <p:column headerText="NOTA" style="text-align: center;" width="300">  
+                                                #{retaceoNAC.notaRetaceo}
+                                        </p:column>
+                                </p:dataTable>
+                            </p:tab>
+                            <p:tab title="APROBADO">
+                                <p:dataTable id="dtRetaceosNacionalesAprobadas" var="retaceoNAC" value="#{retaceoController.itemsRetaceosNACAprobados}"
+                                    selectionMode="single" selection="#{retaceoController.selected}" rowKey="#{retaceoNAC.numretaceo}" >   
+                            
+                                        <p:ajax event="rowSelect" update=":frmShowRetaceoNAC" oncomplete="showRetaceoNACDialog.show();" />  
+                                        <p:ajax event="rowUnselect" update=":gwRetaceos"/>
+                                        
+                                        <p:column headerText="NUM RETACEO">  
+                                                    #{retaceoNAC.numretaceo}
+                                         </p:column>  
+
+                                         <p:column headerText="TOTAL FACTURAS">  
+                                                #{retaceoNAC.montoFacturas}
+                                         </p:column> 
+
+                                         <p:column headerText="TOTAL DESCUENTOS">  
+                                                #{retaceoNAC.montoDescuentos}
+                                         </p:column> 
+
+                                         <p:column headerText="FACTOR RETACEO" style="text-align: center;">  
+                                                #{funciones.redondearMas(retaceoNAC.factorRetaceo,4)}
+                                        </p:column>
+                                        
+                                         <p:column headerText="FECHA DE INGRESO">  
+                                                #{funciones.setFechaFormateada(retaceoNAC.idtransac.fechaTransac,1)}
+                                         </p:column>
+
+                                         <p:column headerText="APROBADO">  
+                                                #{funciones.aprobadoLabel(retaceoNAC.aprobado)}
+                                         </p:column>
+                                    
+                                         <p:column headerText="NOTA" style="text-align: center;" width="300">  
+                                                #{retaceoNAC.notaRetaceo}
+                                        </p:column>
+
+                                </p:dataTable>
+                            </p:tab>
+                        </p:tabView>
+                        
+                    </p:tab>
+                </p:tabView>
+            </p:panel>
+             
+            
+        </h:form>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        <!-- DIALOGOS PARA CONTROLAR LOS RETACEOS POR IMPORTACION -->
+        
+        <p:dialog id="retaceoDialog" header="Detalles Retaceo" widgetVar="showRetaceoDialog" resizable="false"  
+                   modal="true" appendTo="@(body)"  showEffect="fade" hideEffect="explode">  
+            <h:form id="frmShowRetaceo">
+                <h:panelGrid id="displayRetaceo" columns="2" cellpadding="4"> 
+                    <f:facet name="header">
+                        <h:outputText value="NUMERO:" style="color: red;font-weight: bold;" />&nbsp;&nbsp;&nbsp;
+                        <h:outputText value="#{retaceoController.selected.numretaceo}" style="color: red;font-weight: bold;" />
+                    </f:facet>
+                    <h:outputText value="Facturas:" />  
+                    <h:outputText value="#{funciones.redondearMas(retaceoController.selected.montoFacturas,2)}" />
+                    <h:outputText value="Descuentos:" />  
+                    <h:outputText value="#{funciones.redondearMas(retaceoController.selected.montoDescuentos,2)}" />
+                    <h:outputText value="Traspaso:" />  
+                    <h:outputText value="#{funciones.redondearMas(retaceoController.selected.montoSalida,2)}" /> 
+                    <h:outputText value="Flete:" />  
+                    <h:outputText value="#{funciones.redondearMas(retaceoController.selected.montoFlete,2)}" />
+                    <h:outputText value="Tramitador:" />  
+                    <h:outputText value="#{funciones.redondearMas(retaceoController.selected.montoAgenteAduanal,2)}" /> 
+                    <h:outputText value="Arancel:" />  
+                    <h:outputText value="#{funciones.redondearMas(retaceoController.selected.montoArancel,2)}" />
+                    <h:outputText value="Transporte:" />  
+                    <h:outputText value="#{funciones.redondearMas(retaceoController.selected.montoTransporte,2)}" /> 
+                    <h:outputText value="Bodegaje:" />  
+                    <h:outputText value="#{funciones.redondearMas(retaceoController.selected.montoBodegaje,2)}" /> 
+                    <p:outputLabel value="SEGURIDAD:" />
+                    <p:outputLabel value="#{funciones.redondearMas(retaceoController.selected.montoSeguridad,2)}"/>
+                    <p:outputLabel value="SEGURO:" />
+                    <p:outputLabel value="#{funciones.redondearMas(retaceoController.selected.montoSeguro,2)}" />
+                    <h:outputText value="Otros Gastos CCF:" />  
+                    <h:outputText value="#{funciones.redondearMas(retaceoController.selected.otrosGastosCcf,2)}" /> 
+                    <h:outputText value="FACTOR DE RETACEO:" style="color: blue;font-weight: bold;" />  
+                    <h:outputText value="#{funciones.redondearMas(retaceoController.selected.factorRetaceo,4)}" style="color: blue;font-weight: bold;"/> 
+                    <p:outputLabel value="A CONTINUACION INGRESE EL" style="color: red"/>
+                    <p:outputLabel value="MONTO TOTAL DE GASTOS " style="color: red"/>
+                    <p:outputLabel value="ADICIONALES DE LA IMPORTACION" style="color: red"/>
+                    <p:outputLabel value="DE LOS CUALES NO EXISTE COMPROBANTE" style="color: red"/>
+                    <p:outputLabel value="TOTAL GASTOS ADICIONALES:" for="otrosGastosSCF"/>
+                    <p:inputText id="otrosGastosSCF" value="#{retaceoController.selected.otrosGastos}" size="10" required="true" style="margin-left: 5px;" readonly="#{retaceoController.selected.aprobado}"/>
+                    <h:outputText value="FACTOR COSTO VIAJE:" style="color: blue;font-weight: bold;" rendered="#{retaceoController.selected.aprobado}"/>  
+                    <h:outputText value="#{funciones.redondearMas(retaceoController.selected.factorCostoViaje,4)}" style="color: blue;font-weight: bold;" rendered="#{retaceoController.selected.aprobado}"/> 
+                    <p:outputLabel value="NOTA:" for="notaRetaceo" />
+                    <p:inputTextarea id="notaRetaceo" value="#{retaceoController.selected.notaRetaceo}" title="Alguna nota o comentario importante" cols="30" rows="5" />
+                 </h:panelGrid>
+                <p:commandButton actionListener="#{retaceoController.calcularRetaceoCostoViaje(e)}" value="Calcular Factor Costo Viaje" icon="ui-icon-disk" update=":frmShowRetaceo,:frmListaRetaceos:tvPPL:tvIMP:dtRetaceosImportaciones,:gwRetaceos" oncomplete="handleSubmit(xhr,status,args,showRetaceoDialog);" rendered="#{!retaceoController.selected.aprobado}" />&nbsp;&ensp;&nbsp;&ensp;&nbsp;&ensp;&nbsp;&ensp;&nbsp;
+                <p:commandButton actionListener="#{retaceoController.save(event)}" value="Actualizar" icon="ui-icon-disk" update=":frmShowRetaceo,:frmListaRetaceos:tvPPL:tvIMP:dtRetaceosImportacionesAprobadas,:gwRetaceos" oncomplete="showRetaceoDialog.hide()"  rendered="#{retaceoController.selected.aprobado}"/>
+                &nbsp;&ensp;&nbsp;&ensp;<p:commandButton value="Cerrar" icon="ui-icon-close"  onclick="showRetaceoDialog.hide()" />
+           </h:form>
+        </p:dialog>
+             
+        <h:form id="frmConfirmar">
+            
+            <p:remoteCommand name="aprobar" actionListener="#{retaceoController.aprobarRetaceo}" update=":frmListaRetaceos:tvPPL:tvIMP,:gwRetaceos"/>
+            <!-- DIALOGO PARA CONFIRMAR RETACEO -->
+        <p:confirmDialog message="Seguro que desea APROBAR el Retaceo con los siguientes Factores:" appendTo="@(body)" closable="false"
+                header="Confirmar Retaceo" severity="alert" widgetVar="confirmar"  hideEffect="explode">
+            <div align="center">
+                <p:panelGrid id="pnAprobarRetaceo" columns="2">
+                    <p:outputLabel value="APROBAR RETACEO NUM:" style="font-weight: bold;color: red" />
+                    <p:outputLabel value="#{retaceoController.selected.numretaceo}" style="font-weight: bold;color:red" />
+                    <p:outputLabel value="FACTOR RETACEO:" style="font-weight: bold;" />
+                    <p:outputLabel value="#{funciones.redondearMas(retaceoController.selected.factorRetaceo,4)}" style="font-weight: bold;color:blue" />
+                    <p:outputLabel value="FACTOR COSTO VIAJE:" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{funciones.redondearMas(retaceoController.selected.factorCostoViaje,4)}" style="font-weight: bold;color:blue" />
+                        
+                </p:panelGrid><br/>
+                <p:outputLabel value="TENGA EN CUENTA QUE UNA VEZ APROBADO NO SE PODRAN CAMBIAR LOS DATOS"/><br/><br/>
+                <p:commandButton value="SI" onclick="aprobar(),confirmar.hide();" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <p:commandButton value="NO" onclick="confirmar.hide();" />
+            </div>
+        </p:confirmDialog>
+        </h:form>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+         <!-- DIALOGOS PARA CONTROLAR LOS RETACEOS POR COMPRAS NACIONALES -->
+         
+         
+        <p:dialog id="retaceoNACDialog" header="Detalles Retaceo" widgetVar="showRetaceoNACDialog" resizable="false"  
+                   modal="true" appendTo="@(body)"  showEffect="fade" hideEffect="explode">  
+            <h:form id="frmShowRetaceoNAC">
+                <h:panelGrid id="displayRetaceoNAC" columns="2" cellpadding="4"> 
+                    <f:facet name="header">
+                        <h:outputText value="NUMERO:" style="color: red;font-weight: bold;" />&nbsp;&nbsp;&nbsp;
+                        <h:outputText value="#{retaceoController.selected.numretaceo}" style="color: red;font-weight: bold;" />
+                    </f:facet>
+                    <h:outputText value="Facturas:" />  
+                    <h:outputText value="#{retaceoController.selected.montoFacturas}" />
+                    <h:outputText value="Descuentos:" />   
+                    <h:outputText value="#{retaceoController.selected.montoDescuentos}" />
+                    <h:outputText value="FACTOR DE RETACEO:" style="color: blue;font-weight: bold;" />  
+                    <h:outputText value="#{funciones.redondearMas(retaceoController.selected.factorRetaceo,4)}" style="color: blue;font-weight: bold;"/>
+                    
+                    <p:outputLabel value="NOTA:" for="notaRetaceoNAC" />
+                    <p:inputTextarea id="notaRetaceoNAC" value="#{retaceoController.selected.notaRetaceo}" title="Alguna nota o comentario importante" cols="30" rows="5" />
+                 </h:panelGrid>
+                <p:commandButton actionListener="#{retaceoController.calcularRetaceoCostoViaje(e)}" value="Calcular Factor Costo Viaje" icon="ui-icon-disk" update=":frmShowRetaceoNAC,:frmListaRetaceos:tvPPL:tvNAC:dtRetaceosNacionales,:gwRetaceos" oncomplete="handleSubmit(xhr,status,args,showRetaceoNACDialog);" rendered="#{!retaceoController.selected.aprobado}" />&nbsp;&ensp;&nbsp;&ensp;&nbsp;&ensp;&nbsp;&ensp;&nbsp;
+                <p:commandButton actionListener="#{retaceoController.save(event)}" value="Actualizar" icon="ui-icon-disk" update=":frmShowRetaceoNAC,:frmListaRetaceos:tvPPL:tvNAC:dtRetaceosNacionalesAprobadas,:gwRetaceos" oncomplete="showRetaceoNACDialog.hide()"  rendered="#{retaceoController.selected.aprobado}"/>
+                &nbsp;&ensp;&nbsp;&ensp;<p:commandButton value="Cerrar" icon="ui-icon-close"  onclick="showRetaceoNACDialog.hide()" />
+           </h:form>
+        </p:dialog>
+             
+       <h:form id="frmConfirmarNAC">
+            
+        <p:remoteCommand name="aprobarNAC" actionListener="#{retaceoController.aprobarRetaceo}" update=":frmListaRetaceos:tvPPL:tvNAC,:gwRetaceos"/>
+            <!-- DIALOGO PARA CONFIRMAR RETACEO -->
+        <p:confirmDialog message="Seguro que desea APROBAR la compra con los siguientes Factores:" appendTo="@(body)" closable="false"
+                header="Confirmar Retaceo" severity="alert" widgetVar="confirmarNAC"  hideEffect="explode">
+            <div align="center">
+                <p:panelGrid id="pnAprobarRetaceoNAC" columns="2">
+                    <p:outputLabel value="APROBAR COMPRA NUM:" style="font-weight: bold;color: red" />
+                    <p:outputLabel value="#{retaceoController.selected.numretaceo}" style="font-weight: bold;color:red" />
+                    <p:outputLabel value="MONTO TOTAL:" style="font-weight: bold;" />
+                    <p:outputLabel value="#{funciones.redondearMas(retaceoController.selected.montoTotalFacturas,2)}" style="font-weight: bold;color:blue" />
+                       
+                </p:panelGrid><br/>
+                <p:outputLabel value="TENGA EN CUENTA QUE UNA VEZ APROBADO NO SE PODRAN CAMBIAR LOS DATOS"/><br/><br/>
+                <p:commandButton value="SI" onclick="aprobarNAC(),confirmarNAC.hide();" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <p:commandButton value="NO" onclick="confirmarNAC.hide();" />
+            </div>
+        </p:confirmDialog>
+        </h:form>
+       
+         
+         
+         
+         
+         
+         
+         
+        </c:when>
+            
+            
+            <!-- SI NO TIENE LOS PERMISOS DA MSJ DE ERROR -->
+            <c:otherwise>
+                   <h:form>
+                        <div style="min-height: 300px; text-align: center; margin-top: 100px;">
+                            <p:outputLabel value="ACCESO DENEGADO" style="font-size: 30px;font-weight: bold;color:red"/>
+                            <br/><br/>
+                            <h:graphicImage url="/faces/resources/imagenes/locked.png" alt="ZONA RESTRINGIDA" width="200" />
+                            <br/><br/>
+                            <p:outputLabel value="NO TIENE PERMISO PARA VER ESTA PAGINA" style="font-size: 20px;font-weight: bold;color:red"/>
+                            <br/>
+                            <p:outputLabel value="CONSULTE CON EL ADMINISTRADOR DEL SISTEMA" style="font-size: 20px;font-weight: bold;"/>
+                        </div>
+                    </h:form>
+             </c:otherwise>
+        </c:choose>
+      
+    </ui:define>
+    
+
+</ui:composition>

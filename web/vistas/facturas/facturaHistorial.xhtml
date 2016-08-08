@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <ui:composition>
+        
+        
+        <!-- INGRESAR FACTURA PARA COMPLETAR HISTORIAL DEL CLIENTE -->
+        <p:dialog widgetVar="facturaAnterior" modal="true" resizable="false" appendTo="@(body)" header="INGRESANDO FACTURA PARA HISTORIAL" >
+            <h:form id="frmFacturaAnterior">
+                <p:panelGrid columns="2">
+                    <p:outputLabel value="FACTURA N&deg;:"/>
+                    <p:inputText value="#{facturaController.facturaAnterior.facturaPK.numfactura}" maxlength="10" required="true" requiredMessage="NUMERO FACTURA REQUERIDO" />
+                    <p:outputLabel value="FECHA FACTURA:"/>
+                    <p:calendar value="#{facturaController.facturaAnterior.facturaPK.fechaFactura}" navigator="true" mode="popup" showOn="button" readonlyInput="true" effect="slideDown" pattern="dd/MM/yyyy" required="true" requiredMessage="FECHA FACTURA REQUERIDO" />
+                    <p:outputLabel value="CLIENTE:"/>
+                    <p:selectOneMenu value="#{facturaController.facturaAnterior.cliente}" required="true" requiredMessage="CLIENTE REQUERIDO" 
+                                     filter="true" filterMatchMode="contains" >
+                        <f:selectItem itemLabel="Seleccione Cliente"  noSelectionOption="true" />
+                        <f:selectItems value="#{clienteController.items}"
+                                       var="cliente"
+                                       itemValue="#{cliente}"
+                                       itemLabel="#{cliente.obtenerNombreCliente()}"
+                                        />
+                        <f:converter binding="#{clienteConverter}"/>  
+                    </p:selectOneMenu>
+                    <p:outputLabel value="TIPO FACTURA:"/>
+                    <p:selectOneMenu value="#{facturaController.facturaAnterior.tipoFactura}" required="true" requiredMessage="TIPO FACTURA REQUERIDO" >
+                        <f:selectItem itemLabel="FACTURA CONSUMIDOR FINAL" itemValue="FCF" /> 
+                        <f:selectItem itemLabel="COMPROBANTE CREDITO FISCAL" itemValue="CCF" />
+                        <p:ajax update="" />
+                    </p:selectOneMenu>
+                    <p:outputLabel value="CONDICION DE PAGO:"/>
+                    <p:selectOneMenu value="#{facturaController.facturaAnterior.condicionPago}" required="true" requiredMessage="CONDICION DE PAGO REQUERIDO" >
+                        <f:selectItem itemLabel="AL CONTADO" itemValue="AL CONTADO" /> 
+                        <f:selectItem itemLabel="AL CREDITO" itemValue="AL CREDITO" />
+                        <p:ajax update="fVencimiento" />
+                    </p:selectOneMenu>
+                    <p:outputLabel value="FECHA VENCIMIENTO:"/>
+                    <p:calendar id="fVencimiento"  value="#{facturaController.facturaAnterior.fechaVencimiento}" navigator="true" mode="popup" showOn="button" readonlyInput="true" effect="slideDown" pattern="dd/MM/yyyy" required="#{facturaController.facturaAnterior.condicionPago == 'AL CREDITO'}" requiredMessage="FECHA VENCIMIENTO REQUERIDO" />
+                    <p:outputLabel value="SUMAS:"/>
+                    <p:inputText value="#{facturaController.facturaAnterior.sumas}" required="true" requiredMessage="SUMAS REQUERIDO"/>
+                    <p:outputLabel value="DESCUENTO %:"/>
+                    <p:inputText value="#{facturaController.facturaAnterior.porcentajeDescuento}" required="true" requiredMessage="% DESCUENTO REQUERIDO"/>
+                    <p:outputLabel value="MONTO DESCUENTO:"/>
+                    <p:inputText value="#{facturaController.facturaAnterior.descuento}" required="true" requiredMessage="MONTO DESCUENTO REQUERIDO"/>
+                    <p:outputLabel value="SUBTOTAL:"/>
+                    <p:inputText value="#{facturaController.facturaAnterior.subTotal}" required="true" requiredMessage="SUBTOTAL REQUERIDO"/>
+                    <p:outputLabel value="I.V.A:" />
+                    <p:inputText value="#{facturaController.facturaAnterior.iva}" required="true" requiredMessage="MONTO IVA REQUERIDO"/>
+                    <p:outputLabel value="TOTAL:"/>
+                    <p:inputText value="#{facturaController.facturaAnterior.total}" required="true" requiredMessage="TOTAL REQUERIDO"/>
+                    
+                    <p:commandButton value="HISTORIAL PAGOS" actionListener="#{facturaController.actualizarSaldoActual()}"  oncomplete="pagosFacturaAnterior.show();" update=":frmPagosFacturaAnterior" type="submit" style="float: right"/>
+                    <br/>
+                    <p:outputLabel value="SALDO ACTUAL:"/>
+                    <p:outputLabel id="saldo" value="#{facturaController.facturaAnterior.saldo}" />
+                    
+                    <p:outputLabel value="ESTADO ACTUAL:"/>
+                    <p:selectOneMenu value="#{facturaController.facturaAnterior.estado}" required="true" requiredMessage="ESTADO ACTUAL DE LA FACTURA REQUERIDO" >
+                        <f:selectItem itemLabel="ACTIVA" itemValue="ACTIVA" /> 
+                        <f:selectItem itemLabel="CANCELADA" itemValue="CANCELADA" />
+                        <p:ajax update="fCancelado" />
+                    </p:selectOneMenu>
+                    <p:outputLabel value="FECHA CANCELACION:"/>
+                    <p:calendar id="fCancelado" value="#{facturaController.facturaAnterior.fechaCancelado}" navigator="true"  mode="popup" showOn="button" readonlyInput="true" effect="slideDown" pattern="dd/MM/yyyy" required="#{facturaController.facturaAnterior.estado == 'CANCELADA'}" requiredMessage="FECHA DE CANCELACION REQUERIDA" />
+                    <p:outputLabel value="OBSERVACIONES:"/>
+                    <p:inputTextarea value="#{facturaController.facturaAnterior.observaciones}" cols="30" rows="4"/>
+                </p:panelGrid>
+                
+                <br/><br/>    
+                <p:commandButton value="INGRESAR" actionListener="#{facturaController.registrarFacturaAnterior()}" icon="ui-icon-check" type="submit" update=":gwFacturas, :frmFacturaAnterior"/>
+                <p:commandButton value="CANCELAR" onclick="facturaAnterior.hide();" icon="ui-icon-close" type="button" style="float: right" />
+            </h:form>
+         </p:dialog>
+        
+        
+        <p:dialog widgetVar="pagosFacturaAnterior" modal="true" resizable="false" appendTo="@(body)" header="REGISTRO DE PAGOS" >
+            <h:form id="frmPagosFacturaAnterior">
+                <p:commandButton value="REGISTRAR PAGO" actionListener="#{facturaController.prepareRegistrarPagoAnterior()}"  onclick="nuevoPago.show();" update=":frmNuevoPago"  />
+                
+                <p:dataTable id="dtPagos" var="pago" value="#{facturaController.pagosFacturaAnterior}"
+                                     emptyMessage="NO HAY PAGOS REGISTRADOS" style="text-align: center;width: 750px; "  
+                                     scrollable="true" scrollHeight="100" >  
+
+                        <f:facet name="header">HISTORIAL DE PAGOS</f:facet>
+
+                        <p:column   headerText="RECIBO" >  
+                            <h:outputText value="#{pago.recibo}" />
+                        </p:column>
+                        <p:column   headerText="FECHA PAGO" >  
+                            <h:outputText value="#{funciones.setFechaFormateada(pago.fechaPago,1)}" />
+                        </p:column> 
+
+                        <p:column headerText="VENDEDOR">
+                            <h:outputText value="#{pago.responsableCobro.nombreEmpleado}"/>
+                        </p:column>
+
+                        <p:column headerText="ABONO">
+                            <h:outputText value="#{funciones.redondearMas(pago.abono,2)}"/>
+                        </p:column>
+
+                        <p:column headerText="DESCUENTO">
+                            <h:outputText value="#{funciones.redondearMas(pago.descuento,2)}"/>
+                        </p:column>
+
+                        <p:column headerText="TOTAL PAGO">
+                            <h:outputText value="#{funciones.redondearMas(pago.totalPago,2)}"/>
+                        </p:column>
+
+                        <p:columnGroup type="footer">
+                            <p:row>
+                                <p:column rendered="false" />
+                                <p:column rendered="false" />
+                                <p:column rendered="false" />
+                                <p:column rendered="false" />
+                                <p:column rendered="false" />
+                            </p:row>
+                            <p:row>  
+                                <p:column colspan="4" footerText="TOTAL PAGADO: " style="text-align:right"/>  
+                                <p:column footerText="#{facturaController.totalPagos}" />   
+                            </p:row> 
+                            <p:row>  
+                                <p:column colspan="4" footerText="SALDO ACTUAL: " style="text-align:right"/>  
+                                <p:column footerText="#{facturaController.facturaAnterior.saldo}" />   
+                            </p:row> 
+                        </p:columnGroup>  
+                    </p:dataTable>
+                
+                <p:commandButton value="LIMPIAR HISTORIAL" actionListener="#{facturaController.limpiarPagos()}"  update="dtPagos,:frmFacturaAnterior:saldo"  />
+            </h:form>
+        </p:dialog>
+        
+        
+        
+        
+        <p:dialog widgetVar="nuevoPago" modal="true" resizable="false" appendTo="@(body)" header="REGISTRAR PAGO" >
+            <h:form id="frmNuevoPago">
+                <p:panelGrid columns="2">
+                    <p:outputLabel value="RECIBO:"/>
+                    <p:inputText value="#{facturaController.newItem.recibo}" maxlength="10" required="true" requiredMessage="NUMERO DE RECIBO REQUERIDO" />
+                    <p:outputLabel value="FECHA PAGO:"/>
+                    <p:calendar value="#{facturaController.newItem.fechaPago}" navigator="true" mode="popup" showOn="button" readonlyInput="true" effect="slideDown" pattern="dd/MM/yyyy" required="true" requiredMessage="FECHA PAGO REQUERIDO" />
+                    <p:outputLabel value="VENDEDOR:"/>
+                    <p:selectOneMenu value="#{facturaController.newItem.responsableCobro}" required="true" requiredMessage="VENDEDOR RESPONSABLE DE COBRO REQUERIDO" 
+                                     filter="true" filterMatchMode="contains" >
+                        <f:selectItem itemLabel="Seleccione Vendedor"  noSelectionOption="true" />
+                        <f:selectItems value="#{empleadoController.vendedores}"
+                                       var="vendedor"
+                                       itemValue="#{vendedor}"
+                                       itemLabel="#{vendedor.nombreEmpleado} #{vendedor.apellidoEmpleado}"
+                                        />
+                        <f:converter binding="#{empleadoConverter}"/> 
+                    </p:selectOneMenu>
+                    <p:outputLabel value="TIPO PAGO :"/>
+                    <p:selectOneMenu value="#{facturaController.newItem.tipoPago}" required="true" requiredMessage="TIPO DE PAGO REQUERIDO"  >
+                        <f:selectItem itemLabel="EFECTIVO" itemValue="EFECTIVO" /> 
+                        <f:selectItem  itemLabel="CHEQUE" itemValue="CHEQUE" />
+                        <f:selectItem  itemLabel="REMESA" itemValue="REMESA" />
+                    </p:selectOneMenu>
+                    <p:outputLabel value="ABONO:" />
+                    <p:inputText value="#{facturaController.newItem.abono}" required="true" requiredMessage="MONTO PAGO REQUERIDO"/>
+                    <p:outputLabel value="DESCUENTO:" />
+                    <p:inputText value="#{facturaController.newItem.descuento}" required="true" requiredMessage="DESCUENTO REQUERIDO"/>
+                    <p:outputLabel value="OBSERVACIONES:"/>
+                    <p:inputTextarea value="#{facturaController.newItem.nota}" cols="30" rows="4"/>
+                </p:panelGrid>
+                
+                <br/><br/>    
+                <p:commandButton value="REGISTRAR PAGO" actionListener="#{facturaController.registrarPagoAnterior()}"  icon="ui-icon-check" type="submit" update=":gwFacturas, :frmNuevoPago ,:frmPagosFacturaAnterior, :frmFacturaAnterior:saldo"/>
+            </h:form>
+         </p:dialog>
+
+    </ui:composition>
+
+</html>

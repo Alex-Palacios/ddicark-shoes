@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/resources/plantillas/plantillaPrincipal.xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+    <ui:define name="title">
+        <h:outputText value="Admon. de Cuentas"/>
+    </ui:define>
+
+    <ui:define name="body">
+        
+        <c:choose>
+        <!-- VERIFICA QUE TENGA PERMISOS -->
+        <c:when test="${empleadoController.verificarPermiso('CONTROL GENERAL', 'CONTROL GENERAL')}" >
+
+        <p:panel  header="A D M I N I S T R A C I O N &nbsp;&nbsp;D E &nbsp;&nbsp;C U E N T A S &nbsp;&nbsp;D E &nbsp;&nbsp;U S U A R I O S" style="height:99.3%; width: 99.5%;" >
+            <p:growl id="gwUsuarios"/>
+            
+             
+            <h:form id="frmUsuarios">
+                
+                <p:commandButton value="CREAR NUEVO USUARIO" actionListener="#{empleadoController.prepararCrear()}" process="@form" oncomplete="crearUsuarioDialog.show()" update=":frmCrearUsuario" style="width: 100px;" />
+                <br/><br/>
+                
+                <!--VER TODOS LOS USUARIOS DEL SISTEMA -->
+                <p:dataTable id="dtUsuarios" var="usuario" value="#{empleadoController.usuarios}"
+                             selection="#{empleadoController.cuenta}" selectionMode="single" rowKey="#{usuario.codempleado}"
+                             emptyMessage="NO HAY USUARIOS REGISTRADOS" style="font-size: 5px; ">
+
+                        <p:column width="5%">  
+                            <div align="center">
+                                <p:commandButton actionListener="#{empleadoController.prepararEditar()}" oncomplete="editarInfoDialog.show()"  icon="ui-icon-pencil" title="Editar Info" style="height: 15px; width:15px;" update=":frmEditarInfo,:frmUsuarios">
+                                    <f:setPropertyActionListener value="#{usuario}" target="#{empleadoController.cuenta}"/>
+                                </p:commandButton>
+                            </div>
+                        </p:column>
+                    
+                        <p:column width="5%">  
+                            <div align="center">
+                                <p:commandButton oncomplete="cfdResetPassword.show()"  icon="ui-icon-key" title="Resetear Password" style="height: 15px; width:15px;" update=":frmResetPassword,:frmUsuarios">
+                                    <f:setPropertyActionListener value="#{usuario}" target="#{empleadoController.cuenta}"/>
+                                </p:commandButton>
+                            </div>
+                        </p:column>
+                    
+                        <p:column width="5%">  
+                            <div align="center">
+                                <p:commandButton oncomplete="cfdResetPermisos.show()"  icon="ui-icon-locked" title="Resetear Permisos" style="height: 15px; width:15px;" update=":frmResetPermisos,:frmUsuarios">
+                                    <f:setPropertyActionListener value="#{usuario}" target="#{empleadoController.cuenta}"/>
+                                </p:commandButton>
+                            </div>
+                        </p:column>
+                    
+                        <p:column headerText="CODIGO EMPLEADO">  
+                            <h:outputText value="#{usuario.codempleado}" />  
+                        </p:column> 
+
+                        <p:column headerText="NOMBRE EMPLEADO">  
+                            <h:outputText value="#{usuario.nombreEmpleado} #{usuario.apellidoEmpleado}" />  
+                        </p:column> 
+
+                        <p:column headerText="DUI EMPLEADO">  
+                            <h:outputText value="#{usuario.duiEmpleado}" />  
+                        </p:column> 
+                    
+                        <p:column headerText="NIT EMPLEADO">  
+                            <h:outputText value="#{usuario.nitEmpleado}" />  
+                        </p:column> 
+                    
+                        <p:column headerText="TEL EMPLEADO">  
+                            <h:outputText value="#{usuario.telEmpleado}" />  
+                        </p:column> 
+                    
+                        <p:column headerText="FECHA NACIMIENTO">  
+                            <h:outputText value="#{funciones.setFechaFormateada(usuario.fechanacEmpleado,2)}" />  
+                        </p:column> 
+                    
+                        <p:column headerText="PUESTO DE TRABAJO">  
+                            <h:outputText value="#{usuario.puestoEmpleado}" />  
+                        </p:column> 
+                    
+                        <p:column headerText="USERNAME">  
+                            <h:outputText value="#{usuario.username}" />  
+                        </p:column> 
+                    
+                        <p:column headerText="ESTADO CUENTA">  
+                            <h:outputText value="#{usuario.activo?'ACTIVA':'INACTIVA'}" styleClass="#{usuario.activo?'color-activa':'color-cancelada'}" />  
+                        </p:column>
+                    
+                        <p:column width="5%">  
+                            <div align="center">
+                                <p:commandButton oncomplete="activarDesactivarDialog.show()"  icon="ui-icon-power" title="Activar/Desactivar" style="height: 15px; width:15px;" update=":frmUsuarios,:frmActivarDesactivar">
+                                    <f:setPropertyActionListener value="#{usuario}" target="#{empleadoController.cuenta}"/>
+                                </p:commandButton>
+                            </div>
+                        </p:column>
+
+                </p:dataTable> 
+                     
+            </h:form>
+            
+       </p:panel>
+       
+        
+        
+         <!-- ACTIVAR/DESACTIVAR USUARIO-->
+        <p:dialog id="dlgActivarDesactivar" widgetVar="activarDesactivarDialog" modal="true" resizable="false" appendTo="@(body)" header="ACTIVAR/DESACTIVAR CUENTA DE USUARIO"  >
+            <h:form id="frmActivarDesactivar">
+                <h:panelGrid columns="2">
+                    <p:outputLabel value="CODIGO:" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{empleadoController.cuenta.codempleado}" />
+                    <p:outputLabel value="EMPLEADO:" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{empleadoController.cuenta.nombreEmpleado} #{empleadoController.cuenta.apellidoEmpleado}" />
+                    <p:outputLabel value="NOMBRE DE USUARIO:" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{empleadoController.cuenta.username}" />
+                    <p:outputLabel value="ESTADO ACTUAL:" style="font-weight: bold;" styleClass="#{empleadoController.cuenta.activo?'color-activa':'color-cancelada'}"/>
+                    <p:outputLabel value="#{empleadoController.cuenta.activo?'ACTIVO':'INACTIVO'}" styleClass="#{empleadoController.cuenta.activo?'color-activa':'color-cancelada'}"/>
+                </h:panelGrid>
+                <br/>
+                <p:commandButton value="ACTIVAR / DESACTIVAR" actionListener="#{empleadoController.activarDesactivarUsuario()}" oncomplete="activarDesactivarDialog.hide()" update=":gwUsuarios,:frmUsuarios" />
+                <p:commandButton value="CANCELAR" oncomplete="activarDesactivarDialog.hide()" style="float: right" />
+                
+            </h:form>
+         </p:dialog>
+       
+         
+         
+         <!-- EDITAR INFORMACION EMPLEADO-->
+        <p:dialog id="dlgEditarInfo" widgetVar="editarInfoDialog" modal="true" resizable="false" appendTo="@(body)" header="EDITAR INFORMACION DE DE USUARIO"  >
+            <h:form id="frmEditarInfo">
+                <h:panelGrid columns="2">
+                    <p:outputLabel value="CODIGO:" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{empleadoController.cuenta.codempleado}" />
+                    <p:outputLabel value="NOMBRE:" style="font-weight: bold;"/>
+                    <p:inputText   value="#{empleadoController.cuenta.nombreEmpleado}" required="true" requiredMessage="INGRESE NOMBRE DEL EMPLEADO"/>
+                    <p:outputLabel value="APELLIDO:" style="font-weight: bold;"/>
+                    <p:inputText   value="#{empleadoController.cuenta.apellidoEmpleado}" required="true" requiredMessage="INGRESE NOMBRE DEL EMPLEADO"/>
+                    <p:outputLabel value="DUI:" style="font-weight: bold;"/>
+                    <p:inputMask  mask="99999999-9" value="#{empleadoController.cuenta.duiEmpleado}" />
+                    <p:outputLabel value="NIT:" style="font-weight: bold;"/>
+                    <p:inputMask  mask="9999-999999-999-9"  value="#{empleadoController.cuenta.nitEmpleado}" />
+                    <p:outputLabel value="TEL:" style="font-weight: bold;"/>
+                    <p:inputMask  mask="99999999-9" value="#{empleadoController.cuenta.telEmpleado}" />
+                    <p:outputLabel value="FECHA DE NACIMIENTO:" style="font-weight: bold;"/>
+                    <p:calendar value="#{empleadoController.cuenta.fechanacEmpleado}" navigator="true"  mode="popup" showOn="button" readonlyInput="true" effect="slideDown" pattern="dd/MM/yyyy"/>
+                    <p:outputLabel value="PUESTO:" style="font-weight: bold;"/>
+                    <p:selectOneMenu value="#{empleadoController.cuenta.puestoEmpleado}" >
+                        <f:selectItem itemLabel="VENDEDOR" itemValue="VENDEDOR" /> 
+                        <f:selectItem  itemLabel="BODEGA" itemValue="BODEGA" />
+                        <f:selectItem  itemLabel="CONTADOR" itemValue="CONTADOR" />
+                        <f:selectItem  itemLabel="GERENTE" itemValue="GERENTE" />
+                    </p:selectOneMenu>
+                    <p:outputLabel value="SERIE RECIBOS:" style="font-weight: bold;"/>
+                    <p:selectOneMenu value="#{empleadoController.cuenta.serieRECIBO}" >
+                        <f:selectItem itemLabel="NINGUNO" itemValue="#{null}" /> 
+                        <f:selectItem  itemLabel="A" itemValue="A" />
+                        <f:selectItem  itemLabel="B" itemValue="B" />
+                        <f:selectItem  itemLabel="C" itemValue="C" />
+                    </p:selectOneMenu>
+                    
+                    <p:outputLabel value="USERNAME:" style="font-weight: bold;color: blue"/>
+                    <p:outputLabel value="#{empleadoController.cuenta.username}" style="font-weight: bold;color: blue"/>
+                    <p:outputLabel value="ESTADO:" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{empleadoController.cuenta.activo?'ACTIVO':'INACTIVO'}" style="font-weight: bold;color: red"/>
+                </h:panelGrid>
+                <br/>
+                <p:commandButton value="GUARDAR CAMBIOS" actionListener="#{empleadoController.editarDatosEmpleado()}" oncomplete="handleSubmit(xhr, status, args, editarInfoDialog)" update=":gwUsuarios,:frmUsuarios,:frmEditarInfo" />
+                <p:commandButton value="CANCELAR" oncomplete="editarInfoDialog.hide()" style="float: right" />
+                
+            </h:form>
+         </p:dialog>
+         
+         
+         
+         
+         
+         
+          <!-- CREAR NUEVO USUARIO-->
+        <p:dialog id="dlgCrearUsuario" widgetVar="crearUsuarioDialog" modal="true" resizable="false" appendTo="@(body)" header="CREAR NUEVO USUARIO"  >
+            <h:form id="frmCrearUsuario">
+                <h:panelGrid columns="2">
+                    <p:outputLabel value="CODIGO:" style="font-weight: bold;"/>
+                    <p:inputText value="#{empleadoController.cuenta.codempleado}" maxlength="5" required="true" requiredMessage="CODIGO EMPLEADO REQUERIDO" />
+                    <p:outputLabel value="NOMBRE:" style="font-weight: bold;"/>
+                    <p:inputText   value="#{empleadoController.cuenta.nombreEmpleado}" required="true" requiredMessage="INGRESE NOMBRE DEL EMPLEADO"/>
+                    <p:outputLabel value="APELLIDO:" style="font-weight: bold;"/>
+                    <p:inputText   value="#{empleadoController.cuenta.apellidoEmpleado}" required="true" requiredMessage="INGRESE NOMBRE DEL EMPLEADO"/>
+                    <p:outputLabel value="DUI:" style="font-weight: bold;"/>
+                    <p:inputMask  mask="99999999-9" value="#{empleadoController.cuenta.duiEmpleado}" />
+                    <p:outputLabel value="NIT:" style="font-weight: bold;"/>
+                    <p:inputMask  mask="9999-999999-999-9"  value="#{empleadoController.cuenta.nitEmpleado}" />
+                    <p:outputLabel value="TEL:" style="font-weight: bold;"/>
+                    <p:inputMask  mask="99999999-9" value="#{empleadoController.cuenta.telEmpleado}" />
+                    <p:outputLabel value="FECHA DE NACIMIENTO:" style="font-weight: bold;"/>
+                    <p:calendar value="#{empleadoController.cuenta.fechanacEmpleado}" navigator="true"  mode="popup" showOn="button" readonlyInput="true" effect="slideDown" pattern="dd/MM/yyyy"/>
+                    <p:outputLabel value="PUESTO:" style="font-weight: bold;"/>
+                    <p:selectOneMenu value="#{empleadoController.cuenta.puestoEmpleado}" >
+                        <f:selectItem itemLabel="VENDEDOR" itemValue="VENDEDOR" /> 
+                        <f:selectItem  itemLabel="BODEGA" itemValue="BODEGA" />
+                        <f:selectItem  itemLabel="CONTADOR" itemValue="CONTADOR" />
+                        <f:selectItem  itemLabel="GERENTE" itemValue="GERENTE" />
+                    </p:selectOneMenu>
+                    
+                </h:panelGrid>
+                <br/>
+                <p:commandButton value="CREAR USUARIO" actionListener="#{empleadoController.crearUsuario()}" oncomplete="handleSubmit(xhr, status, args, crearUsuarioDialog)" process="@form" update=":gwUsuarios,:frmUsuarios,:frmCrearUsuario" />
+                <p:commandButton value="CANCELAR" oncomplete="crearUsuarioDialog.hide()" style="float: right" />
+                
+            </h:form>
+         </p:dialog>
+          
+          
+           
+        <!-- RESETEAR PASSWORD -->
+        <p:confirmDialog message="¿SEGURO QUE DESEA RESETEAR LA CONTRASEÑA DE ACCESO AL SIGUIENTE USUARIO:" appendTo="@(body)" header="RECUPERACION DE CONTRASEÑA" severity="info"  widgetVar="cfdResetPassword">
+            <h:form id="frmResetPassword">
+                <h:panelGrid columns="2">
+                    <p:outputLabel value="NOMBRE EMPLEADO :" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{empleadoController.cuenta.nombreEmpleado} #{empleadoController.cuenta.apellidoEmpleado}"/>
+                    <p:outputLabel value="USERNAME :" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{empleadoController.cuenta.username}"/>
+                    <p:outputLabel value="PUESTO :" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{empleadoController.cuenta.puestoEmpleado}"/>
+                </h:panelGrid>
+                <br/>
+                <p:outputLabel value="LOS CAMBIOS SE APLICARAN CUANDO EL USUARIO VUELVA A INICIAR SESION" style="color: red"/>
+                <br/><br/>
+                <p:commandButton value="RESETEAR CONTRASE&Ntilde;A" actionListener="#{empleadoController.recuperarPassword()}" oncomplete="cfdResetPassword.hide();"  update=":gwUsuarios,:frmUsuarios"/>
+                <p:commandButton value="CANCELAR " onclick="cfdResetPassword.hide();" type="button" style="float: right" />
+            </h:form>
+        </p:confirmDialog>  
+          
+          
+        <!-- RESETEAR PASSWORD -->
+        <p:confirmDialog message="¿SEGURO QUE DESEA RESETEAR LOS PERMISOS DE USUARIO SEGUN SU PUESTO?" appendTo="@(body)" header="RESETEAR PERMISOS" severity="info"  widgetVar="cfdResetPermisos">
+            <h:form id="frmResetPermisos">
+                <h:panelGrid columns="2">
+                    <p:outputLabel value="NOMBRE EMPLEADO :" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{empleadoController.cuenta.nombreEmpleado} #{empleadoController.cuenta.apellidoEmpleado}"/>
+                    <p:outputLabel value="USERNAME :" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{empleadoController.cuenta.username}"/>
+                    <p:outputLabel value="PUESTO :" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{empleadoController.cuenta.puestoEmpleado}"/>
+                </h:panelGrid>
+                <br/>
+                <p:outputLabel value="LOS CAMBIOS SE APLICARAN CUANDO EL USUARIO VUELVA A INICIAR SESION" style="color: red"/>
+                <br/><br/>
+                <p:commandButton value="RESETEAR PERMISOS" actionListener="#{empleadoController.asignarPermisosPorDefecto(empleadoController.cuenta)}" oncomplete="cfdResetPermisos.hide();"  update=":gwUsuarios,:frmUsuarios"/>
+                <p:commandButton value="CANCELAR " onclick="cfdResetPassword.hide();" type="button" style="float: right" />
+            </h:form>
+        </p:confirmDialog>  
+         
+        
+        
+        
+        
+          
+        
+        </c:when>
+            
+            
+            <!-- SI NO TIENE LOS PERMISOS DA MSJ DE ERROR -->
+            <c:otherwise>
+                   <h:form>
+                        <div style="min-height: 300px; text-align: center; margin-top: 100px;">
+                            <p:outputLabel value="ACCESO DENEGADO" style="font-size: 30px;font-weight: bold;color:red"/>
+                            <br/><br/>
+                            <h:graphicImage url="/faces/resources/imagenes/locked.png" alt="ZONA RESTRINGIDA" width="200" />
+                            <br/><br/>
+                            <p:outputLabel value="NO TIENE PERMISO PARA VER ESTA PAGINA" style="font-size: 20px;font-weight: bold;color:red"/>
+                            <br/>
+                            <p:outputLabel value="CONSULTE CON EL ADMINISTRADOR DEL SISTEMA" style="font-size: 20px;font-weight: bold;"/>
+                        </div>
+                    </h:form>
+             </c:otherwise>
+        </c:choose>
+        
+        
+        
+        
+        
+    </ui:define>
+    
+
+</ui:composition>

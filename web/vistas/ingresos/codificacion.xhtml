@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <ui:composition>
+        
+        <p:dialog widgetVar="leerCodigoUnitario" modal="true" resizable="false" appendTo="@(body)" header="INGRESAR PRODUCTO UNITARIO"  >
+                
+                <h:form id="frmCodigoUnitario">
+                    <h:panelGroup  >
+                        <p:dataTable id="dtPreIngresoUnitario" var="unidad"   value="#{ingresoController.preingresos}"
+                                     emptyMessage="NO HAY PRODUCTOS A INGRESAR" paginator="true" >  
+
+                                    <f:facet name="header">L I S T A D O &nbsp;&nbsp; D E &nbsp;&nbsp; P R E I N G R E S O</f:facet>
+
+                                    <p:column headerText="TIPO" width="10" > 
+                                        #{funciones.tipoLabel(unidad.estilo.productoPK.tipoProducto)}
+                                   </p:column>
+                                   
+                                    <p:column headerText="ESTILO" filterBy="#{unidad.estilo.productoPK.codestilo}" filterStyle="width: 65px;" width="65" > 
+                                        #{unidad.estilo.productoPK.codestilo}
+                                   </p:column>
+                                    
+                                    <p:column headerText="COLOR" filterBy="#{unidad.colorPreingreso}" filterStyle="width: 125px;" width="150" > 
+                                        #{unidad.colorPreingreso}
+                                   </p:column> 
+                                            
+                                   <p:column headerText="TALLA"  width="130" > 
+                                        #{unidad.tallaPreingreso}
+                                   </p:column>
+                                        
+                                    
+                                   
+                                   <p:column width="5%">  
+                                        <div align="center">
+                                            <p:commandButton  icon="ui-icon-check" title="CODIFICAR" style="height: 15px; width:15px;"  />
+                                        </div>
+                                   </p:column>
+                                   
+                            </p:dataTable>
+                    </h:panelGroup>
+                </h:form>
+
+            </p:dialog>
+        
+        
+        
+        <!-- PARA VER Y REVISAR PRODUCTOS A INGRESAR -->
+            <p:dialog id="dlgCodigos" widgetVar="codigosDialog" modal="true" resizable="false" appendTo="@(body)" header="INGRESAR PRODUCTO UNITARIO"  >
+                
+                <h:form id="frmCodigos">
+                    <p:growl id="gwCodigos" />
+                    <h:panelGroup id="displayCodigos" >
+                        <p:panelGrid columns="2" styleClass="noBorderPanelGrid" >
+                            
+                            <p:outputLabel value="UNIDADES A INGRESAR"/>
+                            <p:outputLabel value="#{ingresoController.numUnitario}"/>
+                            
+                            <p:outputLabel value="UBICACION DE LOS PRODUCTOS:" />
+                            <p:inputText value="#{ingresoController.ubicacionUnidad}" required="true" requiredMessage="Se requiere ubicacion en bodega de la unidad" />
+                            
+                        </p:panelGrid>
+                        <br/>
+                        <p:commandButton value="INGRESAR AL INVENTARIO" actionListener="#{ingresoController.ingresarUnitario()}" oncomplete="codigosDialog.hide();" update=":gwIngreso,:frmCodigos,:frmIngreso:dtPreIngreso,:frmIngreso:dtInventario"  />
+                        <p:commandButton value="CANCELAR" onclick="codigosDialog.hide();" style="float: right"/>
+                    </h:panelGroup>
+                </h:form>
+
+            </p:dialog>
+            
+        
+        <!-- PARA CREAR LEER CODIGO CAJA -->
+        <p:dialog id="dlgLeerCajaCodigo" widgetVar="leerCajaCodigoDialog" modal="true" resizable="false" appendTo="@(body)" header="LECTURA DEL CODIGO DE BARRA DE LA CAJA"  >
+
+            <h:form id="frmLeerCajaCodigo">
+                <h:panelGroup id="displayLeerCajaCodigo" >
+                    
+                   <h:panelGrid columns="2" style="text-align: right;" >
+                       <p:outputLabel value="ESTILO: " style="font-weight: bold;"/>
+                       <p:outputLabel value="#{ingresoController.estilo.productoPK.codestilo}" style="font-weight: bold;color: blue"/>
+                       <p:outputLabel value="UNIDADES: " style="font-weight: bold;"/>
+                       <p:outputLabel value="#{ingresoController.unidadesCaja}" style="font-weight: bold;"/>
+                       <p:outputLabel value="COSTO UNITARIO $" style="font-weight: bold;"/>
+                       <p:outputLabel value="#{ingresoController.costoUnidad}" style="font-weight: bold;"/>
+                       <p:outputLabel value="COSTO CAJA $" style="font-weight: bold;"/>
+                       <p:outputLabel value="#{ingresoController.costoCaja}" style="font-weight: bold;"/>  
+                   </h:panelGrid> 
+                   <br/><br/>
+                   <p:outputLabel value="DETALLE CURVA DE LA CAJA" />
+                    <p:panelGrid id="pnlCurvaColores" styleClass="prueba" >
+                            <f:facet name="header">
+                                <p:row>
+                                    <p:column rowspan="2" style="width: 175px;">C O L O R</p:column>
+                                    <p:column colspan="10">T A L L A S</p:column>
+                                </p:row>
+                                <p:row>
+                                    <p:column rendered="#{ingresoController.numTallas > 0}" >#{ingresoController.tallas[0]}</p:column>
+                                    <p:column rendered="#{ingresoController.numTallas > 1}" >#{ingresoController.tallas[1]}</p:column>
+                                    <p:column rendered="#{ingresoController.numTallas > 2}" >#{ingresoController.tallas[2]}</p:column>
+                                    <p:column rendered="#{ingresoController.numTallas > 3}" >#{ingresoController.tallas[3]}</p:column>
+                                    <p:column rendered="#{ingresoController.numTallas > 4}" >#{ingresoController.tallas[4]}</p:column>
+                                    <p:column rendered="#{ingresoController.numTallas > 5}" >#{ingresoController.tallas[5]}</p:column>
+                                    <p:column rendered="#{ingresoController.numTallas > 6}" >#{ingresoController.tallas[6]}</p:column>
+                                    <p:column rendered="#{ingresoController.numTallas > 7}" >#{ingresoController.tallas[7]}</p:column>
+                                    <p:column rendered="#{ingresoController.numTallas > 8}" >#{ingresoController.tallas[8]}</p:column>
+                                    <p:column rendered="#{ingresoController.numTallas > 9}" >#{ingresoController.tallas[9]}</p:column>
+                                </p:row>
+                            </f:facet>
+                        
+                            <p:row>
+                                <p:column style="text-align: center"><p:outputLabel value="#{ingresoController.curva[0].color}"/></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 0}" style="text-align: center" ><p:outputLabel value="#{ingresoController.curva[0].t1}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 1}" style="text-align: center" ><p:outputLabel value="#{ingresoController.curva[0].t2}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[0].t3}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[0].t4}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[0].t5}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[0].t6}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[0].t7}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[0].t8}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[0].t9}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[0].t10}" /></p:column>
+                            </p:row>
+                        
+                            <p:row rendered="#{ingresoController.numColores > 1}">
+                                <p:column style="text-align: center"><p:outputLabel value="#{ingresoController.curva[1].color}" style="text-align: center" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 0}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[1].t1}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 1}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[1].t2}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[1].t3}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[1].t4}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[1].t5}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[1].t6}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[1].t7}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[1].t8}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[1].t9}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[1].t10}" /></p:column>
+                            </p:row>
+                            
+                            <p:row rendered="#{ingresoController.numColores > 2}">
+                                <p:column style="text-align: center"><p:outputLabel value="#{ingresoController.curva[2].color}" style="text-align: center" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 0}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[2].t1}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 1}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[2].t2}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[2].t3}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[2].t4}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[2].t5}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[2].t6}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[2].t7}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[2].t8}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[2].t9}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[2].t10}" /></p:column>
+                            </p:row>
+                            
+                            <p:row rendered="#{ingresoController.numColores > 3}">
+                                <p:column style="text-align: center"><p:outputLabel value="#{ingresoController.curva[3].color}" style="text-align: center" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 0}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[3].t1}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 1}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[3].t2}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[3].t3}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[3].t4}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[3].t5}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[3].t6}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[3].t7}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[3].t8}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[3].t9}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[3].t10}" /></p:column>
+                            </p:row>
+                            
+                            <p:row rendered="#{ingresoController.numColores > 4}">
+                                <p:column style="text-align: center"><p:outputLabel value="#{ingresoController.curva[4].color}" style="text-align: center" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 0}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[4].t1}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 1}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[4].t2}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[4].t3}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[4].t4}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[4].t5}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[4].t6}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[4].t7}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[4].t8}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[4].t9}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[4].t10}" /></p:column>
+                            </p:row>
+                            
+                            <p:row rendered="#{ingresoController.numColores > 5}">
+                                <p:column style="text-align: center"><p:outputLabel value="#{ingresoController.curva[5].color}" style="text-align: center" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 0}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[5].t1}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 1}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[5].t2}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[5].t3}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[5].t4}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[5].t5}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[5].t6}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[5].t7}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[5].t8}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[5].t9}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[5].t10}" /></p:column>
+                            </p:row>
+                    </p:panelGrid>
+                   <br/><br/>
+                   <h:panelGrid columns="3">
+                        
+                        
+                        <p:outputLabel value="Codigo Caja:" />
+                        <p:inputText id="codigoBarraCaja" value="#{ingresoController.codigoBarraLectura}" maxlength="20"  required="true" requiredMessage="Ingrese el codigo de barra" widgetVar="codigo"  />
+                        <br/>
+                        <p:outputLabel value="Ubicacion Caja:" />
+                        <p:inputTextarea id="ubicacionCaja" value="#{ingresoController.ubicacionCaja}" cols="20" rows="3" required="true" requiredMessage="Ingrese Ubicacion de la caja"  />
+                        
+                        <p:commandButton actionListener="#{ingresoController.leerCodigoCaja()}" value="&laquo;&laquo; LEER &raquo;&raquo;" update=":gwIngreso,:frmCodigos,:frmLeerCajaCodigo,:frmIngreso:dtPreIngreso,:frmIngreso:dtInventario" oncomplete="codigoBarraCaja(args,leerCajaCodigoDialog,codigosDialog);"  />
+                        
+                   </h:panelGrid>
+                    
+                </h:panelGroup>
+            </h:form>
+
+        </p:dialog>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        <!-- PARA CREAR LEER CODIGO CAJA SELECCIONADA -->
+        <p:dialog id="dlgLeerCajaSeleccionada" widgetVar="leerCajaSeleccionadaDialog" modal="true" resizable="false" appendTo="@(body)" header="LECTURA DEL CODIGO DE BARRA DE LA CAJA"  >
+
+            <h:form id="frmLeerCajaSeleccionada">
+                <h:panelGroup id="displayLeerCajaSeleccionada" >
+                    
+                   <h:panelGrid columns="2" style="text-align: right;" >
+                       <p:outputLabel value="ID TEMP:" />
+                       <p:outputLabel value="#{ingresoController.idCaja}"/>
+                       <p:outputLabel value="ESTILO: " style="font-weight: bold;"/>
+                       <p:outputLabel value="#{ingresoController.estilo.productoPK.codestilo}" style="font-weight: bold;color: blue"/>
+                       <p:outputLabel value="UNIDADES: " style="font-weight: bold;"/>
+                       <p:outputLabel value="#{ingresoController.unidadesCaja}" style="font-weight: bold;"/>
+                       <p:outputLabel value="COSTO UNITARIO $" style="font-weight: bold;"/>
+                       <p:outputLabel value="#{ingresoController.costoUnidad}" style="font-weight: bold;"/>
+                       <p:outputLabel value="COSTO CAJA $" style="font-weight: bold;"/>
+                       <p:outputLabel value="#{ingresoController.costoCaja}" style="font-weight: bold;"/>  
+                   </h:panelGrid> 
+                   <br/><br/>
+                   <p:outputLabel value="DETALLE CURVA DE LA CAJA" />
+                    <p:panelGrid id="pnlCurvaColores" styleClass="prueba" >
+                            <f:facet name="header">
+                                <p:row>
+                                    <p:column rowspan="2" style="width: 175px;">C O L O R</p:column>
+                                    <p:column colspan="10">T A L L A S</p:column>
+                                </p:row>
+                                <p:row>
+                                    <p:column rendered="#{ingresoController.numTallas > 0}" >#{ingresoController.tallas[0]}</p:column>
+                                    <p:column rendered="#{ingresoController.numTallas > 1}" >#{ingresoController.tallas[1]}</p:column>
+                                    <p:column rendered="#{ingresoController.numTallas > 2}" >#{ingresoController.tallas[2]}</p:column>
+                                    <p:column rendered="#{ingresoController.numTallas > 3}" >#{ingresoController.tallas[3]}</p:column>
+                                    <p:column rendered="#{ingresoController.numTallas > 4}" >#{ingresoController.tallas[4]}</p:column>
+                                    <p:column rendered="#{ingresoController.numTallas > 5}" >#{ingresoController.tallas[5]}</p:column>
+                                    <p:column rendered="#{ingresoController.numTallas > 6}" >#{ingresoController.tallas[6]}</p:column>
+                                    <p:column rendered="#{ingresoController.numTallas > 7}" >#{ingresoController.tallas[7]}</p:column>
+                                    <p:column rendered="#{ingresoController.numTallas > 8}" >#{ingresoController.tallas[8]}</p:column>
+                                    <p:column rendered="#{ingresoController.numTallas > 9}" >#{ingresoController.tallas[9]}</p:column>
+                                </p:row>
+                            </f:facet>
+                        
+                            <p:row>
+                                <p:column style="text-align: center"><p:outputLabel value="#{ingresoController.curva[0].color}"/></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 0}" style="text-align: center" ><p:outputLabel value="#{ingresoController.curva[0].t1}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 1}" style="text-align: center" ><p:outputLabel value="#{ingresoController.curva[0].t2}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[0].t3}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[0].t4}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[0].t5}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[0].t6}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[0].t7}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[0].t8}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[0].t9}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[0].t10}" /></p:column>
+                            </p:row>
+                        
+                            <p:row rendered="#{ingresoController.numColores > 1}">
+                                <p:column style="text-align: center"><p:outputLabel value="#{ingresoController.curva[1].color}" style="text-align: center" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 0}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[1].t1}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 1}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[1].t2}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[1].t3}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[1].t4}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[1].t5}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[1].t6}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[1].t7}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[1].t8}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[1].t9}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[1].t10}" /></p:column>
+                            </p:row>
+                            
+                            <p:row rendered="#{ingresoController.numColores > 2}">
+                                <p:column style="text-align: center"><p:outputLabel value="#{ingresoController.curva[2].color}" style="text-align: center" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 0}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[2].t1}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 1}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[2].t2}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[2].t3}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[2].t4}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[2].t5}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[2].t6}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[2].t7}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[2].t8}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[2].t9}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[2].t10}" /></p:column>
+                            </p:row>
+                            
+                            <p:row rendered="#{ingresoController.numColores > 3}">
+                                <p:column style="text-align: center"><p:outputLabel value="#{ingresoController.curva[3].color}" style="text-align: center" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 0}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[3].t1}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 1}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[3].t2}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[3].t3}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[3].t4}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[3].t5}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[3].t6}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[3].t7}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[3].t8}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[3].t9}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[3].t10}" /></p:column>
+                            </p:row>
+                            
+                            <p:row rendered="#{ingresoController.numColores > 4}">
+                                <p:column style="text-align: center"><p:outputLabel value="#{ingresoController.curva[4].color}" style="text-align: center" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 0}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[4].t1}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 1}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[4].t2}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[4].t3}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[4].t4}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[4].t5}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[4].t6}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[4].t7}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[4].t8}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[4].t9}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[4].t10}" /></p:column>
+                            </p:row>
+                            
+                            <p:row rendered="#{ingresoController.numColores > 5}">
+                                <p:column style="text-align: center"><p:outputLabel value="#{ingresoController.curva[5].color}" style="text-align: center" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 0}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[5].t1}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 1}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[5].t2}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[5].t3}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[5].t4}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[5].t5}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[5].t6}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[5].t7}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[5].t8}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[5].t9}" /></p:column>
+                                <p:column rendered="#{ingresoController.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{ingresoController.curva[5].t10}" /></p:column>
+                            </p:row>
+                    </p:panelGrid>
+                   <br/><br/>
+                   <h:panelGrid columns="3">
+                        
+                        
+                        <p:outputLabel value="Codigo Caja:" />
+                        <p:inputText id="codigoBarraCaja" value="#{ingresoController.codigoBarraLectura}" maxlength="20"  required="true" requiredMessage="Ingrese el codigo de barra" widgetVar="codigo"  />
+                        <br/>
+                        <p:outputLabel value="Ubicacion Caja:" />
+                        <p:inputTextarea id="ubicacionCaja" value="#{ingresoController.ubicacionCaja}" cols="20" rows="3" required="true" requiredMessage="Ingrese Ubicacion de la caja"  />
+                        
+                        <p:commandButton value="&laquo;&laquo; LEER &raquo;&raquo;" actionListener="#{ingresoController.leerCodigoCajaSeleccionada()}" update=":gwIngreso,:frmCodigos,:frmLeerCajaSeleccionada,:frmIngreso:dtPreIngreso,:frmIngreso:dtInventario" oncomplete="codigoBarraCaja(args,leerCajaSeleccionadaDialog,codigosDialog);"  />
+                        
+                   </h:panelGrid>
+                    
+                </h:panelGroup>
+            </h:form>
+
+        </p:dialog>
+        
+
+    </ui:composition>
+
+</html>

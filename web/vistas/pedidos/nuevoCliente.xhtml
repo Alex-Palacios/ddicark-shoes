@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+    <ui:composition>
+        
+        <!-- DIALOGO PARA CREAR UN NUEVO CLIENTE -->
+            <p:dialog id="dlgCrearCliente" widgetVar="crearClienteDialog" modal="true" resizable="false" appendTo="@(body)" header="INGRESANDO NUEVO CLIENTE"  >
+                
+                <h:form id="frmCrearCliente">
+                    <p:growl id="gwCrearCliente" />
+                    
+                    
+                    <h:panelGroup id="displayCrearCliente" >
+                        <p:outputLabel value="NATURALEZA CLIENTE:" style="font-weight: bold;"/>
+                        <p:selectOneRadio value="#{clienteController.naturalezaCliente}" style="width: 25px" required="true" requiredMessage="Indique Naturaleza del cliente" >
+                            <f:selectItem itemLabel="PERSONA NATURAL" itemValue="1"/>
+                            <f:selectItem itemLabel="PERSONA JURIDICA" itemValue="2"/>
+                            <p:ajax update="pngDatos" />
+                         </p:selectOneRadio>
+                        <p:panelGrid id="pngDatos" columns="2" styleClass="noBorderPanelGrid" rendered="#{clienteController.selected != null}" >
+                            
+                            
+                            <p:outputLabel value="Nombre Cliente:" rendered="#{clienteController.naturalezaCliente == 1}" />
+                            <p:inputText value="#{clienteController.selected.nombreCliente}" required="true" requiredMessage="Se requiere nombre del CLIENTE" rendered="#{clienteController.naturalezaCliente == 1}" />
+                            <p:outputLabel value="Nombre Negocio:" rendered="#{clienteController.naturalezaCliente == 2}" />
+                            <p:inputText value="#{clienteController.selected.nombreCliente}" required="true" requiredMessage="Se requiere nombre del NEGOCIO" rendered="#{clienteController.naturalezaCliente == 2}" />
+                            <p:outputLabel value="Apellido Cliente:" rendered="#{clienteController.naturalezaCliente == 1}"/>
+                            <p:inputText value="#{clienteController.selected.apellidoCliente}" required="true" requiredMessage="Se requiere apellido del CLIENTE" rendered="#{clienteController.naturalezaCliente == 1}"/>
+                            <p:outputLabel value="Genero:" rendered="#{clienteController.naturalezaCliente == 1}"/>
+                            <p:selectOneMenu value="#{clienteController.selected.generoCliente}" rendered="#{clienteController.naturalezaCliente == 1}">
+                                <f:selectItem itemLabel="MASCULINO" itemValue="M" /> 
+                                <f:selectItem  itemLabel="FEMENINO" itemValue="F" />
+                            </p:selectOneMenu>
+                            <p:outputLabel value="DUI:" rendered="#{clienteController.naturalezaCliente == 1}"/>
+                            <p:inputMask value="#{clienteController.selected.duiCliente}" mask="99999999-9" rendered="#{clienteController.naturalezaCliente == 1}" />
+                            <p:outputLabel value="NIT:" />
+                            <p:inputMask value="#{clienteController.selected.nitCliente}" mask="9999-999999-999-9" required="false" requiredMessage="NIT requerido" />
+                            <p:outputLabel value="NRC:" />
+                            <p:inputText value="#{clienteController.selected.nrcCliente}" />
+                            <p:outputLabel value="Telefono:"/>
+                            <p:inputMask value="#{clienteController.selected.telCliente}" required="false" requiredMessage="Telefono del Cliente requerido" mask="9999-9999" />
+                            
+                            <p:outputLabel value="Depto:"/>
+                            <p:selectOneMenu id="deptos" value="#{clienteController.selected.deptoCliente}" style="width: 130px"  >
+                                <f:selectItem itemLabel="Seleccione Depto" itemValue="x" /> 
+                                <f:selectItems var="depto" value="#{pedidoController.departamentos}"/>
+                                <p:ajax update="municipios" listener="#{pedidoController.actualizarMunicipios(clienteController.selected.deptoCliente)}"/>
+                            </p:selectOneMenu>
+                            <p:outputLabel  value="Municipio:"/>
+                            <p:selectOneMenu id="municipios" value="#{clienteController.selected.municipioCliente}" style="width: 130px"
+                                             panelStyle="width:200px;">
+                                <f:selectItem itemLabel="Seleccione Municipio" itemValue="x" /> 
+                                <f:selectItems value="#{pedidoController.municipios}" />
+                            </p:selectOneMenu>
+                            <p:outputLabel value="Direccion:"/>
+                            <p:inputText value="#{clienteController.selected.direccionCliente}" required="true" requiredMessage="Se requiere Direccion"/>
+                            
+                            <p:outputLabel value="Negocio:" rendered="#{clienteController.naturalezaCliente == 1}"/>
+                            <p:outputLabel value="Contacto:" rendered="#{clienteController.naturalezaCliente == 2}"/>
+                            <p:inputText  value="#{clienteController.selected.comercioContacto}" />
+                            
+                            <p:outputLabel value="Tel Negocio:" rendered="#{clienteController.naturalezaCliente == 1}"/>
+                            <p:outputLabel value="Tel Contacto:" rendered="#{clienteController.naturalezaCliente == 2}"/>
+                            <p:inputMask value="#{clienteController.selected.telComercio}" mask="9999-9999" />
+                            
+                        </p:panelGrid>
+                        <br/>
+                        <p:commandButton actionListener="#{pedidoController.guardarCliente(clienteController.selected , clienteController.naturalezaCliente)}" value="GUARDAR CLIENTE" update=":gwPedido,:frmPedidos:cliente,:frmCrearCliente" oncomplete="handleSubmit(xhr, status, args, crearClienteDialog)"/>
+                        <p:commandButton value="CANCELAR" oncomplete="crearClienteDialog.hide()" process="@this" style="float: right"/>
+                        
+                    </h:panelGroup>
+                </h:form>
+
+            </p:dialog>
+        
+            
+    </ui:composition>
+
+</html>

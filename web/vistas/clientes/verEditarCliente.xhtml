@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+    <ui:composition>
+        
+        <!-- DIALOGO PARA CREAR UN NUEVO CLIENTE -->
+            <p:dialog id="dlgVerCliente" widgetVar="verClienteDialog" modal="true" resizable="false" appendTo="@(body)" header="INFORMACION DEL CLIENTE"  >
+                
+                <h:form id="frmVerCliente">
+                    <p:growl id="gwVerCliente" />
+                    
+                    
+                    <h:panelGroup id="displayVerCliente" >
+                        
+                        <p:panelGrid columns="2" styleClass="noBorderPanelGrid" rendered="#{clienteController.clienteSelec != null}" >
+                            <p:outputLabel value="CUENTA N°:"  style="color: blue;font-weight: bold" />
+                            <p:outputLabel value="#{clienteController.clienteSelec.numcuenta}" style="color: blue;font-weight: bold" />
+                            
+                            <p:outputLabel value="Nombre Cliente:" rendered="#{clienteController.clienteSelec.naturaleza == 'PERSONA NATURAL'}" />
+                            <p:outputLabel value="Nombre Negocio:" rendered="#{clienteController.clienteSelec.naturaleza == 'PERSONA JURIDICA'}" />
+                            <p:inputText value="#{clienteController.clienteEditado.nombreCliente}" required="true" requiredMessage="Se requiere nombre del CLIENTE" rendered="#{clienteController.editarCliente}" />
+                            <p:outputLabel value="#{clienteController.clienteSelec.nombreCliente}" rendered="#{!clienteController.editarCliente}" />
+                            
+                            <p:outputLabel value="Apellido Cliente:" rendered="#{clienteController.clienteSelec.naturaleza == 'PERSONA NATURAL'}"/>
+                            <p:inputText value="#{clienteController.clienteEditado.apellidoCliente}" required="true" requiredMessage="Se requiere apellido del CLIENTE" rendered="#{clienteController.clienteSelec.naturaleza == 'PERSONA NATURAL' and clienteController.editarCliente}"/>
+                            <p:outputLabel value="#{clienteController.clienteSelec.apellidoCliente}" rendered="#{clienteController.clienteSelec.naturaleza == 'PERSONA NATURAL' and !clienteController.editarCliente}" />
+                            
+                            <p:outputLabel value="Genero:" rendered="#{clienteController.clienteSelec.naturaleza == 'PERSONA NATURAL' }"/>
+                            <p:selectOneMenu value="#{clienteController.clienteEditado.generoCliente}" rendered="#{clienteController.clienteSelec.naturaleza == 'PERSONA NATURAL' and clienteController.editarCliente}">
+                                <f:selectItem itemLabel="MASCULINO" itemValue="M" /> 
+                                <f:selectItem  itemLabel="FEMENINO" itemValue="F" />
+                            </p:selectOneMenu>
+                            <p:outputLabel value="#{clienteController.clienteSelec.generoCliente}" rendered="#{clienteController.clienteSelec.naturaleza == 'PERSONA NATURAL' and !clienteController.editarCliente}" />
+                            
+                            <p:outputLabel value="DUI:" rendered="#{clienteController.clienteSelec.naturaleza == 'PERSONA NATURAL' }"/>
+                            <p:inputMask value="#{clienteController.clienteEditado.duiCliente}" mask="99999999-9" rendered="#{clienteController.clienteSelec.naturaleza == 'PERSONA NATURAL' and clienteController.editarCliente}" />
+                            <p:outputLabel value="#{clienteController.clienteSelec.duiCliente}" rendered="#{clienteController.clienteSelec.naturaleza == 'PERSONA NATURAL' and !clienteController.editarCliente}" />
+                            
+                            <p:outputLabel value="NIT:" />
+                            <p:inputMask value="#{clienteController.clienteEditado.nitCliente}" mask="9999-999999-999-9" required="false" requiredMessage="NIT requerido" rendered="#{clienteController.editarCliente}"/>
+                            <p:outputLabel value="#{clienteController.clienteSelec.nitCliente}" rendered="#{!clienteController.editarCliente}" />
+                            
+                            <p:outputLabel value="NRC:"/>
+                            <p:inputText value="#{clienteController.clienteEditado.nrcCliente}" required="false" requiredMessage="NRC requerido" rendered="#{clienteController.editarCliente}"/>
+                            <p:outputLabel value="#{clienteController.clienteSelec.nrcCliente}" rendered="#{!clienteController.editarCliente}" />
+                            
+                            <p:outputLabel value="Telefono:" />
+                            <p:inputMask value="#{clienteController.clienteEditado.telCliente}" required="false" requiredMessage="Telefono del Cliente requerido" mask="9999-9999" rendered="#{clienteController.editarCliente}"/>
+                            <p:outputLabel value="#{clienteController.clienteSelec.telCliente}" rendered="#{!clienteController.editarCliente}" />
+                            
+                            <p:outputLabel value="Depto:"/>
+                            <p:selectOneMenu id="deptos" value="#{clienteController.clienteEditado.deptoCliente}" style="width: 130px" rendered="#{clienteController.editarCliente}" >
+                                <f:selectItem itemLabel="Seleccione Depto" itemValue="x" /> 
+                                <f:selectItems var="depto" value="#{clienteController.departamentos}"/>
+                                <p:ajax update="municipiosAct" listener="#{clienteController.actualizarMunicipios(clienteController.clienteSelec.deptoCliente)}"/>
+                            </p:selectOneMenu>
+                            <p:outputLabel value="#{clienteController.clienteSelec.deptoCliente}" rendered="#{!clienteController.editarCliente}" />
+                            
+                            <p:outputLabel  value="Municipio:" />
+                            <p:selectOneMenu id="municipiosAct" value="#{clienteController.clienteEditado.municipioCliente}" style="width: 130px"
+                                             panelStyle="width:200px;" rendered="#{clienteController.editarCliente}">
+                                <f:selectItem itemLabel="Seleccione Municipio" itemValue="x" /> 
+                                <f:selectItems value="#{clienteController.municipios}" />
+                            </p:selectOneMenu>
+                            <p:outputLabel value="#{clienteController.clienteSelec.municipioCliente}" rendered="#{!clienteController.editarCliente}" />
+                            
+                            <p:outputLabel value="Direccion:" />
+                            <p:inputText value="#{clienteController.clienteEditado.direccionCliente}" required="true" requiredMessage="Se requiere Direccion" rendered="#{clienteController.editarCliente}"/>
+                            <p:outputLabel value="#{clienteController.clienteSelec.direccionCliente}" rendered="#{!clienteController.editarCliente}" />
+                            
+                            <p:outputLabel value="Contacto:" rendered="#{clienteController.clienteSelec.naturaleza == 'PERSONA JURIDICA'}" />
+                            <p:outputLabel value="Negocio:" rendered="#{clienteController.clienteSelec.naturaleza == 'PERSONA NATURAL'}" />
+                            <p:inputText value="#{clienteController.clienteEditado.comercioContacto}" rendered="#{clienteController.editarCliente}" />
+                            <p:outputLabel value="#{clienteController.clienteSelec.comercioContacto}" rendered="#{!clienteController.editarCliente}" />
+                            
+                            <p:outputLabel value="Direccion Negocio:" />
+                            <p:inputText value="#{clienteController.clienteEditado.direccionNegocio}" rendered="#{clienteController.editarCliente}"/>
+                            <p:outputLabel value="#{clienteController.clienteSelec.direccionNegocio}" rendered="#{!clienteController.editarCliente}" />
+                            
+                            <p:outputLabel value="Tel Contacto:" rendered="#{clienteController.clienteSelec.naturaleza == 'PERSONA JURIDICA'}"/>
+                            <p:outputLabel value="Tel Contacto:" rendered="#{clienteController.clienteSelec.naturaleza == 'PERSONA NATURAL'}"/>
+                            <p:inputMask value="#{clienteController.clienteEditado.telComercio}" mask="9999-9999" rendered="#{clienteController.editarCliente}"/>
+                            <p:outputLabel value="#{clienteController.clienteSelec.telComercio}" rendered="#{!clienteController.editarCliente}" />
+                        
+                            <p:outputLabel value="EMPLEADO ASIGNADO:" />
+                            <p:outputLabel value="#{funciones.getNombreEmpleado(clienteController.clienteSelec.empleadoasignado)}" rendered="#{!clienteController.editarCliente}" />
+                            <p:selectOneMenu id="vendedor" value="#{clienteController.nuevoEmpleadoAsignado}" required="false" requiredMessage="Debe escoger un VENDEDOR" rendered="#{clienteController.editarCliente}" style="  width: 150px " styleClass="ui-selectonemenu-label" >
+                                <f:selectItem itemLabel="Selecciona Vendedor" value="#{null}" />
+                                <f:selectItems value="#{empleadoController.vendedores}"
+                                               var="vendedor"
+                                               itemValue="#{vendedor}"
+                                               itemLabel="#{vendedor.codempleado} - #{funciones.getNombreEmpleado(vendedor)}" />
+                                <f:converter binding="#{empleadoConverter}"/>  
+                            </p:selectOneMenu>
+                    
+                            <p:outputLabel value="LIMITE CREDITO:" rendered="#{empleadoController.usuario.puestoEmpleado == 'GERENTE' or empleadoController.usuario.puestoEmpleado == 'SUPERADMIN'}" />
+                            <p:inputText value="#{clienteController.clienteEditado.limite}" rendered="#{clienteController.editarCliente and (empleadoController.usuario.puestoEmpleado == 'GERENTE' or empleadoController.usuario.puestoEmpleado == 'SUPERADMIN')}" />
+                            <p:outputLabel value="#{clienteController.clienteSelec.limite}" rendered="#{!clienteController.editarCliente and (empleadoController.usuario.puestoEmpleado == 'GERENTE' or empleadoController.usuario.puestoEmpleado == 'SUPERADMIN')}" />
+                            
+                            <p:outputLabel value="DIA Y HORA DE VISITA:" />
+                            <p:inputText value="#{clienteController.clienteEditado.diaVisita}" rendered="#{clienteController.editarCliente}"/>
+                            <p:outputLabel value="#{clienteController.clienteSelec.diaVisita}" rendered="#{!clienteController.editarCliente}" />
+                            
+                            <p:outputLabel value="NOTA:" />
+                            <p:inputTextarea value="#{clienteController.clienteEditado.nota}" cols="30" rows="2" rendered="#{clienteController.editarCliente}"/>
+                            <p:outputLabel value="#{clienteController.clienteSelec.nota}" rendered="#{!clienteController.editarCliente}" />
+                            
+                        </p:panelGrid>
+                        <br/>
+                        <p:commandButton value="GUARDAR CAMBIOS" actionListener="#{clienteController.guardarCambiosCliente()}" update=":frmVerCliente,:frmClientes" process="@form"  oncomplete="handleSubmit(xhr, status, args, verClienteDialog)" rendered="#{clienteController.editarCliente}"/>
+                        <p:commandButton value="ACTUALIZAR" actionListener="#{clienteController.cambiarEditar()}" update=":frmVerCliente" process="@form" rendered="#{!clienteController.editarCliente}"/>
+                        &nbsp;&nbsp;&nbsp;
+                        <p:commandButton value="IMPRIMIR FICHA" actionListener="#{clienteController.printDatos()}" oncomplete="printDatosCliente.show();" update=":frmFichaCliente" rendered="#{!clienteController.editarCliente}"/>
+                        
+                        
+                        <p:commandButton value="CANCELAR" actionListener="#{clienteController.cancelarEditar()}" update=":frmVerCliente" process="@this" style="float: right" rendered="#{clienteController.editarCliente}"/>
+                        <p:commandButton value="CERRAR" oncomplete="verClienteDialog.hide()" process="@this" style="float: right" rendered="#{!clienteController.editarCliente}"/>
+                        
+                    </h:panelGroup>
+                </h:form>
+
+            </p:dialog>
+        
+        
+        
+        
+        
+        <!-- CONFIRMAR DESPACHAR VENTA -->
+        <p:confirmDialog  appendTo="@(body)" header="ASIGNAR/REASIGNAR EMPLEADO" severity="info"  widgetVar="cfdAsignarEmpleado">
+            <h:form id="frmAsignarEmpleado">
+                <h:panelGrid columns="2">
+                    <p:outputLabel value="CUENTA N°:"  style="color: blue;font-weight: bold" />
+                    <p:outputLabel value="#{clienteController.clienteSelec.numcuenta}" style="color: blue;font-weight: bold" />
+
+                    <p:outputLabel value="Nombre Cliente:" rendered="#{clienteController.clienteSelec.naturaleza == 'PERSONA NATURAL'}" />
+                    <p:outputLabel value="Nombre Negocio:" rendered="#{clienteController.clienteSelec.naturaleza == 'PERSONA JURIDICA'}" />
+                    <p:outputLabel value="#{clienteController.clienteSelec.nombreCliente}" rendered="#{!clienteController.editarCliente}" />
+
+                    <p:outputLabel value="Apellido Cliente:" rendered="#{clienteController.clienteSelec.naturaleza == 'PERSONA NATURAL'}"/>
+                    <p:outputLabel value="#{clienteController.clienteSelec.apellidoCliente}" rendered="#{clienteController.clienteSelec.naturaleza == 'PERSONA NATURAL' and !clienteController.editarCliente}" />
+
+                    <p:outputLabel value="ASESOR:" />
+                    <p:outputLabel value="#{funciones.getNombreEmpleado(clienteController.clienteSelec.empleadoasignado)}" rendered="#{!clienteController.editarCliente}" />
+                    <p:selectOneMenu id="vendedor" value="#{clienteController.nuevoEmpleadoAsignado}" required="false" requiredMessage="Debe escoger un VENDEDOR" rendered="#{clienteController.editarCliente}" style="  width: 150px " styleClass="ui-selectonemenu-label" >
+                        <f:selectItem itemLabel="Selecciona Vendedor" value="#{null}" />
+                        <f:selectItems value="#{empleadoController.vendedores}"
+                                       var="vendedor"
+                                       itemValue="#{vendedor}"
+                                       itemLabel="#{vendedor.codempleado} - #{funciones.getNombreEmpleado(vendedor)}" />
+                        <f:converter binding="#{empleadoConverter}"/>  
+                    </p:selectOneMenu>
+                </h:panelGrid>
+                <br/><br/>
+                <p:commandButton value="GUARDAR" actionListener="#{clienteController.guardarCambiosCliente()}" update=":frmAsignarEmpleado,:frmClientes" process="@form"  oncomplete="handleSubmit(xhr, status, args, verClienteDialog)" rendered="#{clienteController.editarCliente}"/>
+                <p:commandButton value="REASIGNAR" actionListener="#{clienteController.cambiarEditar()}" update=":frmAsignarEmpleado" process="@form" rendered="#{!clienteController.editarCliente}"/>
+                <p:commandButton value="CANCELAR" actionListener="#{clienteController.cancelarEditar()}" update=":frmAsignarEmpleado" process="@this" style="float: right" rendered="#{clienteController.editarCliente}"/>
+                <p:commandButton value="CERRAR" oncomplete="cfdAsignarEmpleado.hide()" process="@this" style="float: right" rendered="#{!clienteController.editarCliente}"/>
+                        
+            </h:form>
+            
+        </p:confirmDialog>
+        
+        
+        
+        
+        
+        
+        <!-- ESTADO CUENTA -->
+        <p:dialog widgetVar="printDatosCliente" header="FICHA DEL CLIENTE"  appendTo="@(body)" modal="true"   width="60%" height="400"  >
+            <h:form id="frmFichaCliente">
+
+                <object type="application/pdf" data="#{clienteController.pathServletFichaCliente}"  width="100%" height="600">
+
+                </object>
+
+            </h:form>
+        </p:dialog>
+        
+            
+    </ui:composition>
+
+</html>

@@ -1,0 +1,122 @@
+<?xml version='1.0' encoding='UTF-8' ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+    <h:head>
+        <title>
+            LOGIN D'DICARK
+        </title>
+        <h:outputStylesheet library="css" name="estilosGeneral.css"/>
+        <h:outputStylesheet library="css" name="estilosEspecifico.css"/>
+        <h:outputScript library="scripts" name="jquery.blockUI.js"/>
+    </h:head>
+
+    <h:body>
+        <h:graphicImage id="imgLogin" library="imagenes" name="loading.gif" style="width: 150px; height:150px;" />            
+       
+        <c:choose>
+                                  
+            <!-- VERIFICA QUE HAYAN HECHO LOGIN -->
+            <c:when test="${empleadoController.isLogin == false}" >
+        <!-- MENSAJES INSTANTANEOS -->
+                    <p:growl id="gwMsgLogin" life="6000"/>
+
+                    <!-- CONTENEDOR DE TODA LA PAGINA -->
+                    <p:layout fullPage="true" id="contenedorWeb">
+
+                        <!-- CONTENEDOR DEL ENCABEZADO -->
+                        <p:layoutUnit position="north" size="200" header="SISTEMA D&prime;DICARK SHOES S.A de C.V">
+                            <!--AQUI IRA UN BANNER ELEGANTE:) -->
+                            <p:graphicImage url="/faces/resources/imagenes/logoDD.png" styleClass="encabezadoLogo" />
+
+                        </p:layoutUnit>
+
+                        <p:layoutUnit position="west" size="175">
+
+                        </p:layoutUnit>
+
+                        <p:layoutUnit position="east" size="175">
+
+                        </p:layoutUnit>
+
+                        <!-- CONTENEDOR DEL PIE DE PAGINA -->
+                        <p:layoutUnit position="south" size="30">
+                            <div align="center">
+                                <p:outputLabel style="text-align: center"> D'DICARK &copy; Copyright 2013</p:outputLabel>
+                            </div>
+                        </p:layoutUnit>
+
+
+
+                        <!-- CONTENEDOR DEl CUERPO DE LA PAGINA -->
+                        <p:layoutUnit position="center">
+                               <!-- INDICA QUE SE INSERTARA Y DEFINIRA EL CUERPO DE LA PAGINA -->
+                               <ui:insert name="body"/>
+                        </p:layoutUnit>
+
+                    </p:layout> 
+                      
+            </c:when>
+            
+            
+            
+            
+            
+            
+            
+            
+             <!-- SI YA ESTA LOGEADO DA UN MENSAJE -->
+            <c:otherwise>
+                    
+                    <p:layout fullPage="true">
+                            <!-- CONTENEDOR DEL ENCABEZADO -->
+                            <p:layoutUnit position="north" size="200" header="SISTEMA D&prime;DICARK SHOES S.A de C.V">
+                                <!--AQUI IRA UN BANNER ELEGANTE:) -->
+                                <p:graphicImage url="/faces/resources/imagenes/logoDD.png" styleClass="encabezadoLogo" />
+
+                            </p:layoutUnit>
+
+                            <p:layoutUnit position="west" size="175">
+
+                            </p:layoutUnit>
+
+                            <p:layoutUnit position="east" size="175">
+
+                            </p:layoutUnit>
+
+                            <p:layoutUnit position="center">
+                                   <h:form>
+                                       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <div style="min-height: 300px; text-align: center">
+                                            <h:graphicImage url="/faces/resources/imagenes/check.png" alt="YA ESTA LOGEADO" />
+                                            <p style="font-size: 20px;" >
+                                                Usted ya Inicio Sesion ... Para usar el sistema vaya a home o Cierre Sesion
+                                            </p>
+                                            <br/><br/>
+                                            <p:commandButton value="Ir a Home" action="#{funciones.irA('faces/vistas/home.xhtml')}"  />
+                                            &nbsp;&nbsp;&nbsp;&nbsp;
+                                            <p:commandButton value="Cerrar Sesion" actionListener="#{empleadoController.logout}"  />
+                                        </div>
+                                    </h:form>
+                            </p:layoutUnit>
+
+                            <p:layoutUnit position="south" size="60">
+                                 <div align="center">
+                                    <p:outputLabel style="text-align: center"> D'DICARK &copy; Copyright 2013</p:outputLabel>
+                                </div>
+                            </p:layoutUnit>
+
+
+                    </p:layout>
+                                        
+             </c:otherwise>
+        </c:choose>
+        
+    </h:body>
+       
+        
+</html>

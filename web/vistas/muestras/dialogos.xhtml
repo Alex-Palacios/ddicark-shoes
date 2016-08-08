@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+
+    <ui:composition>
+        
+            
+            <!-- DIALOGO QUE BUSCA EL PRODUCTO EN INVENTARIO -->
+            <p:dialog id="dlgNuevaMuestra" widgetVar="nuevaMuestraDialog" modal="true" resizable="false" appendTo="@(body)" header="Ingresando Codigo del Producto">
+                
+                <h:form id="frmNuevaMuestra" >
+                        Ingrese CODIGO del Articulo que dara a muestra
+                        <p:panelGrid id="pnNuevaMuestra" columns="2" styleClass="noBorderPanelGrid">
+                            <p:outputLabel value="Codigo de Producto:" />
+                            <p:inputText value="#{inventarioController.codigoBarra}" maxlength="30" required="true" requiredMessage="No ha indicado el Codigo del Articulo"/>
+                            <p:commandButton value="BUSCAR" actionListener="#{inventarioController.buscarArticulo()}" oncomplete="muestreo(args,nuevaMuestraDialog,articuloDialog,cajaDialog)" update=":gwMuestra,:frmNuevaMuestra,:frmArticulo, :frmCaja" />
+                            <p:commandButton value="CANCELAR" oncomplete="nuevaMuestraDialog.hide();"  />
+                        </p:panelGrid>
+                </h:form>
+
+            </p:dialog>
+            
+            
+            
+            
+            <!-- DIALOGO QUE MUESTRA INFO DEL ARTICULO Y ASIGNA MUESTRA -->
+            <p:dialog id="dlgArticulo" widgetVar="articuloDialog" modal="true" resizable="false" appendTo="@(body)" header="ASIGNAR MUESTRA">
+                
+                <h:form id="frmArticulo" >
+                        <p:panelGrid id="pnlArticulo" columns="2" styleClass="noBorderPanelGrid">
+                            <p:outputLabel value="CODIGO:" style="font-weight: bold;"/>
+                            <p:outputLabel value="#{inventarioController.articulo.codigo}" style="font-weight: bold;color: red"/>
+                            <p:outputLabel value="ESTILO:" style="font-weight: bold;"/>
+                            <p:outputLabel value="#{inventarioController.articulo.producto.productoPK.codestilo}" style="font-weight: bold;color: blue"/>
+                            <p:outputLabel value="MARCA:" style="font-weight: bold;"/>
+                            <p:outputLabel value="#{inventarioController.articulo.marca}"/>
+                            <p:outputLabel value="COLOR:" style="font-weight: bold;"/>
+                            <p:outputLabel value="#{inventarioController.articulo.color}"/>
+                            <p:outputLabel value="TALLA:" style="font-weight: bold;"/>
+                            <p:outputLabel value="#{inventarioController.articulo.talla}"/>
+                            <p:outputLabel value="DAR DE MUESTRA:"  style="font-weight: bold;"/>
+                            <p:selectOneRadio value="#{inventarioController.tipoMuestra}" required="true" requiredMessage="Especifique el tipo de Muestra"  >
+                                <f:selectItem itemLabel="PAR DERECHO" itemValue="1" itemDisabled="#{inventarioController.articulo.responsableMuestraDer != null}"/>
+                               <f:selectItem itemLabel="PAR IZQUIERDO" itemValue="2" itemDisabled="#{inventarioController.articulo.responsableMuestraIzq != null}"/>
+                               <f:selectItem itemLabel="AMBOS" itemValue="3" itemDisabled="#{inventarioController.articulo.responsableMuestraDer != null || inventarioController.articulo.responsableMuestraIzq != null }"/>
+                            </p:selectOneRadio>
+                            <p:outputLabel value="ASIGNAR A :"/>
+                            <p:selectOneMenu id="empleado" value="#{inventarioController.empleadoMuestra}" required="true" requiredMessage="Debe escoger un EMPLEADO" style=" margin-bottom: -7px; width: 150px " styleClass="ui-selectonemenu-label" >
+                                <f:selectItem itemLabel="Selecciona Empleado" value="#{null}" />
+                                <f:selectItems value="#{empleadoController.vendedores}"
+                                               var="empleado"
+                                               itemValue="#{empleado}"
+                                               itemLabel="#{empleado.codempleado} - #{empleado.nombreEmpleado} #{empleado.apellidoEmpleado}" />
+                                <f:converter binding="#{empleadoConverter}"/>  
+                            </p:selectOneMenu>
+                        </p:panelGrid>
+                    <br/><br/>
+                        <div align="center">
+                            <p:commandButton value="ASIGNAR" actionListener="#{inventarioController.asignarMuestra()}" update=":gwMuestra,:frmMuestra,:frmArticulo,:frmCaja" oncomplete="handleSubmit(xhr, status, args, articuloDialog) " />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <p:commandButton value="CANCELAR" oncomplete="articuloDialog.hide();"  />
+                        </div>
+                        
+                </h:form>
+
+            </p:dialog>
+            
+            
+            
+            
+            <!-- DIALOGO QUE MUESTRA INFO DE LA CAJA DONDE SE EXTRAERA EL ARTICULO PARA MUESTRA -->
+            <p:dialog id="dlgCaja" widgetVar="cajaDialog" modal="true" resizable="false" appendTo="@(body)" header="ASIGNAR MUESTRA" width="850">
+                
+                <h:form id="frmCaja" >
+                        ARTICULO DE UNA CAJA
+                        <p:panelGrid id="pnlCaja" columns="2" styleClass="noBorderPanelGrid">
+                            <p:outputLabel value="CODIGO BARRA:" style="font-weight: bold;"/>
+                            <p:outputLabel value="#{inventarioController.cajaMuestra.numcaja}" style="font-weight: bold;color: red"/>
+                            <p:outputLabel value="ESTILO:" style="font-weight: bold;"/>
+                            <p:outputLabel value="#{inventarioController.cajaMuestra.producto.productoPK.codestilo}" style="font-weight: bold;color: blue"/>
+                        
+                        </p:panelGrid>
+                        <p:dataTable id="dtMuestraCaja" var="articulo" value="#{inventarioController.detalleCajaMuestra}" 
+                                     emptyMessage="CAJA VACIA" scrollable="true" scrollHeight="200"  style="text-align: center; " >  
+
+                                <f:facet name="header">DETALLE DE LA CAJA</f:facet>
+
+                                <p:column   headerText="ESTILO" >  
+                                    <h:outputText value="#{articulo.producto.productoPK.codestilo}" />
+                                </p:column>
+
+                                <p:column   headerText="COLOR" >  
+                                    <h:outputText value="#{articulo.color}" />
+                                </p:column>
+
+                                <p:column   headerText="TALLA" >  
+                                    <h:outputText value="#{articulo.talla}" />
+                                </p:column>
+
+                                <p:column   headerText="ESTADO" >  
+                                    <h:outputText value="#{articulo.estadoproducto}" />
+                                </p:column>
+
+                                <p:column   headerText="DERECHO"  >  
+                                    <h:outputText value="#{articulo.responsableMuestraDer.nombreEmpleado}" />
+                                </p:column>
+
+                                <p:column   headerText="IZQUIERDO"  >  
+                                    <h:outputText value="#{articulo.responsableMuestraIzq.nombreEmpleado}" />
+                                </p:column>
+
+                                <p:column width="5%" headerText="ASIGNAR">  
+                                    <p:commandButton oncomplete="articuloDialog.show();" update=":frmArticulo" icon="ui-icon-check" title="Muestra" style="height: 15px; width:15px;">  
+                                        <f:setPropertyActionListener value="#{articulo}" target="#{inventarioController.articulo}"  />  
+                                    </p:commandButton>
+                                </p:column>
+                        </p:dataTable>
+                    <br/><br/>
+                        <div align="center">
+                            <p:commandButton value="CERRAR VENTANA" oncomplete="cajaDialog.hide();"  />
+                        </div>
+                        
+                </h:form>
+
+            </p:dialog>
+            
+            
+            
+            
+             <!-- DIALOGO PARA HACER DEVOLUCION -->
+            <p:dialog id="dlgDevolucionMuestra" widgetVar="devolucionMuestraDialog" modal="true" resizable="false" appendTo="@(body)" header="DEVOLUCION DE MUESTRA">
+                
+                <h:form id="frmDevolucionArticulo" >
+                        <p:panelGrid id="pnlDevolucionArticulo" columns="2" styleClass="noBorderPanelGrid">
+                            <p:outputLabel value="CODIGO:" style="font-weight: bold;"/>
+                            <p:outputLabel value="#{inventarioController.articulo.codigo}" style="font-weight: bold;color: red"/>
+                            <p:outputLabel value="ESTILO:" style="font-weight: bold;"/>
+                            <p:outputLabel value="#{inventarioController.articulo.producto.productoPK.codestilo}" style="font-weight: bold;color: blue"/>
+                            <p:outputLabel value="MARCA:" style="font-weight: bold;"/>
+                            <p:outputLabel value="#{inventarioController.articulo.marca}"/>
+                            <p:outputLabel value="COLOR:" style="font-weight: bold;"/>
+                            <p:outputLabel value="#{inventarioController.articulo.color}"/>
+                            <p:outputLabel value="TALLA:" style="font-weight: bold;"/>
+                            <p:outputLabel value="#{inventarioController.articulo.talla}"/>
+                            <p:outputLabel value="DEVOLVER:"  style="font-weight: bold;"/>
+                            <p:selectOneRadio value="#{inventarioController.tipoMuestra}" required="true" requiredMessage="Especifique Muestra a Devolver"  >
+                                <f:selectItem itemLabel="PAR DERECHO" itemValue="1" itemDisabled="#{inventarioController.articulo.responsableMuestraDer eq null}"/>
+                               <f:selectItem itemLabel="PAR IZQUIERDO" itemValue="2" itemDisabled="#{inventarioController.articulo.responsableMuestraIzq eq null}"/>
+                               <f:selectItem itemLabel="AMBOS" itemValue="3" itemDisabled="#{inventarioController.articulo.responsableMuestraDer eq null || inventarioController.articulo.responsableMuestraIzq eq null }"/>
+                            </p:selectOneRadio>
+                        </p:panelGrid>
+                    <br/><br/>
+                        <div align="center">
+                            <p:commandButton value="DEVOLVER" actionListener="#{inventarioController.devolverMuestra()}" update=":gwMuestra,:frmMuestra:dtMuestras,:frmDevolucionArticulo" oncomplete="handleSubmit(xhr, status, args, devolucionMuestraDialog) " />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <p:commandButton value="CANCELAR" oncomplete="devolucionMuestraDialog.hide();"  />
+                        </div>
+                        
+                </h:form>
+
+            </p:dialog>
+            
+    </ui:composition>
+
+</html>

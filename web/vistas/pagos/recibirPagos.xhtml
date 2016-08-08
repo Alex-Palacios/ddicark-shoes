@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/resources/plantillas/plantillaPrincipal.xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+    <ui:define name="title">
+        <h:outputText value="RECIBIR PAGOS"/>
+    </ui:define>
+
+    <ui:define name="body">
+         <c:choose>
+        <!-- VERIFICA QUE TENGA PERMISOS -->
+        <c:when test="${empleadoController.verificarPermiso('VENTAS', 'REGISTRAR PAGOS') and (empleadoController.usuario.puestoEmpleado == 'SUPERADMIN' or empleadoController.usuario.puestoEmpleado == 'CONTADOR' or empleadoController.usuario.puestoEmpleado == 'GERENTE')}" >
+
+            #{pagoVentaController.prepararRecibirPagosVendedor()}
+            <p:panel  header="R E C I B I R &nbsp;&nbsp;P A G O S" style="height:99.3%; width: 99.5%;" >
+            <p:growl id="gwRecibir"/>
+            
+            
+            
+            <h:form id="frmRecibir">
+                
+                <p:fieldset>
+                    
+                    <h:panelGrid id="consulta" columns="2" style="float: left">
+                        
+                       <p:outputLabel value="VENDEDOR:" />
+                        <p:selectOneMenu id="vendedor" value="#{pagoVentaController.vendedor}" required="true" requiredMessage="Debe escoger un VENDEDOR" style="  width: 150px "  >
+                            <f:selectItem itemLabel="Selecciona Vendedor" value="#{null}" />
+                            <f:selectItems value="#{empleadoController.vendedores}"
+                                           var="vendedor"
+                                           itemValue="#{vendedor}"
+                                           itemLabel="#{vendedor.codempleado} - #{vendedor.nombreEmpleado} #{vendedor.apellidoEmpleado}" />
+                            <f:converter binding="#{empleadoConverter}"/>  
+                        </p:selectOneMenu>
+                    </h:panelGrid>
+
+                    <p:commandButton value="CONSULTAR" actionListener="#{pagoVentaController.actualizarConsultaPagosVendedores()}" process="@form" update=":gwRecibir,:frmRecibir" />
+                        
+              </p:fieldset>
+                        
+              <!-- PAGOS A REMESAR -->
+              <p:dataTable id="dtPagos" var="pago" value="#{pagoVentaController.pagosVendedor}"
+                             filteredValue="#{pagoVentaController.filtroPagos}" editable="true" editMode="cell"
+                             emptyMessage="NO HAY PAGOS REGISTRADOS" style="text-align: center;">  
+                    
+                    <p:ajax event="filter" onsuccess="actSeleccion()" />
+                    <p:ajax event="cellEdit" listener="#{pagoVentaController.editarPago()}" update=":gwRecibir" />
+                    
+                    <p:column width="2px">  
+                        <p:selectBooleanCheckbox value="#{pagoVentaController.seleccionar}" rendered="#{pago.tipoPago == 'EFECTIVO' }" >  
+                            <p:ajax update=":gwRecibir" listener="#{pagoVentaController.addListaRecibir(pago)}" />
+                        </p:selectBooleanCheckbox> 
+                    </p:column>
+                    
+                    <p:column   headerText="Recibo" filterBy="recibo" filterStyle="width:30px;" > 
+                        <f:facet name="header">  
+                            <h:outputText value="Recibo" />  
+                        </f:facet> 
+                        <h:outputText value="#{pago.serieRECIBO} - #{pago.recibo}" style="font-size: 14px; font-weight: bold" />
+                    </p:column>
+                    
+                    <p:column   headerText="Fecha Pago"> 
+                        <f:facet name="header">  
+                            <h:outputText value="Fecha Pago" />  
+                        </f:facet> 
+                        <h:outputText value="#{funciones.setFechaFormateada(pago.fechaPago,1)}" />
+                    </p:column>
+                    
+                    <p:column   headerText="Cliente"  > 
+                        <f:facet name="header">  
+                            <h:outputText value="Cliente" />  
+                        </f:facet> 
+                        <h:outputText value="#{pago.factura.cliente.obtenerNombreCliente()}" />
+                    </p:column>
+                    
+                    <p:column   headerText="Factura" > 
+                        <f:facet name="header">  
+                            <h:outputText value="Factura" />  
+                        </f:facet> 
+                        <h:outputText value="#{pago.factura.facturaPK.numfactura}" style="font-size: 12px; font-weight: bold" />
+                    </p:column>
+                    
+                                     
+                              
+                                
+                    
+                    <p:column   headerText="Fecha Factura"> 
+                        <f:facet name="header">  
+                            <h:outputText value="Fecha Factura" />  
+                        </f:facet> 
+                        <h:outputText value="#{funciones.setFechaFormateada(pago.factura.facturaPK.fechaFactura,1)}" />
+                    </p:column>
+                    
+                    <p:column   headerText="Monto Factura" > 
+                        <f:facet name="header">  
+                            <h:outputText value="Monto Factura" />  
+                        </f:facet> 
+                        <h:outputText value="#{pago.factura.total}" style="font-size: 12px; font-weight: lighter"/>
+                    </p:column>
+                    
+                    <p:column   headerText="Saldo Actual" > 
+                        <f:facet name="header">  
+                            <h:outputText value="Saldo Actual" />  
+                        </f:facet> 
+                        <h:outputText value="#{funciones.redondearMas(pago.factura.saldo + pago.totalPago,2)}" style="font-size: 12px; font-weight: lighter" />
+                    </p:column>
+                    
+                                        
+                    
+                    <p:column   headerText="VENDEDOR"  > 
+                        <f:facet name="header">  
+                            <h:outputText value="Vendedor" />  
+                        </f:facet> 
+                        <h:outputText value="#{funciones.getNombreEmpleado(pago.responsableCobro)}"  />
+                    </p:column>
+                    
+                    <p:column   headerText="TIPO PAGO" filterBy="tipoPago" filterOptions="#{facturaController.tipoPagoOptions}" filterMatchMode="exact"  > 
+                        <f:facet name="header"  >  
+                            <h:outputText value="Tipo Pago" />  
+                        </f:facet> 
+                        <h:outputText value="#{pago.tipoPago}" />
+                    </p:column>
+                    
+                    
+                    <p:column   headerText="BANCO" > 
+                        <f:facet name="header">  
+                            <h:outputText value="Banco" />  
+                        </f:facet> 
+                        <h:outputText value="#{pago.banco}" />
+                    </p:column>
+                    
+                    <p:column   headerText="Referencia" > 
+                        <f:facet name="header">  
+                            <h:outputText value="Referencia" />  
+                        </f:facet> 
+                        <h:outputText value="#{pago.identificador}" />
+                    </p:column>
+                    
+                    
+                    <p:column   headerText="ABONO" > 
+                        <f:facet name="header">  
+                            <h:outputText value="Abono" />  
+                        </f:facet> 
+                        <h:outputText value="#{funciones.redondearMas(pago.abono,2)}" style="font-size: 12px; font-weight: lighter" />
+                    </p:column>
+                    
+                    <p:column   headerText="Descuento" > 
+                        <f:facet name="header">  
+                            <h:outputText value="Descuento" />  
+                        </f:facet> 
+                        <!-- <p:cellEditor>
+                            <f:facet name="output"><h:outputText value="#{funciones.redondearMas(pago.descuento,2)}" style="font-size: 12px; font-weight: lighter"/></f:facet>
+                            <f:facet name="input"><p:inputText value="#{pago.descuento}" required="true" style="font-size: 12px; font-weight: lighter" /></f:facet>
+                        </p:cellEditor> -->
+                        <h:outputText value="#{funciones.redondearMas(pago.descuento,2)}" style="font-size: 12px; font-weight: lighter" />
+                    </p:column>
+                    
+                    <p:column   headerText="TOTAL" > 
+                        <f:facet name="header">  
+                            <h:outputText value="Total" />  
+                        </f:facet> 
+                        <h:outputText value="#{funciones.redondearMas(pago.totalPago,2)}" style="font-size: 12px; font-weight: lighter" />
+                    </p:column>
+                    
+                    
+                    <p:column   headerText="ESTADO" > 
+                        <f:facet name="header">  
+                            <h:outputText value="Estado" />  
+                        </f:facet> 
+                        <h:outputText value="#{pago.estado}"  />
+                    </p:column>
+                    
+                    <p:column   headerText="NOTA" > 
+                        <f:facet name="header">  
+                            <h:outputText value="Nota" />  
+                        </f:facet> 
+                        <h:outputText value="#{pago.nota}" />
+                    </p:column>
+  
+                    <p:column width="5%">  
+                        <div align="center">
+                            <p:commandButton onclick="editarPago.show();" actionListener="#{pagoVentaController.prepararEditarPago()}"  icon="ui-icon-pencil" title="EDITAR DESCUENTO" update=":frmEditarPago,:gwRecibir" style="height: 15px; width:15px;"  >
+                                <f:setPropertyActionListener value="#{pago}" target="#{pagoVentaController.pagoEditarDesc}" />
+                            </p:commandButton>
+                        </div>
+                    </p:column>
+                    
+                    <p:column width="5%">  
+                        <div align="center">
+                            <p:commandButton onclick="confirmarRechazarPago.show();"  icon="ui-icon-close" title="RECHAZAR PAGO" update=":frmRechazarPago,:gwRecibir" style="height: 15px; width:15px;" rendered="#{pago.tipoPago == 'EFECTIVO' }" >
+                                <f:setPropertyActionListener value="#{pago}" target="#{pagoVentaController.pagoRechazar}" />
+                            </p:commandButton>
+                        </div>
+                    </p:column>
+                    
+                </p:dataTable>
+                    
+                
+                <p:fieldset>
+                    
+                    <p:remoteCommand name="actSeleccion" actionListener="#{pagoVentaController.actualizarSeleccionFiltro()}" update="dtPagos,selectAll"/>
+                
+                
+                    <p:outputLabel value="SELECCIONAR TODOS:"/>&nbsp;&nbsp;
+                    <p:selectBooleanCheckbox id="selectAll"  value="#{pagoVentaController.recibirTodos}">  
+                        <p:ajax update=":gwRecibir,dtPagos" listener="#{pagoVentaController.seleccionarTodos()}" />
+                    </p:selectBooleanCheckbox> 
+                &nbsp;&nbsp;
+                <p:commandButton value="RECIBIR PAGOS SELECCIONADOS" actionListener="#{pagoVentaController.prepararRecibirPagos()}"  update=":gwRecibir,:frmRecibirPagos" style="width: 120px;"  />
+                    
+                 </p:fieldset>
+                
+            </h:form>
+                
+       </p:panel>
+        
+            
+            
+            
+            
+            
+            
+            
+             <!-- CONFIRMAR RECHAZAR PAGO -->
+        <p:confirmDialog message="SEGURO QUE DESEA RECHAZAR EL SIGUIENTE PAGO, SE ACTUALIZARA SALDO DE LA CUENTA?" appendTo="@(body)" header="REINGRESO DE PRODUCTO" severity="info"  widgetVar="confirmarRechazarPago">
+            <h:form id="frmRechazarPago">
+                <h:panelGrid columns="2" rendered="#{pagoVentaController.pagoRechazar != null}">
+                    <p:outputLabel value="RECIBO: " style="font-weight: bold;"/>
+                    <p:outputLabel value="#{pagoVentaController.pagoRechazar.recibo}"/>
+                    <p:outputLabel value="FECHA PAGO: " style="font-weight: bold;"/>
+                    <p:outputLabel value="#{funciones.setFechaFormateada(pagoVentaController.pagoRechazar.fechaPago,1)}"/>
+                    <p:outputLabel value="FACTURA: " style="font-weight: bold;"/>
+                    <p:outputLabel value="#{pagoVentaController.pagoRechazar.factura.facturaPK.numfactura} - #{funciones.setFechaFormateada(pagoVentaController.pagoRechazar.factura.facturaPK.fechaFactura,1)}"/>
+                    <p:outputLabel value="VENDEDOR: " style="font-weight: bold;"/>
+                    <p:outputLabel value="#{funciones.getNombreEmpleado(pagoVentaController.pagoRechazar.responsableCobro)}"/>
+                    <p:outputLabel value="TIPO PAGO: " style="font-weight: bold;"/>
+                    <p:outputLabel value="#{pagoVentaController.pagoRechazar.tipoPago}"/>
+                    <p:outputLabel value="ABONO: " style="font-weight: bold;"/>
+                    <p:outputLabel value="#{funciones.redondearMas(pagoVentaController.pagoRechazar.abono,2)}"/>
+                    <p:outputLabel value="DESCUENTO: " style="font-weight: bold;"/>
+                    <p:outputLabel value="#{funciones.redondearMas(pagoVentaController.pagoRechazar.descuento,2)}"/>
+                    <p:outputLabel value="TOTAL: " style="font-weight: bold;"/>
+                    <p:outputLabel value="#{funciones.redondearMas(pagoVentaController.pagoRechazar.totalPago,2)}"/>
+                    <p:outputLabel value="NOTA PRODUCTO:" />
+                    <p:inputTextarea value="#{pagoVentaController.pagoRechazar.nota}" cols="30" rows="3" />
+                </h:panelGrid>
+                <br/><br/>
+                <p:commandButton value="RECHAZAR PAGO" actionListener="#{pagoVentaController.rechazarPago()}"  oncomplete="confirmarRechazarPago.hide();" update=":gwRecibir, :frmRecibir:dtPagos"  />
+                <p:commandButton value="CANCELAR " onclick="confirmarRechazarPago.hide();" type="button" style="float: right" />
+            </h:form>
+            
+        </p:confirmDialog>
+         
+             
+             
+             
+             
+             
+             
+             
+             
+             
+             <!-- EDITAR PAGO -->
+        <p:confirmDialog message="INGRESE EL MONTO DE DESCUENTO" appendTo="@(body)" header="EDITAR PAGO" severity="info"  widgetVar="editarPago">
+            <h:form id="frmEditarPago">
+                <h:panelGrid columns="2" rendered="#{pagoVentaController.pagoEditarDesc != null}">
+                    <p:outputLabel value="RECIBO: " style="font-weight: bold;"/>
+                    <p:inputText value="#{pagoVentaController.pagoEditarDesc.recibo}" required="true" requiredMessage="Numero de Recibo Inválido"/>
+                    <p:outputLabel value="FECHA PAGO: " style="font-weight: bold;"/>
+                    <p:calendar value="#{pagoVentaController.pagoEditarDesc.fechaPago}" mode="popup" showOn="button" readonlyInput="true" effect="slideDown" pattern="dd/MM/yyyy" required="true" requiredMessage="Ingrese Fecha de PAGO" />
+                    <p:outputLabel value="FACTURA: " style="font-weight: bold;"/>
+                    <p:outputLabel value="#{pagoVentaController.pagoEditarDesc.factura.facturaPK.numfactura} - #{funciones.setFechaFormateada(pagoVentaController.pagoEditarDesc.factura.facturaPK.fechaFactura,1)}"/>
+                    <p:outputLabel value="TOTAL: " style="font-weight: bold;"/>
+                    <p:outputLabel value="#{funciones.redondearMas(pagoVentaController.pagoEditarDesc.factura.total,2)}"/>
+                    <p:outputLabel value="DESCUENTO AUTO: " style="font-weight: bold;"/>
+                    <p:outputLabel value="#{funciones.redondearMas(pagoVentaController.pagoEditarDesc.factura.porcentajeDescuento,2)}% -- #{funciones.redondearMas(pagoVentaController.pagoEditarDesc.factura.descuento,2)}"/>
+                    <p:outputLabel value="SALDO: " style="font-weight: bold;"/>
+                    <p:outputLabel value="#{funciones.redondearMas(pagoVentaController.pagoEditarDesc.factura.saldo,2)}"/>
+                    <p:outputLabel value="VENDEDOR: " style="font-weight: bold;"/>
+                    <p:outputLabel value="#{funciones.getNombreEmpleado(pagoVentaController.pagoEditarDesc.responsableCobro)}"/>
+                    <p:outputLabel value="ABONO: " style="font-weight: bold;"/>
+                    <p:outputLabel value="#{funciones.redondearMas(pagoVentaController.pagoEditarDesc.abono,2)}"/>
+                    <p:outputLabel value="DESCUENTO: " style="font-weight: bold;"/>
+                    <p:outputLabel value="#{funciones.redondearMas(pagoVentaController.pagoEditarDesc.descuento,2)}"/>
+                    <p:outputLabel value="TOTAL: " style="font-weight: bold;"/>
+                    <p:outputLabel value="#{funciones.redondearMas(pagoVentaController.pagoEditarDesc.totalPago,2)}"/>
+                    <p:outputLabel value="NUEVO DESCUENTO: " style="font-weight: bold;"/>
+                    <p:inputText value="#{pagoVentaController.nuevoDescuento}"/>
+                    <p:outputLabel value="NOTA PRODUCTO:" />
+                    <p:inputTextarea value="#{pagoVentaController.pagoEditarDesc.nota}" cols="30" rows="3" />
+                </h:panelGrid>
+                <br/><br/>
+                <p:commandButton value="GUARDAR CAMBIOS" actionListener="#{pagoVentaController.editarPagoDesc()}"  oncomplete="handleSubmitMuestra(args,editarPago)" update=":gwRecibir, :frmEditarPago"  />
+                <p:commandButton value="CANCELAR " onclick="editarPago.hide();" type="button" style="float: right" />
+            </h:form>
+            
+        </p:confirmDialog>
+        
+             
+             
+             
+             
+             
+        
+        <!-- PARA VER Y REVISAR PRODUCTOS A INGRESAR -->
+        <p:dialog widgetVar="recibirPagosDialog" modal="true" resizable="false" appendTo="@(body)" header="RECEPCION DE PAGOS" >
+                
+                <h:form id="frmRecibirPagos">
+                    <p:dataTable id="dtPagosRecibir" var="recibir"   value="#{pagoVentaController.listaRecibir}"
+                                 emptyMessage="NO HA SELECCINADO PAGOS A RECIBIR" style="text-align: center; " >  
+
+                                <f:facet name="header">PAGOS RECIBIDOS</f:facet>
+
+                                <p:column headerText="RECIBO"  > 
+                                     #{recibir.recibo}
+                                </p:column>
+                                <p:column headerText="FECHA"  > 
+                                     #{funciones.setFechaFormateada(recibir.fechaPago,1)}
+                                </p:column>
+                                <p:column headerText="FACTURA"  > 
+                                     #{recibir.factura.facturaPK.numfactura} - #{funciones.setFechaFormateada(recibir.factura.facturaPK.fechaFactura,1)}
+                                </p:column>
+                                <p:column headerText="VENDEDOR"  > 
+                                     #{funciones.getNombreEmpleado(recibir.responsableCobro)}
+                                </p:column>
+                                <p:column headerText="TIPO PAGO"  > 
+                                     #{recibir.tipoPago}
+                                </p:column>
+                                <p:column headerText="ABONO"  > 
+                                     #{funciones.redondearMas(recibir.abono,2)}
+                                </p:column>
+                                <p:column headerText="DESCUENTO"  > 
+                                     #{funciones.redondearMas(recibir.descuento,2)}
+                                </p:column>
+                                <p:column headerText="TOTAL"  > 
+                                     #{funciones.redondearMas(recibir.totalPago,2)}
+                                </p:column>
+                                
+                                <p:columnGroup type="footer">
+                                    <p:row>    
+                                        <p:column colspan="5"  />
+                                        <p:column footerText="#{funciones.redondearMas(pagoVentaController.totalAbono,2)}" /> 
+                                        <p:column footerText="#{funciones.redondearMas(pagoVentaController.totalDescuentos,2)}" /> 
+                                        <p:column footerText="#{funciones.redondearMas(pagoVentaController.totalPagos,2)}" /> 
+                                    </p:row>
+                                    <p:row>  
+                                        <p:column colspan="5" footerText="TOTAL EFECTIVO: " style="text-align:right"/>  
+                                        <p:column footerText="#{funciones.redondearMas(pagoVentaController.totalEfectivo,2)}" />  
+                                    </p:row>
+                                    <p:row>  
+                                        <p:column colspan="5" footerText="TOTAL CHEQUE: " style="text-align:right"/>  
+                                        <p:column footerText="#{funciones.redondearMas(pagoVentaController.totalCheques,2)}" />  
+                                    </p:row>
+                                    <p:row>  
+                                        <p:column colspan="5" footerText="TOTAL REMESA: " style="text-align:right"/>  
+                                        <p:column footerText="#{funciones.redondearMas(pagoVentaController.totalRemesas,2)}" />  
+                                    </p:row>
+                                   
+                                </p:columnGroup> 
+                     </p:dataTable>
+                    <br/><br/>
+                    <p:commandButton value="PAGOS RECIBIDOS" actionListener="#{pagoVentaController.confirmarPagosRecibidos()}"   oncomplete="recibirPagosDialog.hide();" update=":gwRecibir, :frmRecibir"  />
+                    <p:commandButton value="CANCELAR " onclick="recibirPagosDialog.hide();" type="button" style="float: right" />
+            
+                </h:form>
+
+            </p:dialog>
+        
+       
+        </c:when>
+            
+            
+            <!-- SI NO TIENE LOS PERMISOS DA MSJ DE ERROR -->
+            <c:otherwise>
+                   <h:form>
+                        <div style="min-height: 300px; text-align: center; margin-top: 100px;">
+                            <p:outputLabel value="ACCESO DENEGADO" style="font-size: 30px;font-weight: bold;color:red"/>
+                            <br/><br/>
+                            <h:graphicImage url="/faces/resources/imagenes/locked.png" alt="ZONA RESTRINGIDA" width="200" />
+                            <br/><br/>
+                            <p:outputLabel value="NO TIENE PERMISO PARA VER ESTA PAGINA" style="font-size: 20px;font-weight: bold;color:red"/>
+                            <br/>
+                            <p:outputLabel value="CONSULTE CON EL ADMINISTRADOR DEL SISTEMA" style="font-size: 20px;font-weight: bold;"/>
+                        </div>
+                    </h:form>
+             </c:otherwise>
+        </c:choose>
+        
+        
+    </ui:define>
+    
+
+</ui:composition>

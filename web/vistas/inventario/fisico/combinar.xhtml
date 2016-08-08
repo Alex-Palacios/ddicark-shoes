@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/resources/plantillas/plantillaPrincipal.xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+
+    <ui:define name="title">
+        <h:outputText value="COMBINAR CAJAS" />
+    </ui:define>
+
+    <ui:define name="body">
+        
+        <c:choose>
+        <!-- VERIFICA QUE TENGA PERMISOS -->
+        <c:when test="${empleadoController.verificarPermiso('INVENTARIO', 'FISICO')}" >
+
+            
+            #{inventarioController.prepararCombinarCaja()}
+           
+            <p:growl id="gwCombinar" />
+            
+                <h:form id="frmCombinar">
+                    <p:fieldset legend="PRODUCTOS DE CAJA" style="float: left; width: 200px;">
+                        <p:outputLabel value="CODIGO CAJA:" />
+                        <p:inputText id="codigo1" value="#{inventarioController.codigo1}" maxlength="15" readonly="#{inventarioController.detalleCaja1.size() > 0}"  />
+                        <p:commandButton  value="BUSCAR" actionListener="#{inventarioController.buscarCaja1()}" process="@this,codigo1" update=":gwCombinar,dtDetalleCaja1,curva1,codigo1" />
+                        
+                        <p:dataTable id="dtDetalleCaja1" var="caja1" value="#{inventarioController.detalleCaja1}" 
+                             emptyMessage="VACIO"   style="text-align: center; " >  
+
+                                <f:facet name="header">DETALLE DE LA CAJA</f:facet>
+                                
+                                <p:column style="width: 2%"> 
+                                    <p:selectBooleanCheckbox value="#{inventarioController.combinarItem}" >  
+                                        <p:ajax update=":gwCombinar" listener="#{inventarioController.agregarAlista(caja1,1)}" />
+                                    </p:selectBooleanCheckbox> 
+                                </p:column>
+
+                                <p:column   headerText="ESTILO" >  
+                                    <h:outputText value="#{caja1.producto.productoPK.codestilo}" />
+                                </p:column>
+
+                                <p:column   headerText="COLOR" >  
+                                    <h:outputText value="#{caja1.color}" />
+                                </p:column>
+
+                                <p:column   headerText="TALLA" >  
+                                    <h:outputText value="#{caja1.talla}" />
+                                </p:column>
+
+
+                                <p:column   headerText="PRECIO" >  
+                                    <h:outputText value="#{funciones.redondearMas(caja1.preciomayoreo,2)}" />
+                                </p:column>
+
+                                <p:column   headerText="ESTADO" >  
+                                    <h:outputText value="#{caja1.estadoproducto}" />
+                                </p:column>
+
+                        </p:dataTable>
+                        
+                        
+                        <p:panelGrid id="curva1" styleClass="prueba" >
+                        <f:facet name="header">
+                            <p:row>
+                                <p:column rowspan="2" style="width: 175px;">C O L O R</p:column>
+                                <p:column colspan="10">T A L L A S</p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column rendered="#{inventarioController.numTallas1 > 0}" >#{inventarioController.tallas1[0]}</p:column>
+                                <p:column rendered="#{inventarioController.numTallas1 > 1}" >#{inventarioController.tallas1[1]}</p:column>
+                                <p:column rendered="#{inventarioController.numTallas1 > 2}" >#{inventarioController.tallas1[2]}</p:column>
+                                <p:column rendered="#{inventarioController.numTallas1 > 3}" >#{inventarioController.tallas1[3]}</p:column>
+                                <p:column rendered="#{inventarioController.numTallas1 > 4}" >#{inventarioController.tallas1[4]}</p:column>
+                                <p:column rendered="#{inventarioController.numTallas1 > 5}" >#{inventarioController.tallas1[5]}</p:column>
+                                <p:column rendered="#{inventarioController.numTallas1 > 6}" >#{inventarioController.tallas1[6]}</p:column>
+                                <p:column rendered="#{inventarioController.numTallas1 > 7}" >#{inventarioController.tallas1[7]}</p:column>
+                                <p:column rendered="#{inventarioController.numTallas1 > 8}" >#{inventarioController.tallas1[8]}</p:column>
+                                <p:column rendered="#{inventarioController.numTallas1 > 9}" >#{inventarioController.tallas1[9]}</p:column>
+                            </p:row>
+                        </f:facet>
+
+                        <p:row>
+                            <p:column style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[0].color}"/></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 0}" style="text-align: center" ><p:outputLabel value="#{inventarioController.curva1[0].t1}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 1}" style="text-align: center" ><p:outputLabel value="#{inventarioController.curva1[0].t2}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 2}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[0].t3}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 3}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[0].t4}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 4}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[0].t5}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 5}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[0].t6}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 6}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[0].t7}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 7}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[0].t8}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 8}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[0].t9}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 9}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[0].t10}" /></p:column>
+                        </p:row>
+
+                        <p:row rendered="#{inventarioController.numColores1 > 1}">
+                            <p:column style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[1].color}" style="text-align: center" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 0}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[1].t1}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 1}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[1].t2}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 2}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[1].t3}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 3}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[1].t4}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 4}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[1].t5}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 5}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[1].t6}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 6}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[1].t7}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 7}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[1].t8}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 8}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[1].t9}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 9}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[1].t10}" /></p:column>
+                        </p:row>
+
+                        <p:row rendered="#{inventarioController.numColores1 > 2}">
+                            <p:column style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[2].color}" style="text-align: center" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 0}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[2].t1}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 1}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[2].t2}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 2}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[2].t3}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 3}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[2].t4}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 4}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[2].t5}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 5}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[2].t6}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 6}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[2].t7}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 7}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[2].t8}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 8}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[2].t9}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 9}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[2].t10}" /></p:column>
+                        </p:row>
+
+                        <p:row rendered="#{inventarioController.numColores1 > 3}">
+                            <p:column style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[3].color}" style="text-align: center" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 0}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[3].t1}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 1}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[3].t2}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 2}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[3].t3}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 3}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[3].t4}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 4}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[3].t5}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 5}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[3].t6}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 6}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[3].t7}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 7}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[3].t8}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 8}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[3].t9}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 9}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[3].t10}" /></p:column>
+                        </p:row>
+
+                        <p:row rendered="#{inventarioController.numColores1 > 4}">
+                            <p:column style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[4].color}" style="text-align: center" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 0}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[4].t1}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 1}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[4].t2}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 2}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[4].t3}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 3}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[4].t4}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 4}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[4].t5}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 5}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[4].t6}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 6}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[4].t7}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 7}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[4].t8}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 8}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[4].t9}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 9}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[4].t10}" /></p:column>
+                        </p:row>
+
+                        <p:row rendered="#{inventarioController.numColores1 > 5}">
+                            <p:column style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[5].color}" style="text-align: center" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 0}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[5].t1}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 1}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[5].t2}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 2}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[5].t3}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 3}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[5].t4}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 4}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[5].t5}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 5}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[5].t6}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 6}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[5].t7}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 7}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[5].t8}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 8}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[5].t9}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas1 > 9}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva1[5].t10}" /></p:column>
+                        </p:row>
+                </p:panelGrid>
+                    </p:fieldset>
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    <h:panelGrid style="float: left;">
+                        <br/><br/><br/><br/>
+                        <br/><br/><br/><br/>
+                        
+                        <p:commandButton value="LIMPIAR" actionListener="#{inventarioController.prepararCombinarCaja()}"  update=":frmCombinar"  style="width: 105px; height: 30px" />
+                        <br/><br/>
+                        <p:commandButton value="&lArr; COMBINAR &rArr;" actionListener="#{inventarioController.combinarCajas()}" process="@form" update=":gwCombinar,:frmCombinar"  style="width: 105px; height: 50px"/>
+                        <br/><br/><br/><br/>
+                        <p:commandButton value="CONFIRMAR" onclick="confirmarCombinacion.show();"  style="width: 105px; height: 50px"/>
+                    </h:panelGrid>
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    <p:fieldset legend="PRODUCTOS DE CAJA" style="float: left;width: 200px;">
+                        <p:outputLabel value="CODIGO CAJA:" />
+                        <p:inputText id="codigo2" value="#{inventarioController.codigo2}" maxlength="20" readonly="#{inventarioController.detalleCaja2.size() > 0}" />
+                        <p:commandButton  value="BUSCAR" actionListener="#{inventarioController.buscarCaja2()}" process="@this,codigo2"  update=":gwCombinar,dtDetalleCaja2,curva2,codigo2" />
+                        
+                        <p:dataTable id="dtDetalleCaja2" var="caja2" value="#{inventarioController.detalleCaja2}" 
+                             emptyMessage="VACIO"   style="text-align: center; " >  
+
+                                <f:facet name="header">DETALLE DE LA CAJA</f:facet>
+                                
+                                <p:column style="width: 2%"> 
+                                    <p:selectBooleanCheckbox value="#{inventarioController.combinarItem}" >  
+                                        <p:ajax update=":gwCombinar" listener="#{inventarioController.agregarAlista(caja2,2)}" />
+                                    </p:selectBooleanCheckbox> 
+                                </p:column>
+
+                                <p:column   headerText="ESTILO" >  
+                                    <h:outputText value="#{caja2.producto.productoPK.codestilo}" />
+                                </p:column>
+
+                                <p:column   headerText="COLOR" >  
+                                    <h:outputText value="#{caja2.color}" />
+                                </p:column>
+
+                                <p:column   headerText="TALLA" >  
+                                    <h:outputText value="#{caja2.talla}" />
+                                </p:column>
+
+                                <p:column   headerText="PRECIO" >  
+                                    <h:outputText value="#{funciones.redondearMas(caja2.preciomayoreo,2)}" />
+                                </p:column>
+
+                                <p:column   headerText="ESTADO" >  
+                                    <h:outputText value="#{caja2.estadoproducto}" />
+                                </p:column>
+                        </p:dataTable>
+                        
+                        <p:panelGrid id="curva2" styleClass="prueba" >
+                        <f:facet name="header">
+                            <p:row>
+                                <p:column rowspan="2" style="width: 175px;">C O L O R</p:column>
+                                <p:column colspan="10">T A L L A S</p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column rendered="#{inventarioController.numTallas2 > 0}" >#{inventarioController.tallas2[0]}</p:column>
+                                <p:column rendered="#{inventarioController.numTallas2 > 1}" >#{inventarioController.tallas2[1]}</p:column>
+                                <p:column rendered="#{inventarioController.numTallas2 > 2}" >#{inventarioController.tallas2[2]}</p:column>
+                                <p:column rendered="#{inventarioController.numTallas2 > 3}" >#{inventarioController.tallas2[3]}</p:column>
+                                <p:column rendered="#{inventarioController.numTallas2 > 4}" >#{inventarioController.tallas2[4]}</p:column>
+                                <p:column rendered="#{inventarioController.numTallas2 > 5}" >#{inventarioController.tallas2[5]}</p:column>
+                                <p:column rendered="#{inventarioController.numTallas2 > 6}" >#{inventarioController.tallas2[6]}</p:column>
+                                <p:column rendered="#{inventarioController.numTallas2 > 7}" >#{inventarioController.tallas2[7]}</p:column>
+                                <p:column rendered="#{inventarioController.numTallas2 > 8}" >#{inventarioController.tallas2[8]}</p:column>
+                                <p:column rendered="#{inventarioController.numTallas2 > 9}" >#{inventarioController.tallas2[9]}</p:column>
+                            </p:row>
+                        </f:facet>
+
+                        <p:row>
+                            <p:column style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[0].color}"/></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 0}" style="text-align: center" ><p:outputLabel value="#{inventarioController.curva2[0].t1}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 1}" style="text-align: center" ><p:outputLabel value="#{inventarioController.curva2[0].t2}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 2}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[0].t3}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 3}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[0].t4}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 4}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[0].t5}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 5}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[0].t6}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 6}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[0].t7}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 7}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[0].t8}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 8}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[0].t9}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 9}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[0].t10}" /></p:column>
+                        </p:row>
+
+                        <p:row rendered="#{inventarioController.numColores2 > 1}">
+                            <p:column style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[1].color}" style="text-align: center" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 0}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[1].t1}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 1}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[1].t2}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 2}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[1].t3}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 3}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[1].t4}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 4}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[1].t5}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 5}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[1].t6}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 6}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[1].t7}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 7}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[1].t8}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 8}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[1].t9}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 9}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[1].t10}" /></p:column>
+                        </p:row>
+
+                        <p:row rendered="#{inventarioController.numColores2 > 2}">
+                            <p:column style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[2].color}" style="text-align: center" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 0}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[2].t1}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 1}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[2].t2}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 2}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[2].t3}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 3}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[2].t4}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 4}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[2].t5}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 5}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[2].t6}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 6}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[2].t7}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 7}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[2].t8}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 8}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[2].t9}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 9}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[2].t10}" /></p:column>
+                        </p:row>
+
+                        <p:row rendered="#{inventarioController.numColores2 > 3}">
+                            <p:column style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[3].color}" style="text-align: center" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 0}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[3].t1}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 1}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[3].t2}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 2}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[3].t3}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 3}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[3].t4}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 4}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[3].t5}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 5}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[3].t6}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 6}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[3].t7}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 7}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[3].t8}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 8}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[3].t9}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 9}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[3].t10}" /></p:column>
+                        </p:row>
+
+                        <p:row rendered="#{inventarioController.numColores2 > 4}">
+                            <p:column style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[4].color}" style="text-align: center" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 0}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[4].t1}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 1}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[4].t2}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 2}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[4].t3}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 3}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[4].t4}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 4}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[4].t5}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 5}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[4].t6}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 6}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[4].t7}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 7}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[4].t8}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 8}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[4].t9}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 9}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[4].t10}" /></p:column>
+                        </p:row>
+
+                        <p:row rendered="#{inventarioController.numColores2 > 5}">
+                            <p:column style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[5].color}" style="text-align: center" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 0}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[5].t1}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 1}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[5].t2}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 2}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[5].t3}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 3}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[5].t4}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 4}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[5].t5}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 5}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[5].t6}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 6}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[5].t7}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 7}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[5].t8}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 8}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[5].t9}" /></p:column>
+                            <p:column rendered="#{inventarioController.numTallas2 > 9}" style="text-align: center"><p:outputLabel value="#{inventarioController.curva2[5].t10}" /></p:column>
+                        </p:row>
+                </p:panelGrid>
+
+                    </p:fieldset>
+                    
+                    
+                </h:form>
+            
+            
+            <!-- CONFIRMAR COMBINAR -->
+            
+            <p:confirmDialog widgetVar="confirmarCombinacion" appendTo="@(body)" 
+                             closable="false" header="CONFIRMAR COMBINAR" severity="info"
+                             message="DESEA GUARDAR LA COMBINACION REALIZADA" >
+                <div align="center">
+                    <p:commandButton actionListener="#{inventarioController.confirmarCombinacion()}" value="SI" oncomplete="confirmarCombinacion.hide()" update=":gwCombinar,:frmCombinar"/>
+                    <p:commandButton value="NO" onclick="confirmarCombinacion.hide()"/>
+                </div>
+            </p:confirmDialog>
+        
+            </c:when>
+            
+            
+            <!-- SI NO TIENE LOS PERMISOS DA MSJ DE ERROR -->
+            <c:otherwise>
+                   <h:form>
+                        <div style="min-height: 300px; text-align: center; margin-top: 100px;">
+                            <p:outputLabel value="ACCESO DENEGADO" style="font-size: 30px;font-weight: bold;color:red"/>
+                            <br/><br/>
+                            <h:graphicImage url="/faces/resources/imagenes/locked.png" alt="ZONA RESTRINGIDA" width="200" />
+                            <br/><br/>
+                            <p:outputLabel value="NO TIENE PERMISO PARA VER ESTA PAGINA" style="font-size: 20px;font-weight: bold;color:red"/>
+                            <br/>
+                            <p:outputLabel value="CONSULTE CON EL ADMINISTRADOR DEL SISTEMA" style="font-size: 20px;font-weight: bold;"/>
+                        </div>
+                    </h:form>
+                
+             </c:otherwise>
+        </c:choose>
+        
+        
+    </ui:define>
+    
+
+</ui:composition>
+    

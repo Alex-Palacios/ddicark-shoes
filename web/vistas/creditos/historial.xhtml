@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/resources/plantillas/plantillaPrincipal.xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+    <ui:define name="title">
+        <h:outputText value="Historial"/>
+    </ui:define>
+
+    <ui:define name="body">
+
+        <p:growl id="gwHistorial"/>
+
+        <h:form id="frmHistorial">
+
+            
+            <p:panel header="INFORMACION DEL CLIENTE">  
+                
+                <p:commandLink style="float: right;">
+                    <p:graphicImage library="iconos" name="estadoCuenta.png"/>
+                    <p:ajax listener="#{creditosHistorialController.prepararEstadoCuenta()}" oncomplete="estadoCuenta.show();" update=":frmEstadoCuenta" />
+                </p:commandLink>
+                <h:panelGrid columns="8" cellspacing="5" cellpadding="5" >
+                    <p:outputLabel value="CUENTA N° :" style="font-weight: bold; font-size: 12px;"/>
+                    <p:outputLabel value="#{creditosHistorialController.clienteHistorial.numcuenta}" style="font-weight: bold; font-size: 12px;color: blue"/>
+                    <p:outputLabel value="NOMBRE CLIENTE :" style="font-weight: bold; font-size: 12px;"/>
+                    <p:outputLabel value="#{funciones.getNombreCliente(creditosHistorialController.clienteHistorial)}" style="font-weight: bold; font-size: 12px;color: blue" />
+                    <p:outputLabel value="MUNICIPIO :" style="font-weight: bold; font-size: 12px;"/>
+                    <p:outputLabel value="#{creditosHistorialController.clienteHistorial.municipioCliente}" style="font-weight: bold; font-size: 12px;color: blue" />
+                    <p:outputLabel value="DEPARTAMENTO :" style="font-weight: bold; font-size: 12px;"/>
+                    <p:outputLabel value="#{creditosHistorialController.clienteHistorial.deptoCliente}" style="font-weight: bold; font-size: 12px;color: blue" />
+                    <p:outputLabel value="NATURALEZA :" style="font-weight: bold; font-size: 12px;"/>
+                    <p:outputLabel value="#{creditosHistorialController.clienteHistorial.naturaleza}" style="font-weight: bold; font-size: 12px;color: blue" />
+                    <p:outputLabel value="ASESOR :" style="font-weight: bold; font-size: 12px;"/>
+                    <p:outputLabel value="#{creditosHistorialController.clienteHistorial.empleadoasignado.nombreEmpleado}" style="font-weight: bold; font-size: 12px;color: blue" />
+                    
+                </h:panelGrid>  
+                
+            </p:panel>
+            
+            <p:panel header="CREDITOS ACTIVOS" >  
+                <!-- CREDITOS ACTIVOS -->
+                <p:dataTable id="dtCreditosActivos" var="creditoActivo" value="#{creditosHistorialController.creditosActivos}"
+                                     emptyMessage="EL CLIENTE NO TIENE CREDITOS ACTIVOS" 
+                                     scrollable="true" scrollHeight="200"  style="text-align: center;">  
+
+
+                    <p:column   headerText="TIPO" style=" font-size: 10px;" >  
+                        <h:outputText value="#{creditoActivo.tipoFactura}" />
+                    </p:column>
+
+                    <p:column   headerText="# FACTURA" style=" font-size: 10px;">  
+                        <h:outputText value="#{creditoActivo.facturaPK.numfactura}" />
+                    </p:column>
+
+                    <p:column   headerText="FECHA" style=" font-size: 10px;">  
+                        <h:outputText value="#{funciones.setFechaFormateada(creditoActivo.facturaPK.fechaFactura,1)}" />
+                    </p:column>
+
+                    <p:column   headerText="VENCIMIENTO" style=" font-size: 10px;">  
+                        <h:outputText value="#{funciones.setFechaFormateada(creditoActivo.fechaVencimiento,1)}" />
+                    </p:column>
+
+                    <p:column   headerText="SUB TOTAL" style=" font-size: 10px;">  
+                        <h:outputText value="#{funciones.redondearMas(creditoActivo.subTotal,2)}" />
+                    </p:column>
+
+                    <p:column   headerText="DESCUENTO" style=" font-size: 10px;">  
+                        <h:outputText value="#{funciones.redondearMas(creditoActivo.descuento,2)}" />
+                    </p:column>
+
+                    <p:column   headerText="TOTAL" style=" font-size: 10px;">  
+                        <h:outputText value="#{funciones.redondearMas(creditoActivo.total,2)}" />
+                    </p:column>
+
+                    <p:column   headerText="SALDO ACTUAL" style=" font-size: 10px;">  
+                        <h:outputText value="#{funciones.redondearMas(creditoActivo.saldo,2)}" />
+                    </p:column>
+
+                     <p:column   headerText="DIAS TRANSCURRIDOS" style=" font-size: 10px;" >  
+                        <h:outputText value="#{funciones.difDias(creditoActivo.facturaPK.fechaFactura)}" />
+                    </p:column>
+
+                    <p:columnGroup type="footer">
+                        <p:row>
+                            <p:column rendered="false"/><p:column rendered="false"/><p:column rendered="false"/><p:column rendered="false"/>
+                            <p:column rendered="false"/><p:column rendered="false"/><p:column rendered="false"/><p:column rendered="false"/><p:column rendered="false"/>
+                        </p:row>
+                        <p:row>  
+                            <p:column colspan="8" footerText="TOTAL CREDITOS: " style="text-align:right"/>  
+                            <p:column footerText="#{creditosHistorialController.totalCreditos}" /> 
+                        </p:row>
+                        <p:row>
+                            <p:column colspan="8" footerText="TOTAL DEUDA:" style="text-align:right"/>  
+                            <p:column footerText="#{creditosHistorialController.totalDeuda}" /> 
+                        </p:row>
+                        <p:row>
+                            <p:column colspan="8" footerText="# CREDITOS ACTIVOS:" style="text-align:right"/>  
+                            <p:column footerText="#{creditosHistorialController.numCreditosActivos}" /> 
+                        </p:row>
+                     </p:columnGroup>  
+
+                </p:dataTable>
+            </p:panel>  
+
+            <p:panel header="CREDITOS ANTERIORES"  >  
+                <!-- CREDITOS ACTIVOS -->
+                <p:dataTable id="dtCreditosAnteriores" var="creditoAnterior" value="#{creditosHistorialController.creditosAnteriores}"
+                                     emptyMessage="EL CLIENTE NO TIENE CREDITOS CANCELADOS" 
+                                     scrollable="true" scrollHeight="200" style="text-align: center;">  
+
+                    <p:column   headerText="TIPO" style=" font-size: 10px;" >  
+                        <h:outputText value="#{creditoAnterior.tipoFactura}" />
+                    </p:column>
+
+                    <p:column   headerText="N° FACTURA" style=" font-size: 10px;">  
+                        <h:outputText value="#{creditoAnterior.facturaPK.numfactura}" />
+                    </p:column>
+
+                    <p:column   headerText="FECHA" style=" font-size: 10px;">  
+                        <h:outputText value="#{funciones.setFechaFormateada(creditoAnterior.facturaPK.fechaFactura,1)}" />
+                    </p:column>
+
+                    <p:column   headerText="VENCIMIENTO" style=" font-size: 10px;">  
+                        <h:outputText value="#{funciones.setFechaFormateada(creditoAnterior.fechaVencimiento,1)}" />
+                    </p:column>
+
+                    <p:column   headerText="SUB TOTAL" style=" font-size: 10px;" >  
+                        <h:outputText value="#{funciones.redondearMas(creditoAnterior.subTotal,2)}" />
+                    </p:column>
+
+                    <p:column   headerText="DESCUENTO" style=" font-size: 10px;">  
+                        <h:outputText value="#{funciones.redondearMas(creditoAnterior.descuento,2)}" />
+                    </p:column>
+
+                    <p:column   headerText="TOTAL" style=" font-size: 10px;">  
+                        <h:outputText value="#{funciones.redondearMas(creditoAnterior.total,2)}" />
+                    </p:column>
+
+                    <p:column   headerText="CANCELADO EL" style=" font-size: 10px;">  
+                        <h:outputText value="#{funciones.setFechaFormateada(creditoAnterior.fechaCancelado,1)}" />
+                    </p:column>
+
+                    <p:column   headerText="PERIODO PAGO (dias)" style=" font-size: 10px;" >  
+                        <h:outputText value="#{creditoAnterior.periodoPago}" />
+                    </p:column>
+
+
+                    <p:columnGroup type="footer">
+                        <p:row>
+                            <p:column rendered="false"/><p:column rendered="false"/><p:column rendered="false"/><p:column rendered="false"/>
+                            <p:column rendered="false"/><p:column rendered="false"/><p:column rendered="false"/><p:column rendered="false"/>
+                        </p:row>
+                        <p:row>  
+                            <p:column colspan="7" footerText="TOTAL CANCELADO: " style="text-align:right"/>  
+                            <p:column footerText="#{creditosHistorialController.totalPagado}" /> 
+                        </p:row>
+                        <p:row>
+                            <p:column colspan="7" footerText="PROMEDIO PERIODO PAGO (dias):" style="text-align:right"/>  
+                            <p:column footerText="#{creditosHistorialController.promedioDiasPago}" /> 
+                        </p:row>                            
+                        <p:row>
+                            <p:column colspan="7" footerText="# CREDITOS CANCELADOS:" style="text-align:right"/>  
+                            <p:column footerText="#{creditosHistorialController.numCreditosAnteriores}" /> 
+                        </p:row>
+                     </p:columnGroup>  
+
+                </p:dataTable>  
+            </p:panel>
+
+            <p:panel header="COMPRAS AL CONTADO" >  
+                <!-- CREDITOS ACTIVOS -->
+                <p:dataTable id="dtComprasContado" var="compra" value="#{creditosHistorialController.comprasContado}"
+                                     emptyMessage="EL CLIENTE NO HA REALIZADO COMPRAS AL CONTADO" 
+                                     scrollable="true" scrollHeight="150" style="text-align: center;">  
+
+                    <p:column   headerText="TIPO"  >  
+                        <h:outputText value="#{compra.tipoFactura}" />
+                    </p:column>
+
+                    <p:column   headerText="N° FACTURA">  
+                        <h:outputText value="#{compra.facturaPK.numfactura}" />
+                    </p:column>
+
+                    <p:column   headerText="FECHA">  
+                        <h:outputText value="#{funciones.setFechaFormateada(compra.facturaPK.fechaFactura,1)}" />
+                    </p:column>
+
+                    <p:column   headerText="SUB TOTAL" >  
+                        <h:outputText value="#{funciones.redondearMas(compra.subTotal,2)}" />
+                    </p:column>
+
+                    <p:column   headerText="DESCUENTO" >  
+                        <h:outputText value="#{funciones.redondearMas(compra.descuento,2)}" />
+                    </p:column>
+
+                    <p:column   headerText="TOTAL">  
+                        <h:outputText value="#{funciones.redondearMas(compra.total,2)}" />
+                    </p:column>
+
+                    <p:column   headerText="ESTADO">  
+                        <h:outputText value="#{compra.estado}" />
+                    </p:column>
+                    
+
+                    <p:columnGroup type="footer">
+                        <p:row>
+                            <p:column rendered="false"/><p:column rendered="false"/><p:column rendered="false"/><p:column rendered="false"/>
+                            <p:column rendered="false"/><p:column rendered="false"/><p:column rendered="false"/><p:column rendered="false"/>
+                        </p:row>
+                        <p:row>  
+                            <p:column colspan="7" footerText="TOTAL COMPRAS: " style="text-align:right"/>  
+                            <p:column footerText="#{creditosHistorialController.totalCompras}" /> 
+                        </p:row>
+                        <p:row>
+                            <p:column colspan="7" footerText="# COMPRAS AL CONTADO:" style="text-align:right"/>  
+                            <p:column footerText="#{creditosHistorialController.numComprasContado}" /> 
+                        </p:row>
+                     </p:columnGroup>  
+
+                </p:dataTable>  
+            </p:panel>
+
+        </h:form>
+        
+        
+        
+        <!-- ESTADO CUENTA -->
+        <p:dialog widgetVar="estadoCuenta" header="ESTADO DE CUENTA"  appendTo="@(body)" modal="true"   width="90%" height="600"  >
+            <h:form id="frmEstadoCuenta">
+
+                <object type="application/pdf" data="#{creditosHistorialController.pathServletEstadoCuenta}"  width="100%" height="600">
+
+                </object>
+
+            </h:form>
+        </p:dialog>
+             
+    </ui:define>
+    
+
+</ui:composition>

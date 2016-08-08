@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/resources/plantillas/plantillaPrincipal.xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+
+    <ui:define name="title">
+        <h:outputText value="Pedidos al Credito" />
+    </ui:define>
+
+    <ui:define name="body">
+        
+        <c:choose>
+        <!-- VERIFICA QUE TENGA PERMISOS -->
+        <c:when test="${empleadoController.verificarPermiso('PEDIDOS', 'PEDIDOS')}" >
+
+       
+        <p:panel  header="P E D I D O S &nbsp;&nbsp;A L &nbsp;&nbsp;C R E D I T O" style="height:99.3%; width: 99.5%;" >
+            <p:growl id="gwPedidosCredito" />
+            
+             <h:form id="frmPedidosCredito">
+                    <p:dataTable var="pedidosCredito" value="#{pedidoController.pedidosCredito}"> 
+
+                         
+
+                        <p:column>  
+                            <f:facet name="header">  
+                                    ORDEN DE PEDIDO  
+                            </f:facet>  
+                            <h:outputText value="#{pedidosCredito.pedidoPK.numpedido}" />  
+                        </p:column>  
+
+                        <p:column>  
+                            <f:facet name="header">  
+                                    FECHA PEDIDO 
+                            </f:facet>  
+                            <h:outputText value="#{funciones.setFechaFormateada(pedidosCredito.pedidoPK.fechaPedido,1)}" />  
+                        </p:column>  
+                     
+                         <p:column>  
+                            <f:facet name="header">  
+                                    CUENTA CLIENTE 
+                            </f:facet>  
+                            <h:outputText value="#{funciones.getNombreCliente(pedidosCredito.clientePedido)}" />  
+                        </p:column> 
+                     
+                        <p:column>  
+                            <f:facet name="header">  
+                                    TIPO PAGO 
+                            </f:facet>  
+                            <h:outputText value="#{pedidosCredito.tipoPago}" />  
+                        </p:column> 
+                     
+                        <p:column>  
+                            <f:facet name="header">  
+                                    TOTAL 
+                            </f:facet>  
+                            <h:outputText value="#{funciones.redondearMas(pedidosCredito.totalPedido,2)}" />  
+                        </p:column> 
+                        
+                        <p:column filterBy="#{funciones.setFechaFormateada(pedidosCredito.fechaEntrega,1)}">  
+                            <f:facet name="header">  
+                                    FECHA DE ENTREGA 
+                            </f:facet>  
+                             <h:outputText value="#{funciones.setFechaFormateada(pedidosCredito.fechaEntrega,1)}" />  
+                        </p:column>
+                        
+                        <p:column>  
+                            <f:facet name="header">  
+                                    ESTADO CREDITO 
+                            </f:facet>  
+                            <h:outputText value="#{pedidosCredito.estadoPedido}" />  
+                        </p:column>
+                     
+                        <p:column filterBy="#{pedidosCredito.responsablePedido.nombreEmpleado}">  
+                            <f:facet name="header">  
+                                    REALIZADO POR 
+                            </f:facet>  
+                            <h:outputText value="#{pedidosCredito.responsablePedido.nombreEmpleado}" />  
+                        </p:column>
+
+                        <p:rowExpansion>  
+                            <p:dataTable id="dtDetallePedido" var="detalle" value="#{detallePedidoController.ejbFacadeDetallePedido.getDetallePedido(pedidosCredito.pedidoPK)}"
+                                 style="text-align: center; "  scrollable="true" scrollHeight="100" >  
+
+                                    <f:facet name="header">DETALLE DE PEDIDO</f:facet>
+
+                                    <p:column   headerText="CODIGO ESTILO" >  
+                                        <h:outputText value="#{detalle.producto.productoPK.codestilo}" />
+                                    </p:column> 
+                                    <p:column headerText="COLOR" > 
+                                        <h:outputText value="#{detalle.color}"/>
+                                    </p:column>
+                                    <p:column headerText="TALLA" > 
+                                        <h:outputText value="#{detalle.talla}"/>
+                                    </p:column>
+                                    <p:column headerText="PARES" >
+                                        <h:outputText value="#{detalle.cantidad}"/>
+                                    </p:column>
+                                    <p:column headerText="P/U"> 
+                                        <h:outputText value="#{detalle.pu}"/>
+                                    </p:column>
+                                    <p:column headerText="MONTO">
+                                        <h:outputText value="#{funciones.redondearMas(detalle.monto,2)}"/>
+                                    </p:column>
+                                    <p:columnGroup type="footer">
+                                        <p:row>
+                                            <p:column rendered="false" />
+                                            <p:column rendered="false" />
+                                            <p:column rendered="false" />
+                                            <p:column rendered="false" />
+                                            <p:column rendered="false" />
+                                            <p:column rendered="false" />
+                                        </p:row>
+                                        <p:row>  
+                                            <p:column colspan="5" footerText="TOTAL: " style="text-align:right"/>  
+                                            <p:column footerText="#{funciones.redondearMas(pedidosCredito.totalPedido,2)}" />   
+                                        </p:row>  
+                                    </p:columnGroup>  
+                                </p:dataTable>
+                        </p:rowExpansion>  
+                    </p:dataTable>  
+             </h:form>
+       </p:panel>
+        
+         
+            
+            
+            
+        </c:when>
+            
+            
+            <!-- SI NO TIENE LOS PERMISOS DA MSJ DE ERROR -->
+            <c:otherwise>
+                   <h:form>
+                        <div style="min-height: 300px; text-align: center; margin-top: 100px;">
+                            <p:outputLabel value="ACCESO DENEGADO" style="font-size: 30px;font-weight: bold;color:red"/>
+                            <br/><br/>
+                            <h:graphicImage url="/faces/resources/imagenes/locked.png" alt="ZONA RESTRINGIDA" width="200" />
+                            <br/><br/>
+                            <p:outputLabel value="NO TIENE PERMISO PARA VER ESTA PAGINA" style="font-size: 20px;font-weight: bold;color:red"/>
+                            <br/>
+                            <p:outputLabel value="CONSULTE CON EL ADMINISTRADOR DEL SISTEMA" style="font-size: 20px;font-weight: bold;"/>
+                        </div>
+                    </h:form>
+             </c:otherwise>
+        </c:choose>
+        
+        
+        
+    </ui:define>
+    
+
+</ui:composition>
+    

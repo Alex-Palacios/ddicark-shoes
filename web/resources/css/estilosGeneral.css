@@ -1,0 +1,31 @@
+root { 
+    display: block;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    color: #3a4f54;
+    background-color: white;
+    font-size: small;
+}
+
+a {
+    color: #e33b06;
+}
+
+table {
+    empty-cells: show;
+}
+
+
+
+.encabezadoLogo {
+    height: 150px;
+}
+
+
+.disk {
+    background-image: url('../imagenes/logout.png') !important;
+    height: 10px;
+}
+

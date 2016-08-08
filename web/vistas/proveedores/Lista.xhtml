@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:form id="frmListaProveedores">
+        <p:panel header="Listado de Proveedores">
+            <p:tabView>
+                <p:tab id="nacionales" title="NACIONALES">
+                    <p:dataTable id="dtProveedoresNacionales" var="proveedor" value="#{proveedorController.itemsProveedoresNacionales}"
+                         selectionMode="single" selection="#{proveedorController.selected}" rowKey="#{proveedor.idproveedor}"
+                         scrollable="true" scrollHeight="311" emptyMessage="NO HAY PROVEEDORES NACIONALES EN LISTA" >  
+
+                           <p:column width="5%">  
+                                <p:commandButton update=":frmVerProveedor" oncomplete="verProveedorDialog.show()" icon="ui-icon-eye" title="View" style="height: 15px; width:15px;">  
+                                        <f:setPropertyActionListener value="#{proveedor}" target="#{proveedorController.selected}" />  
+                                </p:commandButton>
+                                &nbsp;&nbsp;
+                                <p:commandButton update=":frmEditarProveedor" oncomplete="editarProveedorDialog.show()" icon="ui-icon-pencil" title="Editar" style="height: 15px; width:15px;">  
+                                        <f:setPropertyActionListener value="#{proveedor}" target="#{proveedorController.selected}" />  
+                                </p:commandButton>
+                            </p:column>
+
+                            <p:column headerText="Proveedor" styleClass="dataTable-text"> 
+                                <h:outputText value="#{proveedor.nombreProveedor}" styleClass="dataTable-text" />  
+                            </p:column>  
+
+                            <p:column headerText="Rubro" styleClass="dataTable-text" >
+                                    <h:outputText value="#{proveedor.rubroProveedor}" styleClass="dataTable-text"/>  
+                                </p:column>   
+
+                            <p:column headerText="Pais" styleClass="dataTable-text" width="100">  
+                                    <h:outputText value="#{proveedor.paisProveedor}" styleClass="dataTable-text"/>  
+                                </p:column> 
+
+                            <p:column headerText="Telefono" styleClass="dataTable-text" width="100">  
+                                    <h:outputText value="#{proveedor.telProveedor}" styleClass="dataTable-text"/>  
+                                </p:column>
+
+                            <p:column headerText="Contacto" styleClass="dataTable-text" width="150">  
+                                 <h:outputText value="#{proveedor.nombreContacto}" styleClass="dataTable-text"/>  
+                            </p:column> 
+                    </p:dataTable>
+                </p:tab>
+                <p:tab id="extranjeros" title="EXTRANJEROS">
+                    <p:dataTable id="dtProveedoresExtranjeros" var="proveedor" value="#{proveedorController.itemsProveedoresExtranjeros}"
+                         selectionMode="single" selection="#{proveedorController.selected}" rowKey="#{proveedor.idproveedor}"
+                         scrollable="true" scrollHeight="311" emptyMessage="NO HAY PROVEEDORES EXTRANJEROS EN LISTA" >  
+
+                           <p:column width="5%">  
+                                <p:commandButton update=":frmVerProveedor" oncomplete="verProveedorDialog.show()" icon="ui-icon-eye" title="View" style="height: 15px; width:15px;">  
+                                        <f:setPropertyActionListener value="#{proveedor}" target="#{proveedorController.selected}" />  
+                                </p:commandButton>
+                                &nbsp;&nbsp;
+                                <p:commandButton update=":frmEditarProveedor" oncomplete="editarProveedorDialog.show()" icon="ui-icon-pencil" title="Editar" style="height: 15px; width:15px;">  
+                                        <f:setPropertyActionListener value="#{proveedor}" target="#{proveedorController.selected}" />  
+                                </p:commandButton>
+                            </p:column>
+
+                            <p:column headerText="Proveedor" styleClass="dataTable-text"> 
+                                <h:outputText value="#{proveedor.nombreProveedor}" styleClass="dataTable-text" />  
+                            </p:column>  
+
+                            <p:column headerText="Rubro" styleClass="dataTable-text" >
+                                    <h:outputText value="#{proveedor.rubroProveedor}" styleClass="dataTable-text"/>  
+                                </p:column>   
+
+                            <p:column headerText="Pais" styleClass="dataTable-text" width="100">  
+                                    <h:outputText value="#{proveedor.paisProveedor}" styleClass="dataTable-text"/>  
+                                </p:column> 
+
+                            <p:column headerText="Telefono" styleClass="dataTable-text" width="100">  
+                                    <h:outputText value="#{proveedor.telProveedor}" styleClass="dataTable-text"/>  
+                                </p:column>
+
+                            <p:column headerText="Contacto" styleClass="dataTable-text" width="150">  
+                                 <h:outputText value="#{proveedor.nombreContacto}" styleClass="dataTable-text"/>  
+                            </p:column> 
+                    </p:dataTable>
+                </p:tab>
+            </p:tabView>
+        </p:panel>
+
+    </h:form>
+
+</ui:composition>

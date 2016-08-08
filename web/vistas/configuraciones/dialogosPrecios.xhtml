@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://java.sun.com/jsf/core">
+
+    <ui:composition>
+        
+            
+                       
+            <!-- PARA CAMBIAR PRECIOS -->
+            <p:dialog id="dlgEditarEstilo" widgetVar="editarEstiloDialog" modal="true" resizable="false" appendTo="@(body)" header="Editando Estilo">
+                
+                <h:form id="frmEditarEstilo" enctype="multipart/form-data">
+                    <p:growl id="gwEditarEstilo" />
+                    <h:panelGroup id="displayEditarEstilo">
+                        <p:panelGrid id="pnEditarEstilo" columns="2" rendered="#{productoController.selected != null}"  styleClass="noBorderPanelGrid">
+                            <p:outputLabel value="Tipo:"/>
+                            <p:outputLabel value="#{funciones.tipoLabel(productoController.selected.productoPK.tipoProducto)}"/>
+                            
+                            <p:outputLabel value="Codigo Estilo:" />
+                            <p:outputLabel value="#{productoController.selected.productoPK.codestilo}" style="font-weight: bold; color: red" />
+                            
+                            <p:outputLabel value="Nombre Estilo:"  />
+                            <p:inputText value="#{productoController.selected.nombreEstilo}" />
+
+                            <p:outputLabel value="Detalle Estilo:"  />
+                            <p:inputTextarea value="#{productoController.selected.detalleEstilo}" cols="20" rows="5"  />
+                            
+                            <p:outputLabel value="Imagen Actual:" />
+                            <p:graphicImage id="gfImgActual" url="#{productoController.selected.pathPicture}" width="100" height="80"  />
+                            
+                            <p:outputLabel value="PRECIO MAYOREO:" />
+                            <p:inputText value="#{productoController.selected.precioventaMayoreo}" required="true" requiredMessage="PRECIO MAYOREO REQUERIDO ... si desea eliminar precio dejelo a CERO" style="font-weight: bold; color: blue" />
+                            
+                            <p:outputLabel value="PRECIO DETALLE:" />
+                            <p:inputText value="#{productoController.selected.precioventaUnidad}" required="true" requiredMessage="PRECIO DETALLE REQUERIDO ... si desea eliminar precio dejelo a CERO"  style="font-weight: bold; color: blue" />
+                        </p:panelGrid>
+                        <br/>
+                        &nbsp;&ensp;&nbsp;&ensp;<p:commandButton value="CAMBIAR PRECIOS" actionListener="#{productoController.validarPreciosYConfirmar()}" update=":frmEditarEstilo,:frmConfirmarPrecios" process="@form"  icon="ui-icon-disk"  oncomplete="mostrarConfirmarPrecios(args,editarEstiloDialog, cfdComfirmarCambio);" />&nbsp;&ensp;&nbsp;&ensp;&nbsp;&ensp;&nbsp;&ensp;&nbsp;&ensp;&nbsp;&ensp;&nbsp;&ensp;&nbsp;
+                        &nbsp;&ensp;&nbsp;&ensp;<p:commandButton value="Cancelar" icon="ui-icon-close"  oncomplete="editarEstiloDialog.hide()" process="@this" />
+                    </h:panelGroup>
+
+                </h:form>
+
+            </p:dialog>
+            
+            
+            
+            
+             <!-- CONFIRMAR GUARDAR PRE INGRESO -->
+             <p:confirmDialog message="¿ESTA SEGURO QUE DESEA CAMBIAR PRECIOS AL SIGUIENTE PRODUCTO?" appendTo="@(body)"
+                                         header="CAMBIAR PRECIOS" severity="alert"  widgetVar="cfdComfirmarCambio">&nbsp;&nbsp;&nbsp;
+                 <h:form id="frmConfirmarPrecios">
+                     <h:panelGrid columns="2" style="margin-left:30%">
+                        <p:outputLabel value="TIPO PRODUCTO:" style="font-weight: bold;"/>
+                        <p:outputLabel value="#{funciones.tipoLabel(productoController.selected.productoPK.tipoProducto)}" style="font-weight: bold;"/>
+                        <p:outputLabel value="CODIGO ESTILO:" style="font-weight: bold;"/>
+                        <p:outputLabel value="#{productoController.selected.productoPK.codestilo}" style="font-weight: bold;" />
+                        <p:outputLabel value="NUEVO PRECIO MAYOREO:" style="font-weight: bold;"/>
+                        <p:outputLabel value="#{productoController.selected.precioventaMayoreo}" style="font-weight: bold;" />
+                        <p:outputLabel value="NUEVO PRECIO DETALLE" style="font-weight: bold;"/>
+                        <p:outputLabel value="#{productoController.selected.precioventaUnidad}" style="font-weight: bold;" />
+                    </h:panelGrid><br/><br/>
+                    <p align="center" style="font-size: 10px;font-weight: bold;color: red">TENGA EN CUENTA QUE EL NUEVO PRECIO SE APLICARA </p>
+                    <p align="center" style="font-size: 10px;font-weight: bold;color: red">A LOS NUEVOS ENVIOS A PARTIR DEL CAMBIO </p><br/>
+                    <p:commandButton value="SI CAMBIAR PRECIOS" actionListener="#{productoController.cambiarPrecios()}"  update=":gwPrecios,:frmPrecios" oncomplete="cfdComfirmarCambio.hide()"/>
+                    <p:commandButton value="CANCELAR" onclick="cfdComfirmarCambio.hide();" type="button" style="float: right" />
+                 </h:form>
+               
+            </p:confirmDialog>
+            
+    </ui:composition>
+
+</html>

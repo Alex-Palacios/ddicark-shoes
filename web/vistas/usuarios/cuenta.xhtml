@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/resources/plantillas/plantillaPrincipal.xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+    <ui:define name="title">
+        <h:outputText value="MI CUENTA"/>
+    </ui:define>
+
+    <ui:define name="body">
+        
+        <p:panel  header="M I &nbsp;&nbsp;C U E N T A" style="height:99.3%; width: 99.5%;" >
+            <p:growl id="gwCuenta"/>
+                
+             
+            <h:form id="frmCuenta">
+                <h:panelGrid columns="2" cellpadding="5" cellspacing="5"  style="float: left">
+                    <p:outputLabel value="CODIGO:" style="font-weight: bold"/>
+                    <p:outputLabel value="#{empleadoController.usuario.codempleado}"/>
+                    
+                    <p:outputLabel value="NOMBRE:" style="font-weight: bold"/>
+                    <p:outputLabel value="#{empleadoController.usuario.nombreEmpleado}"/>
+                    
+                    <p:outputLabel value="APELLIDO:" style="font-weight: bold"/>
+                    <p:outputLabel value="#{empleadoController.usuario.apellidoEmpleado}"/>
+                    
+                    <p:outputLabel value="FECHA DE NACIMIENTO:" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{funciones.setFechaFormateada(empleadoController.usuario.fechanacEmpleado,1)}" />
+                    
+                    <p:outputLabel value="DUI:" style="font-weight: bold"/>
+                    <p:outputLabel value="#{empleadoController.usuario.duiEmpleado}"/>
+                    
+                    <p:outputLabel value="NIT:" style="font-weight: bold"/>
+                    <p:outputLabel value="#{empleadoController.usuario.nitEmpleado}"/>
+                    
+                    <p:outputLabel value="TEL:" style="font-weight: bold"/>
+                    <p:outputLabel value="#{empleadoController.usuario.telEmpleado}"/>
+                    
+                    <p:outputLabel value="PUESTO:" style="font-weight: bold"/>
+                    <p:outputLabel value="#{empleadoController.usuario.puestoEmpleado}"/>
+                    
+                    <p:outputLabel value="USERNAME:" style="font-weight: bold;color: blue"/>
+                    <p:outputLabel value="#{empleadoController.usuario.username}" style="font-weight: bold;color: blue"/>
+                    
+                    <p:outputLabel value="ESTADO:" style="font-weight: bold"/>
+                    <p:outputLabel value="#{empleadoController.usuario.activo?'ACTIVO':'INACTIVO'}" styleClass="#{empleadoController.usuario.activo?'color-activa':'color-cancelada'}" />
+                </h:panelGrid>
+                <h:panelGrid style="float: left" >
+                    <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+                    
+                    <p:commandButton value="ACTUALIZAR DATOS" actionListener="#{empleadoController.prepararEditarCuenta()}" update=":frmEditarCuenta" oncomplete="editarCuentaDialog.show();"/>
+                    <p:commandButton value="CAMBIAR USERNAME" actionListener="#{empleadoController.prepararCambioUsername()}" oncomplete="cambiarUsernameDialog.show()" update=":frmCambiarUsername"/>
+                    <p:commandButton value="CAMBIAR PASSWORD" actionListener="#{empleadoController.prepararCambioPassword()}" oncomplete="cambiarPasswordDialog.show()" update=":frmCambiarPassword"/>
+                </h:panelGrid>
+                
+                     
+            </h:form>
+            
+       </p:panel>
+       
+        
+        <!-- EDITAR INFORMACION DE CUENTA-->
+        <p:dialog id="dlgEditarCuenta" widgetVar="editarCuentaDialog" modal="true" resizable="false" appendTo="@(body)" header="EDITAR INFORMACION DE CUENTA"  >
+            <h:form id="frmEditarCuenta">
+                <h:panelGrid columns="2">
+                    <p:outputLabel value="CODIGO:" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{empleadoController.cuenta.codempleado}" />
+                    <p:outputLabel value="NOMBRE:" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{empleadoController.cuenta.nombreEmpleado}" />
+                    <p:outputLabel value="APELLIDO:" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{empleadoController.cuenta.apellidoEmpleado}" />
+                    <p:outputLabel value="FECHA DE NACIMIENTO:" style="font-weight: bold;"/>
+                    <p:calendar value="#{empleadoController.cuenta.fechanacEmpleado}" navigator="true"  mode="popup" showOn="button" readonlyInput="true" effect="slideDown" pattern="dd/MM/yyyy"/>
+                    <p:outputLabel value="DUI:" style="font-weight: bold;"/>
+                    <p:inputMask  mask="99999999-9" value="#{empleadoController.cuenta.duiEmpleado}" />
+                    <p:outputLabel value="NIT:" style="font-weight: bold;"/>
+                    <p:inputMask  mask="9999-999999-999-9"  value="#{empleadoController.cuenta.nitEmpleado}" />
+                    <p:outputLabel value="TEL:" style="font-weight: bold;"/>
+                    <p:inputMask  mask="99999999-9" value="#{empleadoController.cuenta.telEmpleado}" />
+                    <p:outputLabel value="PUESTO:" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{empleadoController.cuenta.puestoEmpleado}" />
+                </h:panelGrid>
+                <br/>
+                <p:commandButton value="GUARDAR CAMBIOS" actionListener="#{empleadoController.actualizarDatosCuenta()}" oncomplete="editarCuentaDialog.hide()"  update=":gwCuenta,:frmCuenta,:frmEditarCuenta" />
+                <p:commandButton value="CANCELAR" oncomplete="editarCuentaDialog.hide()" style="float: right" />
+                
+            </h:form>
+         </p:dialog>
+        
+        
+        
+         
+         <!-- CAMBIAR USERNAME-->
+        <p:dialog id="dlgCambiarUsername" widgetVar="cambiarUsernameDialog" modal="true" resizable="false" appendTo="@(body)" header="CAMBIAR USERNAME"  >
+            <h:form id="frmCambiarUsername">
+                <h:panelGrid columns="2">
+                    <p:outputLabel value="USERNAME ACTUAL:" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{empleadoController.usuario.username}" />
+                    <p:outputLabel value="NUEVO USERNAME:" style="font-weight: bold;"/>
+                    <p:inputText value="#{empleadoController.nuevoUsername}" maxlength="20" required="true" requiredMessage="INGRESE EL NUEVO USERNAME"/>
+                </h:panelGrid>
+                <br/>
+                <p:commandButton value="ACTUALIZAR USERNAME" actionListener="#{empleadoController.mostrarConfirmarUsername()}" oncomplete="submitConfirmar(xhr, status, args, cambiarUsernameDialog, cfdCambiarUsername)"  update=":gwCuenta,:frmConfirmarUsername,:frmCambiarUsername" />
+                <p:commandButton value="CANCELAR" oncomplete="cambiarUsernameDialog.hide()" style="float: right" />
+                
+            </h:form>
+         </p:dialog> 
+         
+          <!-- CONFIRMAR CAMBIO DE USERNAME -->
+          <p:confirmDialog message="SEGURO QUE DESEA CAMBIAR SU USERNAME POR:" appendTo="@(body)" header="RECUPERACION DE CONTRASEÑA" severity="info"  widgetVar="cfdCambiarUsername">
+            <h:form id="frmConfirmarUsername">
+                <p:outputLabel value="NUEVO USERNAME: " style="font-weight: bold; color: blue"/>
+                <p:outputLabel value=" #{empleadoController.nuevoUsername}" style="color: blue;font-weight: bold"/>
+                <br/><br/>
+                <p:outputLabel value="NOTA: SE USARA EL NUEVO USERNAME LA PROXIMA VEZ QUE INICIE SESION" style="font-weight: bold;font-size: 12px;color: red"/>
+                <br/><br/>
+                <p:commandButton value="OK" actionListener="#{empleadoController.cambiarUsername()}"  oncomplete="cfdCambiarUsername.hide();"  update=":gwCuenta,:frmCuenta"/>
+                <p:commandButton value="CANCELAR " onclick="cfdCambiarUsername.hide();" type="button" style="float: right" />
+            </h:form>
+        </p:confirmDialog>  
+         
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+           <!-- CAMBIAR PASSWORD-->
+           <p:dialog id="dlgCambiarPassword" widgetVar="cambiarPasswordDialog" modal="true" resizable="false" appendTo="@(body)" header="CAMBIAR CONTRASE&Ntilde;A"  >
+            <h:form id="frmCambiarPassword">
+                <h:panelGrid columns="2">
+                    <p:outputLabel value="PASSWORD ACTUAL:" style="font-weight: bold;"/>
+                    <p:password value="#{empleadoController.password}" required="true" requiredMessage="Ingrese Contrase&ntilde;a ACTUAL"/>
+                    <h:outputLabel for="pwd1" value="NUEVO PASSWORD: *" />  
+                    <p:password id="pwd1" value="#{empleadoController.nuevoPassword}" match="pwd2" label="NUEVO PASSWORD" validatorMessage="CONTRASEÑAS NO COINCIDEN" required="true" requiredMessage="Ingrese Nueva Contrase&ntilde;a"/>  
+
+                    <h:outputLabel for="pwd2" value="REPITA PASSWORD: *" />  
+                    <p:password id="pwd2" value="#{empleadoController.nuevoPassword}" label="PASSWORD REPETIDO" required="true" requiredMessage="Repita la nueva Contrase&ntilde;a"/>  
+                </h:panelGrid>
+                <br/>
+                <p:commandButton value="CAMBIAR PASSWORD" actionListener="#{empleadoController.mostrarConfirmarPassword()}" oncomplete="submitConfirmar(xhr, status, args, cambiarPasswordDialog, cfdCambiarPassword)"  update=":gwCuenta,:frmCambiarPassword" />
+                <p:commandButton value="CANCELAR" oncomplete="cambiarPasswordDialog.hide()" style="float: right" />
+                
+            </h:form>
+         </p:dialog> 
+           
+           
+          <!-- CONFIRMAR CAMBIO DE PASSWORD -->
+          <p:confirmDialog message="SEGURO QUE DESEA CAMBIAR SU CONTRASE&Ntilde;A DE ACCESO:" appendTo="@(body)" header="CONFIRMAR CAMBIO DE PASSWORD" severity="info"  widgetVar="cfdCambiarPassword">
+            <h:form id="frmConfirmarPassword">
+                <br/><br/>
+                <p:outputLabel value="NOTA: SE USARA LA NUEVA CONTRASE&Ntilde;A LA PROXIMA VEZ QUE INICIE SESION" style="font-weight: bold;font-size: 12px;color: red"/>
+                <br/><br/>
+                <p:commandButton value="OK" actionListener="#{empleadoController.cambiarPassword()}"  oncomplete="cfdCambiarPassword.hide();"  update=":gwCuenta,:frmCuenta"/>
+                <p:commandButton value="CANCELAR" onclick="cfdCambiarPassword.hide();" type="button" style="float: right" />
+            </h:form>
+        </p:confirmDialog>   
+           
+           
+    </ui:define>
+    
+
+</ui:composition>

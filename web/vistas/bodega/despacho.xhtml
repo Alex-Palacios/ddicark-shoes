@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/resources/plantillas/plantillaPrincipal.xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+    <ui:define name="title">
+        <h:outputText value="Despacho de Mercancia"/>
+    </ui:define>
+
+    <ui:define name="body">
+        <c:choose>
+        <!-- VERIFICA QUE TENGA PERMISOS -->
+        <c:when test="${empleadoController.verificarPermiso('BODEGA', 'PROCESAR PEDIDOS')}" >
+            
+        <p:panel  header="DESPACHO DE PEDIDOS" style="height:99.3%; width: 99.5%;" >
+            <p:growl id="gwDespacho"/>
+            
+            <h:form id="frmDespacho">
+                
+                <p:wizard id="wzdPPL" nextLabel="PROCESAR PEDIDO" backLabel="ORDEN DE PEDIDO" flowListener="#{inventarioController.onFlowProcessDespacho}" style="overflow: hidden; ">
+                    
+                    <!-- DETALLE FACTURA -->
+                    <p:tab id="tbPedido" title="PEDIDO" titleStyle="font-size: 15px;" >
+                        
+                        <p:growl id="gwTabPedido"/>
+
+                            <!--PEDIDOS APROBADOS -->
+                            <p:dataTable id="dtPedidos" var="pedido" value="#{pedidoController.pedidosEnCola}"
+                                             emptyMessage="NO HAY PEDIDOS QUE PROCESAR" paginator="true" rows="8" paginatorPosition="bottom"  
+                                             paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"  
+                                             rowStyleClass="#{funciones.estiloFilaFecha(pedido.fechaEntrega)}">  
+
+                                <f:facet name="header">PEDIDOS EN COLA</f:facet>
+
+                                <p:column   headerText="ORDEN DE PEDIDO" >  
+                                    <h:outputText value="#{pedido.pedidoPK.numpedido}" />
+                                </p:column> 
+                                <p:column headerText="FECHA PEDIDO" > 
+                                     <h:outputText value="#{funciones.setFechaFormateada(pedido.pedidoPK.fechaPedido,1)}"/>
+                                </p:column>
+                                <p:column headerText="CLIENTE" > 
+                                    <h:outputText value="#{funciones.getNombreCliente(pedido.clientePedido)}"/>
+                                </p:column>
+                                <p:column headerText="TIPO PAGO" > 
+                                    <h:outputText value="#{pedido.tipoPago}"/>
+                                </p:column>
+                                <p:column headerText="TOTAL" > 
+                                    <h:outputText value="#{funciones.redondearMas(pedido.totalPedido,2)}"/>
+                                </p:column>
+                                <p:column headerText="FECHA ENTREGA" > 
+                                     <h:outputText value="#{funciones.setFechaFormateada(pedido.fechaEntrega,1)}"/>
+                                </p:column>
+                                <p:column headerText="ESTADO" > 
+                                    <h:outputText value="#{pedido.estadoPedido}"/>
+                                </p:column>
+                                <p:column headerText="TIPO PRODUCTO" > 
+                                    <h:outputText value="#{funciones.tipoLabel(pedido.tipoProducto)}"/>
+                                </p:column>    
+                        </p:dataTable>
+                        <br/><br/>
+                        <p:remoteCommand name="updatePedido" update="datosPedido" />
+                        <p:outputLabel value="ORDEN DE PEDIDO N°: " for="ordenPedido" style="font-weight: bold;"/>
+                        &nbsp;&nbsp;
+                        <p:selectOneMenu id="ordenPedido" value="#{inventarioController.ordenPedido}" onchange="updatePedido()"  required="true" requiredMessage="Ingrese ORDEN DE PEDIDO" style=" margin-bottom: -7px; " >
+                            <f:selectItem itemLabel="Selecciona Pedido" noSelectionOption="true"/>
+                            <f:selectItems value="#{pedidoController.pedidosEnCola}"
+                                           var="orden"
+                                           itemValue="#{orden}"
+                                           itemLabel="#{orden.pedidoPK.numpedido}"/>
+                            <f:converter binding="#{pedidoConverter}"/>  
+                        </p:selectOneMenu>
+
+                        <br/><br/>
+                        <h:panelGrid id="datosPedido" columns="6" cellspacing="10" > 
+                            <p:outputLabel value="FECHA ENTREGA: " style="font-weight: bold;float: right"/>
+                            <p:outputLabel value="#{funciones.setFechaFormateada(inventarioController.ordenPedido.fechaEntrega,1)}"/>
+                            <p:outputLabel value="CLIENTE: " style="font-weight: bold;float: right"/>
+                            <p:outputLabel value="#{funciones.getNombreCliente(inventarioController.ordenPedido.clientePedido)}"/>
+                            <p:outputLabel value="EMPLEADO RESPONSABLE: " style="font-weight: bold;float: right"/>
+                            <p:outputLabel value="#{inventarioController.ordenPedido.responsablePedido.nombreEmpleado}"/>
+                            <p:outputLabel value="TIPO PAGO: " style="font-weight: bold;float: right"/>
+                            <p:outputLabel value="#{inventarioController.ordenPedido.tipoPago}"/>
+                            <p:outputLabel value="TOTAL: " style="font-weight: bold;float: right"/>
+                            <p:outputLabel value="#{funciones.redondearMas(inventarioController.ordenPedido.totalPedido,2)}"/>
+                            <p:outputLabel value="OBSERVACIONES: " style="font-weight: bold;float: right"/>
+                            <p:outputLabel value="#{inventarioController.ordenPedido.observacionesPedido}"/>
+                        </h:panelGrid> 
+                    </p:tab>
+                    
+     <!-- &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& -->               
+                    
+                    <!-- DETALLE DEL ENVIO -->
+                    <p:tab id="tbEnvio" title="ORDEN DE ENVIO" titleStyle="font-size: 15px;" >
+                        <p:growl id="gwTabEnvio"/>
+                        <h:form id="frmDetalleEnvio">
+                            <ui:include src="detalleEnvio.xhtml"/>
+                        </h:form>
+                    </p:tab>
+                </p:wizard> 
+            </h:form>
+        </p:panel>
+        
+        <ui:include src="buscar.xhtml" />
+        
+        
+        
+        
+        </c:when>
+            
+            
+            <!-- SI NO TIENE LOS PERMISOS DA MSJ DE ERROR -->
+            <c:otherwise>
+                   <h:form>
+                        <div style="min-height: 300px; text-align: center; margin-top: 100px;">
+                            <p:outputLabel value="ACCESO DENEGADO" style="font-size: 30px;font-weight: bold;color:red"/>
+                            <br/><br/>
+                            <h:graphicImage url="/faces/resources/imagenes/locked.png" alt="ZONA RESTRINGIDA" width="200" />
+                            <br/><br/>
+                            <p:outputLabel value="NO TIENE PERMISO PARA VER ESTA PAGINA" style="font-size: 20px;font-weight: bold;color:red"/>
+                            <br/>
+                            <p:outputLabel value="CONSULTE CON EL ADMINISTRADOR DEL SISTEMA" style="font-size: 20px;font-weight: bold;"/>
+                        </div>
+                    </h:form>
+             </c:otherwise>
+        </c:choose>
+        
+        
+    </ui:define>
+    
+
+</ui:composition>

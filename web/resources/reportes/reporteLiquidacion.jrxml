@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="reporteLiquidacion" pageWidth="612" pageHeight="792" whenNoDataType="AllSectionsNoDetail" columnWidth="592" leftMargin="10" rightMargin="10" topMargin="20" bottomMargin="20" uuid="999c4e4d-37fc-4348-b3d5-4245e4d60d18">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="urlLogo" class="java.lang.String"/>
+	<parameter name="vendedor" class="java.lang.String"/>
+	<parameter name="fechaHoy" class="java.util.Date"/>
+	<field name="tipo" class="java.lang.String"/>
+	<field name="factura" class="java.lang.String"/>
+	<field name="cliente" class="java.lang.String"/>
+	<field name="saldo" class="java.math.BigDecimal"/>
+	<field name="municipio" class="java.lang.String"/>
+	<field name="fecha" class="java.util.Date"/>
+	<field name="monto" class="java.math.BigDecimal"/>
+	<field name="limite" class="java.math.BigDecimal"/>
+	<field name="dias" class="java.lang.Long"/>
+	<variable name="TOTAL_CREDITO" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{monto}]]></variableExpression>
+	</variable>
+	<variable name="TOTAL_SALDO" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{saldo}]]></variableExpression>
+	</variable>
+	<group name="MUNICIPIO">
+		<groupExpression><![CDATA[$F{municipio}]]></groupExpression>
+		<groupHeader>
+			<band height="18">
+				<textField isBlankWhenNull="true">
+					<reportElement uuid="e40ec208-247c-4d15-8a79-52f2b9fe9b91" x="3" y="3" width="220" height="15"/>
+					<textElement>
+						<font fontName="Serif" size="9" isBold="true" isUnderline="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{municipio}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="100" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="9eee51b8-6964-41dd-a947-51822992adf4" x="82" y="4" width="181" height="16"/>
+				<textElement>
+					<font fontName="SansSerif" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[GRUPO D'DICARK S.A de C.V]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="c5dd520a-83c9-4f7a-a0e0-6f13cd90667e" x="106" y="20" width="117" height="13"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Importadora de Calzado]]></text>
+			</staticText>
+			<image>
+				<reportElement uuid="78ed2ef3-8dde-48b9-bcd0-1a3fc44ea733" x="6" y="4" width="100" height="67"/>
+				<imageExpression><![CDATA[$P{urlLogo}]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement uuid="8175aabc-1e1c-4c7c-add1-32b81a8893be" x="82" y="37" width="209" height="16"/>
+				<textElement/>
+				<text><![CDATA[AV. Izalco Colonia San Luis, San Salvador]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="976fed51-04fa-4822-8db7-f3826b7eb9e3" x="85" y="54" width="100" height="14"/>
+				<textElement/>
+				<text><![CDATA[TEL : 2274-2668]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="5b535e8f-c9b9-4a2f-8674-48591828d250" x="393" y="54" width="63" height="13"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Reporte al:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="bc5e9b4b-24dc-4d02-9dec-d917336084e3" x="140" y="71" width="258" height="23"/>
+				<textElement>
+					<font size="18" isBold="true"/>
+				</textElement>
+				<text><![CDATA[REPORTE DE LIQUIDACION]]></text>
+			</staticText>
+			<textField pattern="MMMMM dd, yyyy" isBlankWhenNull="true">
+				<reportElement uuid="e99e1cac-c3f2-49c0-9102-79fbb8b13286" x="456" y="54" width="99" height="14"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{fechaHoy}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="28" splitType="Stretch">
+			<staticText>
+				<reportElement uuid="c81f6650-0c31-4c2e-af3a-ccb67da97167" x="6" y="3" width="63" height="13"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[VENDEDOR:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="066d32cb-8240-4c33-b94a-6a2b2981fab3" x="81" y="3" width="347" height="13"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$P{vendedor}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement uuid="7493dc58-8839-4f04-866c-7da6bc1c5ade" x="428" y="0" width="80" height="15"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement uuid="a64c534b-1f50-4315-92a6-3d51f1f0ca3b" x="521" y="0" width="40" height="15"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="84980d3c-be8b-4424-9b9e-c764f9a9c169" x="398" y="15" width="38" height="12"/>
+				<textElement>
+					<font fontName="Serif" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[MONTO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="c4659bc5-3d76-4548-8be2-b4f3bf435b3b" x="454" y="15" width="38" height="12"/>
+				<textElement>
+					<font fontName="Serif" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[SALDO]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="9cae8568-6e69-42f2-b01f-8892feed5668" x="304" y="15" width="56" height="12"/>
+				<textElement>
+					<font fontName="Serif" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[FACTURA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="70884e7e-b21a-46c4-87b9-fa5fe8dc375d" x="506" y="15" width="41" height="12"/>
+				<textElement>
+					<font fontName="Serif" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[MARGEN]]></text>
+			</staticText>
+			<staticText>
+				<reportElement uuid="e6454abd-774d-453f-ab42-d24741b8ab88" x="560" y="15" width="26" height="12"/>
+				<textElement>
+					<font fontName="Serif" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[DIAS]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<detail>
+		<band height="12" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="eddefc6f-164a-4c0f-be31-2c3a50f5ca27" x="308" y="1" width="28" height="11"/>
+				<textElement>
+					<font fontName="Monospaced" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{tipo}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="2e5ca2e1-40c9-4724-a4e5-f6f97310a453" x="340" y="1" width="39" height="11"/>
+				<textElement>
+					<font fontName="Monospaced" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{factura}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement uuid="6978ac97-8f7c-43e4-aaf9-3bc4ba668af9" x="20" y="0" width="220" height="11"/>
+				<textElement>
+					<font fontName="Monospaced" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cliente}]]></textFieldExpression>
+			</textField>
+			<textField pattern="$###0.00;($###0.00)" isBlankWhenNull="true">
+				<reportElement uuid="8d5a8972-6f4b-4656-8e62-7064e5c7cb5d" x="440" y="1" width="52" height="11"/>
+				<textElement textAlignment="Right">
+					<font fontName="Monospaced" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{saldo}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy" isBlankWhenNull="true">
+				<reportElement uuid="ceca4572-891e-41e8-adb7-cf5747fd77f7" x="245" y="1" width="59" height="11"/>
+				<textElement>
+					<font fontName="Monospaced" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fecha}]]></textFieldExpression>
+			</textField>
+			<textField pattern="$###0.00;($###0.00)">
+				<reportElement uuid="52ce42c3-e46f-44c6-9aeb-54c081bda1ab" x="382" y="1" width="51" height="11"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{monto}]]></textFieldExpression>
+			</textField>
+			<textField pattern="$###0.00;($###0.00)" isBlankWhenNull="true">
+				<reportElement uuid="2f6ebfc1-a478-4064-9b5d-ce2f238f3838" x="497" y="0" width="52" height="11"/>
+				<textElement textAlignment="Right">
+					<font fontName="Monospaced" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{limite}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0;(###0)" isBlankWhenNull="true">
+				<reportElement uuid="974e51de-e364-4f06-9df9-bfe9edded6c5" x="555" y="0" width="31" height="11"/>
+				<textElement textAlignment="Center">
+					<font fontName="Monospaced" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{dias}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="47">
+			<staticText>
+				<reportElement uuid="e02cc0d7-3622-46cd-93be-ae953c8ad018" x="292" y="9" width="94" height="12"/>
+				<textElement>
+					<font fontName="Serif" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[TOTAL CREDITOS:]]></text>
+			</staticText>
+			<textField pattern="$###0.00;($###0.00)" isBlankWhenNull="true">
+				<reportElement uuid="216bef9b-ffda-49e2-87b7-7aed3b039f67" x="390" y="8" width="113" height="15"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{TOTAL_CREDITO}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement uuid="4d7f42cb-62a0-4d20-8563-37209aaee8a4" x="292" y="26" width="94" height="12"/>
+				<textElement>
+					<font fontName="Serif" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[TOTAL SALDOS:]]></text>
+			</staticText>
+			<textField pattern="$###0.00;($###0.00)" isBlankWhenNull="true">
+				<reportElement uuid="1af05050-de99-4026-a62b-f4ea6e8425d8" x="390" y="25" width="113" height="15"/>
+				<textElement/>
+				<textFieldExpression><![CDATA[$V{TOTAL_SALDO}]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

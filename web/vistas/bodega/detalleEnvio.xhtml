@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <ui:composition>
+            <!--VISTA QUE SE RENDERIZARA SI EL TIPO DE PRODUCTO ES CALZADO -->
+            <h:panelGroup rendered="${inventarioController.ordenPedido.tipoProducto == 1}"  >
+                <h:panelGrid columns="3">
+                    <p:dataTable id="dtDetallePedido" var="detalle" value="#{inventarioController.detalleOrdenPedido}"
+                                 emptyMessage="NO HA DETALLADO PEDIDO" style="text-align: center;float: left "
+                                 scrollable="true" scrollHeight="100" >  
+
+                    <f:facet name="header">DETALLE DE PEDIDO</f:facet>
+
+                    <p:column   headerText="CODIGO ESTILO" >  
+                        <h:outputText value="#{detalle.producto.productoPK.codestilo}" />
+                    </p:column> 
+                    <p:column headerText="COLOR" > 
+                        <h:outputText value="#{detalle.color}"/>
+                    </p:column>
+                    <p:column headerText="TALLA" > 
+                        <h:outputText value="#{detalle.talla}"/>
+                    </p:column>
+                    <p:column headerText="PARES" >
+                        <h:outputText value="#{detalle.cantidad}"/>
+                    </p:column>
+                    <p:column headerText="P/U"> 
+                        <h:outputText value="#{funciones.redondearMas(detalle.pu,2)}"/>
+                    </p:column>
+                    <p:column headerText="MONTO">
+                        <h:outputText value="#{funciones.redondearMas(detalle.monto,2)}"/>
+                    </p:column>
+                    <p:columnGroup type="footer">
+                        <p:row>
+                            <p:column rendered="false" />
+                            <p:column rendered="false" />
+                            <p:column rendered="false" />
+                            <p:column rendered="false" />
+                            <p:column rendered="false" />
+                            <p:column rendered="false" />
+                        </p:row>
+                        <p:row>  
+                            <p:column colspan="3" footerText="UNIDADES PEDIDAS: " style="text-align:right"/>  
+                            <p:column footerText="#{inventarioController.unidadesPedidas}" /> 
+                            <p:column footerText="TOTAL: " style="text-align:right"/>  
+                            <p:column footerText="#{funciones.redondearMas(inventarioController.ordenPedido.totalPedido,2)}" />   
+                        </p:row>  
+                    </p:columnGroup>  
+                </p:dataTable>
+                
+                <h:panelGroup>
+                    <p:commandButton value="LISTAR PRODUCTOS" oncomplete="buscarCalzadoDialog.show();"  /><br/><br/>
+                    <p:commandButton value="CANCELAR ENVIO" oncomplete="cfdCancelarEnvio.show();" process="@form" /><br/><br/>
+                    <p:commandButton value="LIMPIAR ENVIO" actionListener="#{inventarioController.resetListaEnvio()}" process="@this" update=":gwDespacho,:frmDespacho:frmDetalleEnvio:dtInventario,:frmDespacho:frmDetalleEnvio:pnTotales" /><br/><br/>
+                    <p:commandButton  value="PROCESAR ENVIO" actionListener="#{inventarioController.prepararDespacho()}" oncomplete="cfdDespacharEnvio.show();" update=":frmDespacharEnvio" process="@form"/>
+                </h:panelGroup>
+
+                <p:panel id="pnTotales" >
+
+                    <h:panelGrid columns="1">
+                        <p:outputLabel value="UNIDADES DESPACHADAS" style="font-weight: bold;color:orange;"/>
+                        <p:outputLabel id="unidadesDespachadas" value="#{inventarioController.unidadesDespachadas}" style="font-weight: bold; color:orange; font-size: 20px;"/>
+                        <p:outputLabel value="UNIDADES EMPACADAS" style="font-weight: bold;color:orange;"/>
+                        <p:outputLabel id="unidadesEmpacadas" value="#{inventarioController.unidadesEmpacadas}" style="font-weight: bold; color:orange; font-size: 20px;"/>
+                        <p:outputLabel value="PEDIDO AL" style="font-weight: bold;color:orange;"/>
+                        <p:outputLabel id="porcentajeEmpacado" value="#{funciones.redondearMas(inventarioController.porcentajeEmpacado,2)}%" style="font-weight: bold; color:orange;font-size: 20px;"/>
+                        
+                     </h:panelGrid>
+                </p:panel>
+                </h:panelGrid>
+                <br/>
+                <div align="center">
+                    &dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;&dArr;
+                </div>
+                <p:dataTable id="dtInventario" var="inventario"   value="#{inventarioController.detalleDespacho}"
+                         emptyMessage="ORDEN DE ENVIO VACIO" style="text-align: center; "
+                         scrollable="true" scrollHeight="150" rowKey="#{inventario.codigo}" >  
+
+                        <f:facet name="header">DETALLE ENVIO</f:facet>
+                        
+                        <p:column width="5%">  
+                            <div align="center">
+                                <p:commandButton actionListener="#{inventarioController.prepararEliminarDeLista(inventario)}"  icon="ui-icon-close" title="Eliminar" style="height: 15px; width:15px;" oncomplete="eliminarProductoEnvioDialog.show()" update=":frmEliminarDeEnvio"  process="@this" />
+                            </div>
+                        </p:column>
+                        <p:column headerText="CODIGO"> 
+                             #{inventario.codigo}
+                        </p:column>
+                        <p:column headerText="CODIGO CAJA"> 
+                             #{inventario.numcaja.numcaja}
+                        </p:column>
+                        <p:column headerText="ESTILO"  > 
+                             #{inventario.producto.productoPK.codestilo}
+                        </p:column>
+                        <p:column headerText="COLOR" > 
+                             #{inventario.color}
+                        </p:column>
+                        <p:column headerText="MARCA"> 
+                             #{inventario.marca}
+                        </p:column>
+                        <p:column headerText="TALLA" > 
+                             #{inventario.talla}
+                        </p:column>
+                        <p:column headerText="NOTA" > 
+                             #{inventario.notaProducto}
+                        </p:column>
+                        <p:column headerText="PRECIO"> 
+                             #{funciones.redondearMas(inventarioController.calcularPrecioVenta(inventario,true),2)}
+                        </p:column>
+
+                        <p:columnGroup type="footer">
+                            <p:row>
+                                <p:column rendered="false" />
+                                <p:column rendered="false" />
+                                <p:column rendered="false" />
+                                <p:column rendered="false" />
+                                <p:column rendered="false" />
+                                <p:column rendered="false" />
+                                <p:column rendered="false" />
+                                <p:column rendered="false" />
+                            </p:row>
+                            <p:row>  
+                                <p:column colspan="8" footerText="TOTAL ENVIO: " style="text-align:right; color: blue;"/>  
+                                <p:column footerText="#{funciones.redondearMas(inventarioController.montoEnvio,2)}" style="font-weight: bold; color: blue;"/>   
+                            </p:row>  
+                        </p:columnGroup>  
+             </p:dataTable>
+            </h:panelGroup>
+            
+            
+            <!--VISTA QUE SE RENDERIZARA SI EL TIPO DE PRODUCTO ES CARTERA -->
+            <h:panelGroup rendered="${inventarioController.ordenPedido.tipoProducto == 2}" >
+                CARTERA
+            </h:panelGroup>
+            
+            
+            <!--VISTA QUE SE RENDERIZARA SI EL TIPO DE PRODUCTO ES ROPA -->
+            <h:panelGroup rendered="${inventarioController.ordenPedido.tipoProducto == 3}" >
+                ROPA
+            </h:panelGroup>
+    </ui:composition>
+    
+</html>

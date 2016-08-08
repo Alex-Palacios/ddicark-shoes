@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/resources/plantillas/plantillaPrincipal.xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+    <ui:define name="title">
+        <h:outputText value="DEVOLUCIONES"/>
+    </ui:define>
+
+    <ui:define name="body">
+        
+        <c:choose>
+        <!-- VERIFICA QUE TENGA PERMISOS -->
+        <c:when test="${empleadoController.verificarPermiso('CAD', 'REGISTRAR DEVOLUCIONES')}" >
+
+        #{devolucionController.prepararDevolucion()}
+        <p:growl id="gwDevolucion"/>
+        <p:panel  header="REGISTRO DE DEVOLUCION" style="height:99.3%; width: 99.5%;" >
+            
+                   
+                <p:fieldset legend="FACTURA" style="float: left; width: 560px;height: 480px;">
+                     
+                    <h:form id="frmFactura">
+
+                        <!-- FACTURA -->
+                        <h:panelGrid columns="3">
+                            <p:outputLabel value="FACTURA N°:" style="font-weight: bold;" />
+                            <p:inputText value="#{devolucionController.numFactura}" required="true" requiredMessage="INGRESE EL NUMERO DE FACTURA"/>
+                            <br/>
+                            <p:outputLabel value="FECHA:" style="font-weight: bold;"/>
+                            <p:calendar value="#{devolucionController.fechaFactura}"  mode="popup" showOn="button" readonlyInput="true" effect="slideDown" pattern="dd/MM/yyyy" required="true" requiredMessage="INGRESE FECHA DE LA FACTURA" />
+                            <p:commandButton value="BUSCAR FACTURA" actionListener="#{devolucionController.buscarFacturaDevolucion()}" process="@form" update=":gwDevolucion,:frmFactura,:frmDevolucion" />
+                        </h:panelGrid>
+                        <h:panelGrid id="pngDatosfactura" columns="4">
+                            <p:outputLabel value="FACTURA N°:" style="font-weight: bold;" />
+                            <p:outputLabel value="#{devolucionController.factura.facturaPK.numfactura}" />
+                            <p:outputLabel value="TIPO:" style="font-weight: bold;" />
+                            <p:outputLabel value="#{devolucionController.factura.tipoFactura}" />
+                            <p:outputLabel value="FECHA:" style="font-weight: bold;"/>
+                            <p:outputLabel value="#{funciones.setFechaFormateada(devolucionController.factura.facturaPK.fechaFactura,1)}" />
+                            <p:outputLabel value="CONDICION DE PAGO:" style="font-weight: bold;"/>
+                            <p:outputLabel value="#{devolucionController.factura.condicionPago}" />
+                            <p:outputLabel value="CLIENTE:" style="font-weight: bold;"/>
+                            <p:outputLabel value="#{funciones.getNombreCliente(devolucionController.factura.cliente)}" />
+                            <p:outputLabel value="DUI:" style="font-weight: bold;" rendered="#{devolucionController.factura.tipoFactura == 'FCF'}" />
+                            <p:outputLabel value="#{devolucionController.factura.cliente.duiCliente}" rendered="#{devolucionController.factura.tipoFactura == 'FCF'}"  />
+                            <p:outputLabel value="NIT:" style="font-weight: bold;" />
+                            <p:outputLabel value="#{devolucionController.factura.cliente.nitCliente}"  />
+                            <p:outputLabel value="NRC:" style="font-weight: bold;" rendered="#{devolucionController.factura.tipoFactura == 'CCF'}" />
+                            <p:outputLabel value="#{devolucionController.factura.cliente.nrcCliente}" rendered="#{devolucionController.factura.tipoFactura == 'CCF'}" />
+                            
+                            <p:outputLabel value="ESTADO:" styleClass="#{(devolucionController.factura.estado == 'ACTIVA')?'color-activa':'color-cancelada'}" />
+                            <p:outputLabel value="#{devolucionController.factura.estado}" styleClass="#{(devolucionController.factura.estado == 'ACTIVA')?'color-activa':'color-cancelada'}"  />
+                            <p:outputLabel value="OBSERVACIONES:" />
+                            <p:outputLabel value="#{devolucionController.factura.observaciones}" />
+                            <p:outputLabel value="VENCIMIENTO CREDITO:" style="font-weight: bold; color: red" rendered="#{devolucionController.factura.condicionPago == 'AL CREDITO'}"/>
+                            <p:outputLabel value="#{funciones.setFechaFormateada(devolucionController.factura.fechaVencimiento,1)}" rendered="#{devolucionController.factura.condicionPago == 'AL CREDITO'}" style="font-weight: bold; color: red"/>
+                            
+
+                        </h:panelGrid>
+                        <br/>
+                        <p:dataTable id="dtDetalleFactura" var="detalleFactura" value="#{devolucionController.factura.detalleFacturaCollection}"
+                                     emptyMessage="NO HA ESPECIFICADO FACTURA" style="text-align: center">  
+
+                            <f:facet name="header">DETALLE DE FACTURA</f:facet>
+
+                            <p:column style="width:2%"  >  
+                               <p:rowToggler  />  
+                           </p:column>
+                            
+                            <p:column headerText="CANTIDAD" width="5">  
+                                <h:outputText value="#{detalleFactura.cantidad}" />
+                            </p:column>
+
+                            <p:column headerText="ESTILO">  
+                                <h:outputText value="#{detalleFactura.estilo}" />
+                            </p:column>
+
+                            <p:column headerText="COLORES">  
+                                <h:outputText value="#{detalleFactura.colores}" />
+                            </p:column>
+
+                            <p:column headerText="PU">  
+                                <h:outputText value="$ #{funciones.redondearMas(detalleFactura.pu,2)}" />
+                            </p:column>
+
+                            <p:column headerText="MONTO">  
+                                <h:outputText value="$ #{funciones.redondearMas(detalleFactura.montoLinea,2)}" />
+                            </p:column>
+                            
+                            <p:rowExpansion>
+                                <p:dataTable id="detalleLinea" var="detalleLinea"  value="#{detalleFacturaController.getDetalleLineaVenta(detalleFactura)}"
+                                            scrollable="true" scrollHeight="75"
+                                            rowKey="#{detalleLinea.detalleEnvioPK}" style="text-align: center; ">  
+
+                                        <p:column headerText="ESTILO">
+                                            <p:outputLabel value="#{detalleLinea.inventario.producto.productoPK.codestilo}" />
+                                        </p:column>
+                                        
+                                        <p:column headerText="COLOR">
+                                            <p:outputLabel value="#{detalleLinea.inventario.color}" />
+                                        </p:column>
+                                        
+                                    <p:column headerText="TALLA" style="width: 25px;">
+                                            <p:outputLabel value="#{detalleLinea.inventario.talla}" />
+                                        </p:column>
+                                        
+                                        <p:column headerText="NOTA">
+                                            <p:outputLabel value="#{detalleLinea.nota}" />
+                                        </p:column>
+                                        
+                                    
+                                    <p:column style="width: 14px;">  
+                                        <p:commandButton actionListener="#{devolucionController.devolucionProducto(detalleLinea)}" oncomplete="mostrarDialog(xhr,status,args,unidadDevolverDialog)" update=":gwDevolucion,:frmUnidadDevolver" process="@this"  icon="ui-icon-refresh" title="Listar como Devolucion" style="height: 15px;" />
+                                    </p:column>
+                               </p:dataTable>
+                           </p:rowExpansion>
+
+                            <p:columnGroup type="footer">
+                                <p:row>  
+                                    <p:column colspan="5" footerText="SUMAS: " style="text-align:right"/>  
+                                    <p:column footerText="$ #{funciones.redondearMas(devolucionController.factura.sumas,2)}" /> 
+                                </p:row>
+                                <p:row>  
+                                    <p:column colspan="5" footerText="#{devolucionController.factura.porcentajeDescuento} % DESCUENTO: " style="text-align:right"/>  
+                                    <p:column footerText="($ #{funciones.redondearMas(devolucionController.factura.descuento,2)})" /> 
+                                </p:row>
+                                <p:row rendered="#{devolucionController.factura.tipoFactura == 'CCF'}">  
+                                    <p:column colspan="5" footerText="SUB TOTAL "  style="text-align:right"/>  
+                                    <p:column footerText="$ #{funciones.redondearMas(devolucionController.factura.subTotal,2)}" /> 
+                                </p:row> 
+                                <p:row rendered="#{devolucionController.factura.tipoFactura == 'CCF'}" >  
+                                    <p:column colspan="5" footerText="IVA: " style="text-align:right"/>  
+                                    <p:column footerText="$ #{funciones.redondearMas(devolucionController.factura.iva,2)}" /> 
+                                </p:row>
+                                <p:row>  
+                                    <p:column colspan="5" footerText="TOTAL A PAGAR: " style="text-align:right"/>  
+                                    <p:column footerText="$ #{funciones.redondearMas(devolucionController.factura.total,2)}" /> 
+                                </p:row>  
+                            </p:columnGroup>  
+                        </p:dataTable>
+                
+                    </h:form>
+                </p:fieldset>
+            
+            <p:fieldset legend="DEVOLUCION DE PRODUCTOS" style="float: left; width: 580px;height: 480px;">
+                <h:form id="frmDevolucion">
+                    <p:dataTable id="dtDevoluciones" var="devolucion"  value="#{devolucionController.devoluciones}"
+                                 emptyMessage="NO HA REGISTRADO CAMBIOS"
+                                  rowKey="#{devolucion.detalleEnvioPK}" style="text-align: center; ">  
+
+                        <f:facet name="header">LISTA DE PRODUCTOS EN DEVOLUCION</f:facet>  
+
+                            <p:column headerText="ESTILO">
+                                <p:outputLabel value="#{devolucion.inventario.producto.productoPK.codestilo}" />
+                            </p:column>
+
+                            <p:column headerText="COLOR">
+                                <p:outputLabel value="#{devolucion.inventario.color}" />
+                            </p:column>
+
+                            <p:column headerText="TALLA" style="width: 25px;">
+                                <p:outputLabel value="#{devolucion.inventario.talla}" />
+                            </p:column>
+
+                            <p:column headerText="ESTADO" style="width: 25px;">
+                                <p:outputLabel value="#{devolucion.inventario.estadoproducto}" />
+                            </p:column>
+
+                            <p:column headerText="PRECIO" style="width: 25px;">
+                                <p:outputLabel value="$ #{funciones.redondearMas(devolucion.inventario.preciomayoreo,2)}" />
+                            </p:column>
+                        
+                            <p:column headerText="PRECIO FACTURADO" style="width: 25px;">
+                                <p:outputLabel value="$ #{funciones.redondearMas(devolucion.precioFacturar,2)}" />
+                            </p:column>
+                        
+                            <p:column headerText="MONTO DEVOLUCION" style="width: 25px;">
+                                <p:outputLabel value="$ #{funciones.redondearMas(devolucionController.calcularDevolucionProducto(devolucion),2)}" />
+                            </p:column>
+
+                            <p:columnGroup type="footer">
+                                <p:row>  
+                                    <p:column colspan="6" footerText="TOTAL DEVOLUCION: " style="text-align:right"/>  
+                                    <p:column footerText="$ #{funciones.redondearMas(devolucionController.nuevaDevolucion.totalDevolucion,2)}" /> 
+                                </p:row>  
+                            </p:columnGroup>
+                   </p:dataTable>
+                    
+                    <br/><br/>
+                    <p:commandButton value="LIMPIAR" actionListener="#{devolucionController.limpiarListaDevoluciones()}" update=":gwDevolucion,:frmDevolucion" />
+                    <p:commandButton value="REGISTRAR DEVOLUCION" oncomplete="cfdConfirmarDevolucion.show()" update=":frmConfirmarDevolucion" style="float: right" />
+                </h:form> 
+            </p:fieldset>
+            
+       </p:panel>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    <!-- DIALOGOS -->
+    
+    
+    
+        
+        
+    <!-- CAMBIAR PRODUCTO-->
+    <p:dialog widgetVar="unidadDevolverDialog" modal="true" resizable="false" appendTo="@(body)" header="DEVOLUCION DE PRODUCTO"  >
+
+        <h:form id="frmUnidadDevolver">
+
+            <h:panelGroup rendered="#{devolucionController.de != null}">
+                <p:panelGrid columns="2" styleClass="noBorderPanelGrid" >
+                    <p:outputLabel value="CODIGO:"/>
+                    <p:outputLabel value="#{devolucionController.de.inventario.codigo}" />
+                    <p:outputLabel value="ESTILO:"/>
+                    <p:outputLabel value="#{devolucionController.de.inventario.producto.productoPK.codestilo}" />
+                    <p:outputLabel value="COLOR:"/>
+                    <p:outputLabel value="#{devolucionController.de.inventario.color}" />
+                    <p:outputLabel value="TALLA:"/>
+                    <p:outputLabel value="#{devolucionController.de.inventario.talla}" />
+                    <p:outputLabel value="PRECIO:"/>
+                    <p:outputLabel value="$ #{funciones.redondearMas(devolucionController.de.inventario.preciomayoreo,2)}" />
+                    <p:outputLabel value="PRECIO FACTURADO:"/>
+                    <p:outputLabel value="$ #{funciones.redondearMas(devolucionController.de.precioFacturar,2)}" />
+                    <p:outputLabel value="DEVOLUCION:"/>
+                    <p:outputLabel value="$ #{funciones.redondearMas(devolucionController.calcularDevolucionProducto(devolucionController.de),2)}" />
+                </p:panelGrid>
+                <p:commandButton value="LISTAR DEVOLUCION" actionListener="#{devolucionController.listarDevolucion()}" oncomplete="unidadDevolverDialog.hide()" process="@this" update=":gwDevolucion,:frmDevolucion" />
+                <p:commandButton value="CERRAR" oncomplete="unidadDevolverDialog.hide()" style="float:right" />
+            </h:panelGroup>
+        </h:form>
+
+    </p:dialog>
+        
+    
+    
+    <!-- CONFIRMAR DEVOLUCIONES EN FACTURA -->
+    <p:confirmDialog message="SEGURO QUE DESEA REGISTRAR LA SIGUIENTE DEVOLUCION:" appendTo="@(body)" header="CONFIRMANDO DEVOLUCION" severity="info"  widgetVar="cfdConfirmarDevolucion">
+        <h:form id="frmConfirmarDevolucion">
+            <h:panelGrid columns="2">
+                <p:outputLabel value="FACTURA:" style="font-weight: bold" />
+                <p:outputLabel value="#{devolucionController.factura.facturaPK.numfactura}" />
+                <p:outputLabel value="FECHA:" style="font-weight: bold"/>
+                <p:outputLabel value="#{funciones.setFechaFormateada(devolucionController.factura.facturaPK.fechaFactura,1)}" />
+                <p:outputLabel value="UNIDADES DEVUELTAS:" style="font-weight: bold"/>
+                <p:outputLabel value="#{devolucionController.nuevaDevolucion.unidadesDevolucion}" />
+                <p:outputLabel value="TOTAL DEVOLUCION:" style="font-weight: bold"/>
+                <p:outputLabel value="#{funciones.redondearMas(devolucionController.nuevaDevolucion.totalDevolucion,2)}" />
+                <p:outputLabel value="NOTA DEVOLUCION:" />
+                <p:inputTextarea value="#{devolucionController.nuevaDevolucion.notaDevolucion}" />
+            </h:panelGrid>
+            <br/><br/>
+            <p:commandButton value="GUARDAR DEVOLUCION" actionListener="#{devolucionController.registrarDevolucion()}" process="@form" oncomplete="cfdConfirmarDevolucion.hide()" update=":gwDevolucion,:frmFactura,:frmDevolucion"  />
+            <p:commandButton value="CANCELAR " onclick="cfdConfirmarDevolucion.hide();" type="button" style="float: right" />
+        </h:form>
+
+    </p:confirmDialog>
+    
+    
+    
+    
+    
+    
+        </c:when>
+            
+            
+            <!-- SI NO TIENE LOS PERMISOS DA MSJ DE ERROR -->
+            <c:otherwise>
+                   <h:form>
+                        <div style="min-height: 300px; text-align: center; margin-top: 100px;">
+                            <p:outputLabel value="ACCESO DENEGADO" style="font-size: 30px;font-weight: bold;color:red"/>
+                            <br/><br/>
+                            <h:graphicImage url="/faces/resources/imagenes/locked.png" alt="ZONA RESTRINGIDA" width="200" />
+                            <br/><br/>
+                            <p:outputLabel value="NO TIENE PERMISO PARA VER ESTA PAGINA" style="font-size: 20px;font-weight: bold;color:red"/>
+                            <br/>
+                            <p:outputLabel value="CONSULTE CON EL ADMINISTRADOR DEL SISTEMA" style="font-size: 20px;font-weight: bold;"/>
+                        </div>
+                    </h:form>
+             </c:otherwise>
+        </c:choose>
+    
+    
+    </ui:define>
+        
+    
+</ui:composition>

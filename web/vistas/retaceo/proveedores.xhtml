@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <ui:composition>
+        
+        
+        <p:dialog id="dlgProveedores" widgetVar="proveedoresDialog" modal="true" resizable="false" appendTo="@(body)" header="Seleccionando Proveedor" width="80%" >
+            <br/>
+            &nbsp;&nbsp;&nbsp;
+            <p:commandButton id="btnCrearProveedor" icon="ui-icon-plus"  value="Nuevo Proveedor" actionListener="#{proveedorController.prepararCrear}" oncomplete="crearProveedorDialog.show();" update=":frmCrearProveedor"/>
+            <br/><br/>
+            <h:form id="frmListaProveedores">
+                <p:growl id="gwMsgProveedor" life="2000" />
+                <p:panel style="width:99%">
+                    <p:dataTable id="dtProveedores" var="proveedor" value="#{retaceoController.itemsProveedores}"
+                                 selectionMode="single" selection="#{proveedorController.selected}" rowKey="#{proveedor.idproveedor}"
+                                 emptyMessage="NO HAY PROVEEDORES" scrollable="true" scrollHeight="300" styleClass="centrar-celda-texto"  >  
+                        <p:column styleClass="dataTable-text" width="5"> 
+                            <div align="center">
+                                <p:commandButton actionListener="#{retaceoController.proveedor(proveedor)}" oncomplete="proveedoresDialog.hide();" icon="ui-icon-check" title="Seleccionar" style="height: 15px; width:15px;" update=":frmCrearFactura:idProveedor" />
+                            </div>
+                        </p:column>
+                        <p:column headerText="Nombre Proveedor"  styleClass="dataTable-text" width="60" > 
+                            <h:outputText value="#{proveedor.nombreProveedor}" styleClass="dataTable-text" />  
+                        </p:column>  
+
+                        <p:column headerText="Rubro" styleClass="dataTable-text" width="200">
+                            <h:outputText value="#{proveedor.rubroProveedor}" styleClass="dataTable-text"/>  
+                        </p:column>  
+
+                        <p:column headerText="Pais" styleClass="dataTable-text" width="100">  
+                            <h:outputText value="#{proveedor.paisProveedor}" styleClass="dataTable-text"/>  
+                        </p:column> 
+
+                        <p:column headerText="Telefono" styleClass="dataTable-text" width="90">  
+                            <h:outputText value="#{proveedor.telProveedor}" styleClass="dataTable-text"/>  
+                        </p:column>
+                    </p:dataTable>      
+                </p:panel>
+            </h:form>
+            
+            
+            <!-- PARA CREAR UN NUEVO PROVEEDOR -->
+            <p:dialog id="dlgCrearProveedor" widgetVar="crearProveedorDialog" modal="true" resizable="false" appendTo="@(body)" header="Ingreso de Proveedor">
+
+                <h:form id="frmCrearProveedor">
+
+                    <h:panelGroup id="displayCrearProveedor">
+                        <p:panelGrid columns="2" rendered="#{proveedorController.selected != null}">
+
+                            <p:outputLabel value="Nombre Proveedor:" for="nombreProveedor" />
+                            <p:inputText id="nombreProveedor" value="#{proveedorController.selected.nombreProveedor}" title="Nombre del Proveedor" required="true" requiredMessage="Ingrese nombre del proveedor" />
+
+                            <p:outputLabel value="DUI Proveedor:" for="duiProveedor" />
+                            <p:inputMask  mask="99999999-9"  id="duiProveedor" value="#{proveedorController.selected.duiProveedor}" title="Documento Unico de Identidad del Proveedor" />
+
+                            <p:outputLabel value="NIT Proveedor:" for="nitProveedor" />
+                            <p:inputMask  mask="9999-999999-999-9"  id="nitProveedor" value="#{proveedorController.selected.nitProveedor}" title="Numero de Identidad Tributaria del Proveedor" />
+
+                            <p:outputLabel value="NRC/RUC :" for="nrcProveedor" />
+                            <p:inputText id="nrcProveedor" value="#{proveedorController.selected.nrcProveedor}" title="Numero de Registro de Comercio" />
+
+                            <p:outputLabel value="Rubro:" for="rubroProveedor" />
+                            <p:inputText id="rubroProveedor" value="#{proveedorController.selected.rubroProveedor}" title="industria donde se desenvuelve" />
+
+                            <p:outputLabel value="Direccion:" for="direccionProveedor" />
+                            <p:inputTextarea id="direccionProveedor" value="#{proveedorController.selected.direccionProveedor}" title="Direccion del Proveedor" cols="30" rows="4" />
+
+                            <p:outputLabel value="Pais de Domicilio:" for="paisProveedor" />
+                            <p:inputText id="paisProveedor" value="#{proveedorController.selected.paisProveedor}" required="true" requiredMessage="Ingrese el pais del proveedor" title="Pais de Domicilio del Proveedor" />
+
+                            <p:outputLabel value="Telefono:" for="telProveedor" />
+                            <p:inputText  id="telProveedor" value="#{proveedorController.selected.telProveedor}" title="Numero de telefono del proveedor" />
+
+                            <p:outputLabel value="Contacto:" for="contactoProveedor" />
+                            <p:inputText id="contactoProveedor" value="#{proveedorController.selected.nombreContacto}" title="Nombre de la persona de contacto" />
+
+                            <p:outputLabel value="Tel Contacto:" for="telContactoProveedor" />
+                            <p:inputText id="telContactoProveedor" value="#{proveedorController.selected.telContacto}" title="Numero de telefono del contacto" />
+
+                            <p:outputLabel value="NOTA:" for="notaProveedor" />
+                            <p:inputTextarea id="notaProveedor" value="#{proveedorController.selected.notaProveedor}" title="Alguna nota o comentario importante" cols="30" rows="5" />
+ 
+                        </p:panelGrid>
+                        <br/>
+                        &nbsp;&ensp;&nbsp;&ensp;<p:commandButton actionListener="#{proveedorController.guardar}" value="Guardar" icon="ui-icon-disk"  update="displayCrearProveedor,:frmListaProveedores:dtProveedores,:frmListaProveedores:gwMsgProveedor"  oncomplete="handleSubmit(xhr,status,args,crearProveedorDialog);" />&nbsp;&ensp;&nbsp;&ensp;&nbsp;&ensp;&nbsp;&ensp;&nbsp;&ensp;&nbsp;&ensp;&nbsp;&ensp;&nbsp;
+                        &nbsp;&ensp;&nbsp;&ensp;<p:commandButton value="Cancelar" icon="ui-icon-close" update="displayCrearProveedor" onclick="crearProveedorDialog.hide()" />
+                    </h:panelGroup>
+
+                </h:form>
+
+            </p:dialog>
+            
+        </p:dialog> 
+    </ui:composition>
+
+</html>

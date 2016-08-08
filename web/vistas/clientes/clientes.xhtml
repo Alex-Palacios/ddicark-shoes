@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/resources/plantillas/plantillaPrincipal.xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+    <ui:define name="title">
+        <h:outputText value="Clientes"/>
+    </ui:define>
+
+    <ui:define name="body">
+        <c:choose>
+        <!-- VERIFICA QUE TENGA PERMISOS -->
+        <c:when test="${empleadoController.verificarPermiso('VER', 'CARTERA CLIENTES')}" >
+            
+            #{clienteController.prepararConsultaCliente()}
+        <p:panel  header="C A R T E R A &nbsp;&nbsp;D E &nbsp;&nbsp;C L I E N T E S" style="height:99.3%; width: 99.5%;" >
+            <p:growl id="gwClientes"/>
+            
+            <h:form id="frmClienteVendedor">
+                <p:outputLabel value="VENDEDOR:" />
+                <p:selectOneMenu id="vendedor" value="#{clienteController.vendedor}" style="  width: 300px;margin-bottom: -7px; " styleClass="ui-selectonemenu-label" >
+                    <f:selectItems value="#{empleadoController.vendedores}"
+                                   var="vendedor"
+                                   itemValue="#{vendedor}"
+                                   itemLabel="#{vendedor.codempleado} - #{vendedor.nombreEmpleado} #{vendedor.apellidoEmpleado}" />
+                    <f:converter binding="#{empleadoConverter}"/>  
+                </p:selectOneMenu>
+                &nbsp;&nbsp;
+                
+                <p:commandButton value="REPORTE CLIENTExVENDEDOR PDF" actionListener="#{clienteController.reporteClienteVendedor()}" update=":rptClienteVendedor" oncomplete="PF('reporteCliente').show()" process="@form" icon="ico-pdf"   />
+                <p:commandButton value="REPORTE CLIENTExVENDEDOR EXCEL" ajax="false" actionListener="#{clienteController.reporteClienteVendedorXLS()}" icon="ico-excel">  
+                    <p:fileDownload value="#{clienteController.fileXLS}" />  
+                </p:commandButton>  
+            </h:form>
+             
+            <h:form id="frmClientes">
+                    <!-- BOTON NUEVO CLIENTE -->
+                        <p:commandButton actionListener="#{clienteController.prepararCliente(event)}" value="NUEVO CLIENTE" update=":frmCrearCliente" process="@this" oncomplete="crearClienteDialog.show()" />
+                    
+                        <br/><br/>
+                         <p:dataTable var="cliente" value="#{clienteController.clientes}"
+                                      filteredValue="#{clienteController.filtroClientes}"
+                                      emptyMessage="CARTERA DE CLIENTES VACIA" style="font-size: 5px; "
+                                      paginator="true" rows="50" paginatorPosition="top"  paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}" 
+                                      selectionMode="single" selection="#{clienteController.clienteSelec}" rowKey="#{cliente.numcuenta}">
+                            
+                            <p:ajax event="rowSelect" listener="#{clienteController.showCliente()}" update=":frmVerCliente" oncomplete="verClienteDialog.show();" />
+                            
+                            
+                            <p:column sortBy="numcuenta" headerText="N/C" >  
+                                <h:outputText value="#{cliente.numcuenta}" />  
+                            </p:column> 
+
+                            <p:column headerText="CLIENTE" filterBy="obtenerNombreCliente()" filterMatchMode="contains"  sortBy="obtenerNombreCliente()" >  
+                                <h:outputText value="#{cliente.obtenerNombreCliente()}" />  
+                            </p:column> 
+
+                            <p:column headerText="DUI" >  
+                                <h:outputText value="#{cliente.duiCliente}" />  
+                            </p:column> 
+
+                            <p:column headerText="NIT CLIENTE/NEGOCIO">  
+                                <h:outputText value="#{cliente.nitCliente}" />  
+                            </p:column>
+                             
+                            
+                            <p:column headerText="NRC">  
+                                <h:outputText value="#{cliente.nrcCliente}" />  
+                            </p:column>
+
+                            <p:column headerText="TELEFONO">  
+                                <h:outputText value="#{cliente.telCliente}" />  
+                            </p:column> 
+                             
+                            <p:column headerText="NEGOCIO/CONTACTO">  
+                                <h:outputText value="#{cliente.comercioContacto}" />  
+                            </p:column> 
+
+                            <p:column headerText="TEL NEGOCIO/CONTACTO">  
+                                <h:outputText value="#{cliente.telComercio}" />  
+                            </p:column> 
+ 
+                            <p:column headerText="NATURALEZA">  
+                                <h:outputText value="#{cliente.naturaleza}" />  
+                            </p:column>
+                            
+                            <p:column headerText="LIMITE">  
+                                <h:outputText value="#{cliente.limite}" />  
+                            </p:column>
+                             
+                            <p:column headerText="ASESOR" filterBy="empleadoasignado.nombreEmpleado"  >  
+                                <h:outputText value="#{funciones.getNombreEmpleado(cliente.empleadoasignado)}" />  
+                            </p:column>
+                             
+                             <p:column width="2%" rendered="#{empleadoController.verificarPermiso('CREDITOS', 'HISTORIAL DE CLIENTE')}">  
+                                <div align="center">
+                                    <p:commandButton actionListener="#{creditosHistorialController.mostrarHistorialCliente(cliente)}" icon="ui-icon-folder-collapsed" title="Historial del Cliente" style="height: 15px; width:15px;" />
+                                </div>
+                            </p:column>
+
+                         </p:dataTable> 
+            </h:form>
+            
+       </p:panel>
+        
+       <!-- DIALOGO PARA INGRESAR NUEVO CLIENTE -->
+       <ui:include src="nuevoCliente.xhtml"/>
+       
+       <!-- DIALOGO PARA INGRESAR NUEVO CLIENTE -->
+       <ui:include src="verEditarCliente.xhtml"/>
+       
+       
+       
+        <!-- REPORTE LIQUIDACION-->
+            <p:dialog widgetVar="reporteCliente" header="REPORTE DE LIQUIDACION"  appendTo="@(body)" width="60%" height="500"  >
+                <h:form id="rptClienteVendedor">
+
+                    <object type="application/pdf" data="#{clienteController.pathServletReporteCxV}"  width="100%" height="500">
+
+                    </object>
+
+                </h:form>
+            </p:dialog>
+       
+                
+        </c:when>
+            
+            
+            <!-- SI NO TIENE LOS PERMISOS DA MSJ DE ERROR -->
+            <c:otherwise>
+                   <h:form>
+                        <div style="min-height: 300px; text-align: center; margin-top: 100px;">
+                            <p:outputLabel value="ACCESO DENEGADO" style="font-size: 30px;font-weight: bold;color:red"/>
+                            <br/><br/>
+                            <h:graphicImage url="/faces/resources/imagenes/locked.png" alt="ZONA RESTRINGIDA" width="200" />
+                            <br/><br/>
+                            <p:outputLabel value="NO TIENE PERMISO PARA VER ESTA PAGINA" style="font-size: 20px;font-weight: bold;color:red"/>
+                            <br/>
+                            <p:outputLabel value="CONSULTE CON EL ADMINISTRADOR DEL SISTEMA" style="font-size: 20px;font-weight: bold;"/>
+                        </div>
+                    </h:form>
+             </c:otherwise>
+        </c:choose>
+    </ui:define>
+    
+
+</ui:composition>

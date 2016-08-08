@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <ui:composition>
+        
+            
+            <!-- PARA CREAR IGRESAR CURVA -->
+            <p:dialog id="dlgCurva" widgetVar="curvaDialog" modal="true" resizable="false" appendTo="@(body)" header="Ingresar Curva">
+                <p:growl id="gwCurva" />
+                <h:form id="frmCurva">
+                    <h:panelGroup id="displayCurva">
+                        <p:outputLabel value="COLORES:" style="font-weight: bold;"/>&nbsp;&nbsp;&nbsp;
+                        <p:selectOneMenu value="#{preingresoController.numColores}" onchange="actColores()" style="margin-bottom: -7px;" tabindex="1" >
+                            <f:selectItem itemLabel="1" itemValue="1" />
+                            <f:selectItem itemLabel="2" itemValue="2" />
+                            <f:selectItem itemLabel="3" itemValue="3" />
+                            <f:selectItem itemLabel="4" itemValue="4" />
+                            <f:selectItem itemLabel="5" itemValue="5" />
+                            <f:selectItem itemLabel="6" itemValue="6" />
+                        </p:selectOneMenu> 
+                        <p:outputLabel value="INGRESAR:" style="font-weight: bold;"/>&nbsp;&nbsp;&nbsp;
+                        <p:selectOneMenu value="#{preingresoController.porCaja}" onchange="actColores()" style="margin-bottom: -7px;" tabindex="1" >
+                            <f:selectItem itemLabel="POR CAJA" itemValue="true" />
+                            <f:selectItem itemLabel="POR UNIDAD" itemValue="false" />
+                        </p:selectOneMenu> 
+                        <p:remoteCommand name="actColores" update="pnlCurvaColores" />
+                        <br/><br/>
+                        <h:panelGrid columns="2">
+                            <p:panelGrid id="pnlCurvaColores" styleClass="panelgrid" >
+                                    <f:facet name="header">
+                                        <p:row>
+                                            <p:column rowspan="2" style="width: 175px;">C O L O R</p:column>
+                                            <p:column colspan="10">T A L L A S</p:column>
+                                        </p:row>
+                                        <p:row>
+                                            <p:column><p:inputText value="#{preingresoController.tallas[0]}" style="width:20px;" tabindex="2" /></p:column>
+                                            <p:column><p:inputText value="#{preingresoController.tallas[1]}" style="width:20px;" tabindex="2"/></p:column>
+                                            <p:column><p:inputText value="#{preingresoController.tallas[2]}" style="width:20px;" tabindex="2"/></p:column>
+                                            <p:column><p:inputText value="#{preingresoController.tallas[3]}" style="width:20px;" tabindex="2"/></p:column>
+                                            <p:column><p:inputText value="#{preingresoController.tallas[4]}" style="width:20px;" tabindex="2"/></p:column>
+                                            <p:column><p:inputText value="#{preingresoController.tallas[5]}" style="width:20px;" tabindex="2"/></p:column>
+                                            <p:column><p:inputText value="#{preingresoController.tallas[6]}" style="width:20px;" tabindex="2"/></p:column>
+                                            <p:column><p:inputText value="#{preingresoController.tallas[7]}" style="width:20px;" tabindex="2"/></p:column>
+                                            <p:column><p:inputText value="#{preingresoController.tallas[8]}" style="width:20px;" tabindex="2"/></p:column>
+                                            <p:column><p:inputText value="#{preingresoController.tallas[9]}" style="width:20px;" tabindex="2"/></p:column>
+                                        </p:row>
+                                    </f:facet>
+                                    <p:row>
+                                        <p:column><p:autoComplete value="#{preingresoController.curva[0].color}" completeMethod="#{inventarioController.autoCompletarColor}"  size="25" tabindex="3"  /></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[0].t1}" min="0" maxlength="2" tabindex="3"/></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[0].t2}" min="0" maxlength="2" tabindex="3"/></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[0].t3}" min="0" maxlength="2" tabindex="3"/></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[0].t4}" min="0" maxlength="2" tabindex="3"/></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[0].t5}" min="0" maxlength="2" tabindex="3"/></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[0].t6}" min="0" maxlength="2" tabindex="3"/></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[0].t7}" min="0" maxlength="2" tabindex="3"/></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[0].t8}" min="0" maxlength="2" tabindex="3"/></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[0].t9}" min="0" maxlength="2" tabindex="3"/></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[0].t10}" min="0" maxlength="2" tabindex="3" /></p:column>
+                                    </p:row>
+                                    
+                                    <p:row rendered="#{preingresoController.numColores > 1}">
+                                        <p:column><p:autoComplete value="#{preingresoController.curva[1].color}"  completeMethod="#{inventarioController.autoCompletarColor}" size="25" tabindex="4" /></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[1].t1}" min="0" maxlength="2" tabindex="4" /></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[1].t2}" min="0" maxlength="2" tabindex="4" /></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[1].t3}" min="0" maxlength="2" tabindex="4" /></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[1].t4}" min="0" maxlength="2" tabindex="4" /></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[1].t5}" min="0" maxlength="2" tabindex="4" /></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[1].t6}" min="0" maxlength="2" tabindex="4" /></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[1].t7}" min="0" maxlength="2" tabindex="4" /></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[1].t8}" min="0" maxlength="2" tabindex="4" /></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[1].t9}" min="0" maxlength="2" tabindex="4" /></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[1].t10}" min="0" maxlength="2" tabindex="4" /></p:column>
+                                    </p:row>
+                               
+                                    <p:row rendered="#{preingresoController.numColores > 2}">
+                                        <p:column><p:autoComplete value="#{preingresoController.curva[2].color}"  completeMethod="#{inventarioController.autoCompletarColor}" size="25" tabindex="5"  /></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[2].t1}" min="0" maxlength="2" tabindex="5" /></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[2].t2}" min="0" maxlength="2" tabindex="5" /></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[2].t3}" min="0" maxlength="2" tabindex="5" /></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[2].t4}" min="0" maxlength="2" tabindex="5" /></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[2].t5}" min="0" maxlength="2" tabindex="5" /></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[2].t6}" min="0" maxlength="2" tabindex="5" /></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[2].t7}" min="0" maxlength="2" tabindex="5" /></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[2].t8}" min="0" maxlength="2" tabindex="5" /></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[2].t9}" min="0" maxlength="2" tabindex="5" /></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[2].t10}" min="0" maxlength="2" tabindex="5" /></p:column>
+                                    </p:row>
+                                    
+                                    <p:row rendered="#{preingresoController.numColores > 3}">
+                                        <p:column><p:autoComplete value="#{preingresoController.curva[3].color}"  completeMethod="#{inventarioController.autoCompletarColor}" size="25" tabindex="6"  /></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[3].t1}" min="0" maxlength="2" tabindex="6" /></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[3].t2}" min="0" maxlength="2" tabindex="6" /></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[3].t3}" min="0" maxlength="2" tabindex="6" /></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[3].t4}" min="0" maxlength="2" tabindex="6" /></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[3].t5}" min="0" maxlength="2" tabindex="6" /></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[3].t6}" min="0" maxlength="2" tabindex="6" /></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[3].t7}" min="0" maxlength="2" tabindex="6" /></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[3].t8}" min="0" maxlength="2" tabindex="6" /></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[3].t9}" min="0" maxlength="2" tabindex="6" /></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[3].t10}" min="0" maxlength="2" tabindex="6" /></p:column>
+                                    </p:row>
+                                
+                                    <p:row rendered="#{preingresoController.numColores > 4}">
+                                        <p:column><p:autoComplete value="#{preingresoController.curva[4].color}"  completeMethod="#{inventarioController.autoCompletarColor}" size="25" tabindex="7"  /></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[4].t1}" min="0" maxlength="2" tabindex="7" /></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[4].t2}" min="0" maxlength="2" tabindex="7"/></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[4].t3}" min="0" maxlength="2" tabindex="7"/></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[4].t4}" min="0" maxlength="2" tabindex="7"/></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[4].t5}" min="0" maxlength="2" tabindex="7"/></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[4].t6}" min="0" maxlength="2" tabindex="7"/></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[4].t7}" min="0" maxlength="2" tabindex="7"/></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[4].t8}" min="0" maxlength="2" tabindex="7"/></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[4].t9}" min="0" maxlength="2" tabindex="7"/></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[4].t10}" min="0" maxlength="2" tabindex="7"/></p:column>
+                                    </p:row>
+                                
+                                    <p:row rendered="#{preingresoController.numColores > 5}">
+                                        <p:column><p:autoComplete value="#{preingresoController.curva[5].color}"  completeMethod="#{inventarioController.autoCompletarColor}" size="25" tabindex="8" /></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[5].t1}" min="0" maxlength="2" tabindex="8"/></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[5].t2}" min="0" maxlength="2" tabindex="8"/></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[5].t3}" min="0" maxlength="2" tabindex="8"/></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[5].t4}" min="0" maxlength="2" tabindex="8"/></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[5].t5}" min="0" maxlength="2" tabindex="8"/></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[5].t6}" min="0" maxlength="2" tabindex="8"/></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[5].t7}" min="0" maxlength="2" tabindex="8"/></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[5].t8}" min="0" maxlength="2" tabindex="8"/></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[5].t9}" min="0" maxlength="2" tabindex="8"/></p:column>
+                                        <p:column><p:spinner value="#{preingresoController.curva[5].t10}" min="0" maxlength="2" tabindex="8"/></p:column>
+                                    </p:row>
+
+                                    <f:facet name="footer">
+                                        <p:row rendered="#{preingresoController.porCaja}">
+                                            <p:column colspan="10" style="text-align: right;" ># CAJAS</p:column>
+                                            <p:column><p:spinner value="#{preingresoController.numCajas}" min="0" tabindex="9"/></p:column>
+                                        </p:row>
+                                        <p:row>
+                                            <p:column colspan="10" style="text-align: right;" >COSTO UNITARIO $</p:column>
+                                            <p:column><p:inputText value="#{preingresoController.costoUnitario}" required="true" requiredMessage="Se requiere el costo unitario"  style="width:30px;" tabindex="9" /></p:column>
+                                        </p:row>
+                                    </f:facet>
+                            </p:panelGrid>
+                            
+                            <h:panelGroup>
+                                <p:commandButton value="LISTAR PRODUCTO &dArr;&dArr;&dArr; " actionListener="#{preingresoController.listarProductos()}" update=":gwCurva,:frmIngreso:frmSegunTipo:dtPreIngreso,:frmIngreso:frmSegunTipo:pnTotales"  oncomplete="handleSubmit(xhr,status,args,curvaDialog);"  style="font-size: 5px;width: 115px;height:35px;" tabindex="10"  /><br/><br/>
+                                <p:commandButton value="LIMPIAR" actionListener="#{preingresoController.resetearDetalles(1)}" update=":frmCurva" style="font-size: 10px;width: 115px;height:35px;" tabindex="10" /><br/><br/>
+                                <p:commandButton value="CAMBIAR ESTILO" actionListener="#{preingresoController.cambiarEstilo()}" oncomplete="curvaDialog.hide();" update=":frmIngreso:frmSegunTipo" style="font-size: 10px;width: 115px;height:35px;" tabindex="10"/>
+                                
+                            </h:panelGroup>
+                       </h:panelGrid>
+                    </h:panelGroup>
+
+                </h:form>
+
+            </p:dialog>
+            
+    </ui:composition>
+
+</html>

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+    <ui:composition>
+            <!--VISTA QUE SE RENDERIZARA SI EL TIPO DE PRODUCTO ES CALZADO -->
+           <!-- <h:panelGroup rendered="${preingresoController.tipoProducto == 1 or preingresoController.tipoProducto == 2 or preingresoController.tipoProducto == 3 or preingresoController.tipoProducto == 4 }"  >
+              -->  
+                        <!-- ARRIBA -->
+                        <h:panelGrid columns="3" id="pngEstilo">
+                            <h:panelGrid columns="4" cellpadding="4"  >
+                                <p:outputLabel value="ESTILO:" />
+                                <p:selectOneMenu id="somEstilo"  value="#{preingresoController.estilo}" panelStyle="width:200px;height:300px;overflow-y:scroll" style="width:110px;"  required="true" requiredMessage="Ingrese Estilo"  
+                                                  effect="fade" var="e"  filter="true" filterMatchMode="startsWith">
+                                    <f:selectItem itemLabel="Seleccione Estilo.." itemValue="#{null}"  />
+                                    <f:selectItems value="#{productoController.getEstilos(preingresoController.tipoProducto)}" 
+                                                   var="estilo" 
+                                                   itemValue="#{estilo}"
+                                                   itemLabel="#{estilo.productoPK.codestilo}" 
+                                                   />
+                                    <f:converter binding="#{productoConverter}" />
+                                    
+                                    <p:column width="100">  
+                                        #{e.productoPK.codestilo} 
+                                    </p:column>
+                                </p:selectOneMenu>
+                                <br/>
+                                <p:commandButton id="btnCrearEstilo" value="NUEVO ESTILO" actionListener="#{productoController.nuevoEstilo(event)}"  oncomplete="crearEstiloDialog.show()" update=":frmCrearEstilo"  title="Nuevo Estilo"  process="@this"  />
+                                
+                                <p:outputLabel value="MARCA:" for="marca"/>
+                                <p:autoComplete id="marca" value="#{preingresoController.marca}"  completeMethod="#{inventarioController.autoCompletarMarca}" size="15" required="true" requiredMessage="Ingrese la MARCA"/>
+                                <p:outputLabel value="MATERIAL:" for="material"/>
+                                <p:autoComplete id="material" dropdown="true" value="#{preingresoController.material}" completeMethod="#{inventarioController.autoCompletarMaterial}" size="13" required="true" requiredMessage="Ingrese MATERIAL"/> 
+                                <p:outputLabel value="GENERO:" for="genero"/>
+                                <p:selectOneMenu id="genero" value="#{preingresoController.genero}" >
+                                    <f:selectItem itemLabel="MASCULINO" itemValue="M" /> 
+                                    <f:selectItem  itemLabel="FEMENINO" itemValue="F" />
+                                    <f:selectItem  itemLabel="UNISEX" itemValue="U" />
+                                </p:selectOneMenu>
+                                <p:outputLabel value="PARA:" for="tipoPersona"/>
+                                <p:selectOneMenu id="tipoPersona" value="#{preingresoController.clasePersona}" style="width: 100px;" >
+                                    <f:selectItem  itemLabel="ADULTOS" itemValue="A" itemDescription="Adultos" /> 
+                            <f:selectItem itemLabel="JUVENIL" itemValue="J" itemDescription="Adolescentes" />
+                                    <f:selectItem  itemLabel="NI&Ntilde;OS" itemValue="N" />
+                                    <f:selectItem itemLabel="INFANTES" itemValue="I" itemDescription="Bebes" />
+                                </p:selectOneMenu>
+                           </h:panelGrid>
+                            
+                            <h:panelGroup>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <p:commandButton id="btnIngresarCurva" value="INGRESAR CURVA" actionListener="#{preingresoController.prepararCurva()}" oncomplete="mostrarDialog(xhr,status,args,curvaDialog);"  update=":gwIngreso,:frmCurva,:frmIngreso:frmSegunTipo:marca, :frmIngreso:frmSegunTipo:material" process="@form"  style="font-size: 5px;width: 115px;height:35px;"  />
+                               
+                            </h:panelGroup>
+                                
+                            <h:panelGroup>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <p:commandButton value="VACIAR PRE-INGRESO" oncomplete="cfdVaciar.show()" style="font-size: 10px;width: 115px;height:35px;" />
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <p:commandButton value="GUARDAR PRE-INGRESO" oncomplete="cfdGuardar.show()" style="font-size: 10px;width: 115px;height:35px;" />
+                                <br/><br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <p:commandButton value="CANCELAR PRE-INGRESO" oncomplete="cfdCancelar.show()" style="width: 115px;height:35px;" rendered="false"/>
+                            </h:panelGroup>
+                            
+                        </h:panelGrid>
+                        <!-- TABLA Y RESUMEN DE PREINGRESO -->
+                            <h:panelGrid columns="2">
+                                <p:dataTable id="dtPreIngreso" var="caja"  value="#{preingresoController.cajasPreingresadasAux}"
+                                             emptyMessage="NO HA DETALLADO FACTURA" scrollable="true" scrollHeight="175" 
+                                             rowKey="#{caja.numcaja}" style="text-align: center; overflow-x: hidden">  
+
+                                   <f:facet name="header">PRE-INGRESO DE PRODUCTOS</f:facet>
+                                   
+                                   <p:column style="width:2%"  >  
+                                       <p:rowToggler rendered="#{caja.numcaja == 0}"  />  
+                                   </p:column> 
+                                   
+                                   <p:column headerText="ID" width="20"  > 
+                                        #{caja.numcaja==0?'':caja.numcaja}
+                                   </p:column>
+                                   
+                                   <p:column headerText="ESTILO"  > 
+                                        #{caja.numcaja==0?'UNITARIO':caja.producto.productoPK.codestilo}
+                                   </p:column>
+                                          
+                                   <p:column headerText="COLORES" width="150"  > 
+                                        #{caja.coloresCaja}
+                                   </p:column>
+                                   
+                                   <p:column headerText="CURVA"  > 
+                                        #{caja.detalleCaja}
+                                   </p:column>
+                                   
+                                   <p:column headerText="UNIDADES"  > 
+                                        #{caja.unidadesCaja}
+                                   </p:column>
+                                   
+                                   <p:column headerText="COSTO UNITARIO"  > 
+                                        #{caja.numcaja==0?'':funciones.redondearMas(caja.costoUnitario,2)}
+                                   </p:column>
+                                   
+                                   <p:column headerText="COSTO CAJA"  > 
+                                        #{caja.numcaja==0?'':funciones.redondearMas(caja.costoCaja ,2)}
+                                   </p:column>
+                                   
+                                   <p:column width="5%">  
+                                        <div align="center">
+                                            <p:commandButton actionListener="#{preingresoController.deleteCaja(caja)}" process="@this" icon="ui-icon-close" title="Eliminar de Lista" style="height: 15px; width:15px;" update=":gwIngreso,:frmIngreso:frmSegunTipo:pnTotales,:frmIngreso:frmSegunTipo:dtPreIngreso" />
+                                        </div>
+                                   </p:column>
+                                   <p:rowExpansion >
+                                       <p:dataTable id="detalleCaja" var="preingreso"  value="#{preingresoController.getDetalleCaja(caja.numcaja)}"
+                                                    emptyMessage="NO HAY PRODUCTOS A INGRESAR" scrollable="true" scrollHeight="100" 
+                                             rowKey="#{preingreso.codigoPreingreso}" style="text-align: center; width: 95%">  
+
+                                                <f:facet name="header">PREINGRESO UNITARIO</f:facet>
+                                                
+                                                <p:column headerText="ESTILO"  > 
+                                                    #{preingreso.estilo.productoPK.codestilo}
+                                               </p:column>
+                                                
+                                                <p:column headerText="COLOR"  > 
+                                                    #{preingreso.colorPreingreso}
+                                               </p:column>
+                                                
+                                               <p:column headerText="TALLA" > 
+                                                    #{preingreso.tallaPreingreso}
+                                               </p:column>
+                                               <p:column headerText="COSTO UNITARIO" > 
+                                                    #{preingreso.costounitarioPreingreso.floatValue()}
+                                               </p:column>
+                                                
+                                                <p:columnGroup type="footer">
+                                                    <p:row>  
+                                                        <p:column colspan="4" footerText="COSTO TOTAL: " style="text-align:right"/>  
+                                                        <p:column footerText="#{funciones.redondearMas(preingresoController.costoTotalUnitario,2)}" /> 
+                                                    </p:row>
+                                                   
+                                                </p:columnGroup>
+                                       </p:dataTable>
+                                   </p:rowExpansion>
+                                   
+                                   
+                                </p:dataTable>
+                                <p:panel id="pnTotales">
+                                     <p:outputLabel value="UNIDADES" style="font-weight: bold;"/><br/>
+                                     <p:inputText value="#{preingresoController.unidades}" size="5" readonly="true"/><br/>
+                                     <p:outputLabel value="CAJAS" style="font-weight: bold;"/><br/>
+                                     <p:inputText value="#{preingresoController.cajas}" size="5" readonly="true"/><br/>
+                                     <p:outputLabel value="COSTO TOTAL" style="font-weight: bold;"/>
+                                     <p:inputText value="$ #{preingresoController.costoTotal}" size="15" readonly="true"/>
+                                 </p:panel>
+                            </h:panelGrid>
+           <!-- </h:panelGroup> -->
+            
+            
+    </ui:composition>
+    
+</html>

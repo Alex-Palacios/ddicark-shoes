@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/resources/plantillas/plantillaPrincipal.xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+    <ui:define name="title">
+        <h:outputText value="Facturacion"/>
+    </ui:define>
+
+    <ui:define name="body">
+         
+         <c:choose>
+        <!-- VERIFICA QUE TENGA PERMISOS -->
+        <c:when test="${empleadoController.verificarPermiso('VENTAS', 'FACTURAR')}" >
+
+        
+        <p:panel  header="F A C T U R A C I O N &nbsp;&nbsp;D E &nbsp;&nbsp;P R O D U C T O" style="height:99.3%; width: 99.5%;" >
+            <p:growl id="gwFacturacion"/>
+            
+            <h:form id="frmFacturacion">
+                <p:wizard id="wzdFacturacion" nextLabel="PROCESAR VENTA" backLabel="ORDENES DE ENVIO" showStepStatus="false" flowListener="#{ventasController.procesarVenta}" styleClass="ui-wizard-nav-next,ui-wizard-nav-back" style="overflow-y: hidden; ">
+                    
+                    <!-- ORDENES DE ENVIO-->
+                    <p:tab id="tbEnvios" title="ORDENES DE ENVIO" titleStyle="font-size: 15px;" >
+                        <p:growl id="gwTabEnvios"/>
+                        
+                            <p:remoteCommand name="updateOrdenEnvio" update="datosEnvio,dtDetalleEnvio" />
+                            <br/><br/>
+                            <p:outputLabel value="NOTA ENVIO N°: " style="font-weight: bold;"/>
+                        &nbsp;&nbsp;
+                        
+                            <p:selectOneMenu id="envios" value="#{ventasController.ordenEnvio}" onchange="updateOrdenEnvio()"  required="true" requiredMessage="SELECCIONE NOTA DE ENVIO A PROCESAR" style=" margin-bottom: -7px; " styleClass="ui-selectonemenu-label" >
+                                <f:selectItem itemLabel="Seleccione Envio" noSelectionOption="true"/>
+                                <f:selectItems value="#{envioController.enviosEnProcesoVentaFacturacion}"
+                                               var="ordenEnvio"
+                                               itemValue="#{ordenEnvio}"
+                                               itemLabel="#{ordenEnvio.numenvio}" />
+                                <f:converter binding="#{envioConverter}"/>  
+                            </p:selectOneMenu>
+
+                            <br/><br/>
+
+                        <h:panelGrid id="datosEnvio" columns="6" cellspacing="15"> 
+                            <p:outputLabel value="ORDEN DE PEDIDO N°: " style="font-weight: bold; float: right"/>
+                            <p:outputLabel value="#{ventasController.ordenEnvio.pedido.pedidoPK.numpedido}"/>
+                            <p:outputLabel value="FECHA DE ENTREGA: " style="font-weight: bold;float: right"/>
+                            <p:outputLabel value="#{funciones.setFechaFormateada(ventasController.ordenEnvio.pedido.fechaEntrega,1)}"/>
+                            <p:outputLabel value="CONDICION PAGO: " style="font-weight: bold;float: right"/>
+                            <p:outputLabel value="#{ventasController.ordenEnvio.pedido.tipoPago}"/>
+                            <p:outputLabel value="CLIENTE: " style="font-weight: bold;float: right"/>
+                            <p:outputLabel value="#{funciones.getNombreCliente(ventasController.ordenEnvio.pedido.clientePedido)}"/>
+                            <p:outputLabel value="UNIDADES: " style="font-weight: bold;float: right"/>
+                            <p:outputLabel value="#{ventasController.ordenEnvio.totalUnidades}"/>
+                            <p:outputLabel value="SUB TOTAL: " style="font-weight: bold;float: right"/>
+                            <p:outputLabel value="#{funciones.redondearMas(ventasController.ordenEnvio.subTotal,2)}" />
+                            <p:outputLabel value="DESPACHO: " style="font-weight: bold;float: right"/>
+                            <p:outputLabel value="#{ventasController.ordenEnvio.despacho.nombreEmpleado}" />
+                            <p:outputLabel value="VENDEDOR: " style="font-weight: bold;float: right"/>
+                            <p:outputLabel value="#{ventasController.ordenEnvio.vendedor.nombreEmpleado}" />
+                            <p:outputLabel value="ESTADO ENVIO: " style="font-weight: bold;float: right"/>
+                            <p:outputLabel value="#{ventasController.ordenEnvio.estado}" style="font-weight: bold; color: red"/>
+                            <p:outputLabel value="NOTAS: " style="font-weight: bold;float: right"/>
+                            <p:outputLabel value="#{ventasController.ordenEnvio.nota}" style="width:60px;"/>
+                        </h:panelGrid>
+                        
+                        
+                        <!-- DETALLE DEL ENVIO -->
+                        <p:dataTable id="dtDetalleEnvio" var="detalleEnvio" value="#{detalleEnvioController.getDetalleOrdenEnvio(ventasController.ordenEnvio)}"
+                                             emptyMessage="DETALLE DE LA ORDEN DE ENVIO VACIO" 
+                                             scrollable="true" scrollHeight="175" style="text-align: center;">  
+                            
+                            <f:facet name="header">DETALLE DE LA ORDEN DE ENVIO</f:facet>
+
+                            <p:column   headerText="CODIGO CAJA">  
+                                <h:outputText value="#{detalleEnvio.inventario.numcaja.numcaja}" />
+                            </p:column>
+                            
+                            <p:column   headerText="TIPO">  
+                                <h:outputText value="#{funciones.tipoLabel(detalleEnvio.inventario.producto.productoPK.tipoProducto)}" />
+                            </p:column>
+                            
+                            <p:column   headerText="ESTILO"  >  
+                                <h:outputText value="#{detalleEnvio.inventario.producto.productoPK.codestilo}" />
+                            </p:column>
+                            
+                            <p:column   headerText="COLOR" >  
+                                <h:outputText value="#{detalleEnvio.inventario.color}" />
+                            </p:column>
+
+                            <p:column   headerText="TALLA" >  
+                                <h:outputText value="#{detalleEnvio.inventario.talla}" />
+                            </p:column>
+                            
+                            <p:column   headerText="MARCA">  
+                                <h:outputText value="#{detalleEnvio.inventario.marca}" />
+                            </p:column>
+                            
+                            <p:column   headerText="PROCEDENCIA" >  
+                                <h:outputText value="#{detalleEnvio.inventario.procedencia}" />
+                            </p:column>
+                            
+                            <p:column   headerText="PRECIO">  
+                                <h:outputText value="$ #{funciones.redondearMas(detalleEnvio.precioFacturar,2)}" />
+                            </p:column>
+                            
+                            <p:column   headerText="FACTURADO">  
+                                <h:outputText value="#{detalleEnvio.lineaVenta != null? 'SI' : 'NO'}" />
+                            </p:column>
+                        </p:dataTable>
+                        <br/>
+
+                    </p:tab>
+                   
+                    <!-- PROCESANDO VENTA -->
+                    <p:tab id="tbVenta" title="VENTA Y FACTURACION" titleStyle="font-size: 15px;" >
+                        <p:growl id="gwTabVenta"/>
+                        
+                            <!-- VENTA Y FACTURACION -->
+                            <!-- PRODUCTO POR FACTURAR -->
+                            <p:fieldset legend="VENTA COMPLETA" style="float: left; width: 570px;height: 480px;">  
+                                <!-- DETALLE DEL ENVIO -->
+                                <br/><br/>
+                                <p:dataTable id="dtDetalleVenta" var="detalleEnvio" value="#{ventasController.detalleEnvio}"
+                                                     emptyMessage="TODOS LOS PRODUCTOS HAN SIDO FACTURADOS" 
+                                                     scrollable="true" scrollHeight="150" style="text-align: center;"
+                                                     rowKey="#{detalleEnvio.detalleEnvioPK}">  
+
+                                    <f:facet name="header">PRODUCTO A FACTURAR</f:facet>
+
+                                    <p:column style="width: 12px;">  
+                                        <p:commandButton actionListener="#{ventasController.prepararCambioPrecio(detalleEnvio)}" oncomplete="mostrarDialog(xhr,status,args,cambioPrecioDialog)" update=":gwFacturacion,:frmCambioPrecio"  icon="ui-icon-transferthick-e-w" title="Cambiar Precio a Facturar" style="height: 15px;" />
+                                    </p:column>
+
+                                    <p:column   headerText="TIPO">  
+                                        <h:outputText value="#{funciones.tipoLabel(detalleEnvio.inventario.producto.productoPK.tipoProducto)}" />
+                                    </p:column>
+
+                                    <p:column   headerText="ESTILO"  >  
+                                        <h:outputText value="#{detalleEnvio.inventario.producto.productoPK.codestilo}" />
+                                    </p:column>
+
+                                    <p:column   headerText="COLOR" >  
+                                        <h:outputText value="#{detalleEnvio.inventario.color}" />
+                                    </p:column>
+
+                                    <p:column   headerText="TALLA" >  
+                                        <h:outputText value="#{detalleEnvio.inventario.talla}" />
+                                    </p:column>
+
+                                    <p:column   headerText="PRECIO">  
+                                        <h:outputText value="$ #{funciones.redondearMas(detalleEnvio.precioFacturar,2)}" />
+                                    </p:column>
+
+                                    <p:column   headerText="FACTURADO">  
+                                        <h:outputText value="#{detalleEnvio.lineaVenta != null? 'SI' : 'NO'}" />
+                                    </p:column>
+                                </p:dataTable>
+                                <h:panelGrid id="pngDatosVenta" columns="4" cellpadding="5">
+                                    <p:outputLabel value="VENTA N°:" style="font-size: 15px; font-weight: bold; color: blue" />
+                                    <p:outputLabel value="#{ventasController.ventaEnvio.numventa}" style="font-size: 15px; font-weight: bold; color: blue" />
+                                    <p:outputLabel value="CONDICION DE PAGO:" style="font-weight: bold; float: right"/>
+                                    <p:outputLabel value="#{ventasController.ventaEnvio.tipoVenta}" />
+                                    <p:outputLabel value="MONTO VENTA: $" style="font-weight: bold; float: right"  />
+                                    <p:outputLabel value="#{funciones.redondearMas(ventasController.ventaEnvio.montoVenta,2)}" />
+                                    <p:outputLabel value="TOTAL FACTURAS: $" style="font-weight: bold; float: right" />
+                                    <p:outputLabel value="#{funciones.redondearMas(ventasController.ventaEnvio.ventaNeta,2)}" />
+                                    <p:outputLabel value="FACTURADO:" style="font-size: 15px; font-weight: bold; color: #4e6a71"/>
+                                    <p:outputLabel value="#{ventasController.porcentajeFacturado} %" style="font-size: 15px; font-weight: bold; color: #4e6a71"/>
+                                </h:panelGrid>
+
+                                <p:commandButton value="NUEVA FACTURA" actionListener="#{ventasController.prepararNuevaFactura()}" process="@form" update=":gwFacturacion,somTipoFactura,frmFactura"  style="float: right" /><br/><br/><br/>
+                                <p:commandButton value="DESPACHAR VENTA" actionListener="#{ventasController.prepararDespacho()}" oncomplete="cfdDespacharVenta.show();"  update=":frmDespacharVenta" style="float: right" />
+                            </p:fieldset>
+                                
+                                <!-- FACTURA -->
+                                
+                                <p:fieldset id="factura" legend="FACTURA" style="float: left; width: 580px;height: 480px;">  
+                                <!-- DETALLE FACTURA -->
+                                <p:remoteCommand name="updateFactura" actionListener="#{ventasController.cambioTipoFactura()}" update="frmFactura" partialSubmit="enabled" />
+                                
+                                <p:selectOneMenu id="somTipoFactura" value="#{ventasController.nuevaFactura.tipoFactura}" onchange="updateFactura()" style="margin-top: -5px;float: right" >
+                                    <f:selectItem itemLabel="FACTURA CONSUMIDOR FINAL" itemValue="FCF" /> 
+                                    <f:selectItem itemLabel="COMPROBANTE CREDITO FISCAL" itemValue="CCF" />
+                                </p:selectOneMenu>
+                                <p:outputLabel value="TIPO:" style="float: right"/>
+                                <br/><br/>
+                                <h:form id="frmFactura">
+                                    <h:panelGrid columns="4">
+                                        <p:outputLabel value="FACTURA N°:" style="font-weight: bold;" />
+                                        <p:inputText value="#{ventasController.nuevaFactura.facturaPK.numfactura}" required="true" requiredMessage="INGRESE EL NUMERO DE FACTURA"/>
+                                        <p:outputLabel value="FECHA:" style="font-weight: bold;"/>
+                                        <p:calendar value="#{ventasController.nuevaFactura.facturaPK.fechaFactura}"  mode="popup" showOn="button" readonlyInput="true" effect="slideDown" pattern="dd/MM/yyyy" required="true" requiredMessage="Ingrese Fecha de FACTURA" >
+                                            <p:ajax event="dateSelect" listener="#{ventasController.actualizarFechaVencimiento()}" update="fechavencimiento"/>
+                                        </p:calendar>
+                                        <p:outputLabel value="#{funciones.setFechaFormateada(ventasController.nuevaFactura.facturaPK.fechaFactura,1)}" rendered="false" />
+                                        <p:outputLabel value="CLIENTE:" style="font-weight: bold;"/>
+                                        <p:outputLabel value="#{funciones.getNombreCliente(ventasController.nuevaFactura.cliente)}" />
+                                        <p:outputLabel value="DUI:" style="font-weight: bold;" rendered="#{ventasController.nuevaFactura.tipoFactura == 'FCF'}" />
+                                        <p:outputLabel value="#{ventasController.nuevaFactura.cliente.duiCliente}" rendered="#{ventasController.nuevaFactura.tipoFactura == 'FCF'}"  />
+                                        <p:outputLabel value="NIT:" style="font-weight: bold;" />
+                                        <p:outputLabel value="#{ventasController.nuevaFactura.cliente.nitCliente}"  />
+                                        <p:outputLabel value="NRC:" style="font-weight: bold;" rendered="#{ventasController.nuevaFactura.tipoFactura == 'CCF'}" />
+                                        <p:outputLabel value="#{ventasController.nuevaFactura.cliente.nrcCliente}" rendered="#{ventasController.nuevaFactura.tipoFactura == 'CCF'}" />
+                                        <p:outputLabel value="DIRECCION:" style="font-weight: bold;"/>
+                                        <p:outputLabel value="#{ventasController.nuevaFactura.cliente.direccionCliente}, #{ventasController.nuevaFactura.cliente.municipioCliente} , #{ventasController.nuevaFactura.cliente.deptoCliente}" />
+                                        <p:outputLabel value="CONDICION DE PAGO:" style="font-weight: bold;"/>
+                                        <p:outputLabel value="#{ventasController.nuevaFactura.condicionPago}" />
+                                        <p:outputLabel value="VENCIMIENTO CREDITO:" style="font-weight: bold; color: red" rendered="#{ventasController.nuevaFactura.condicionPago == 'AL CREDITO'}"/>
+                                        <p:outputLabel id="fechavencimiento" value="#{funciones.setFechaFormateada(ventasController.nuevaFactura.fechaVencimiento,1)}" rendered="#{ventasController.nuevaFactura.condicionPago == 'AL CREDITO'}" style="font-weight: bold; color: red"/>
+                                        <p:outputLabel value="OBSERVACIONES:" />
+                                        <p:inputTextarea value="#{ventasController.nuevaFactura.observaciones}" cols="30" rows="2" />
+                                        <p:outputLabel value="DESCUENTO:%" style="font-weight: bold;" />
+                                        <p:inputText id="descuentoPorcent" value="#{ventasController.nuevaFactura.porcentajeDescuento}" required="true" requiredMessage="DEBE ESPECIFICAR EL PORCENTAJE DE DESCUENTO" />
+                                        
+                                    </h:panelGrid>
+                                    <br/>
+                                    <p:dataTable id="dtDetalleFactura" var="detalleFactura" value="#{ventasController.detalleFactura}"
+                                                 emptyMessage="FACTURA VACIA" style="text-align: center" scrollable="true" scrollHeight="150">  
+
+                                        <f:facet name="header">DETALLE DE FACTURA</f:facet>
+                                        
+
+                                        <p:column headerText="CANTIDAD">  
+                                            <h:outputText value="#{detalleFactura.cantidad}" />
+                                        </p:column>
+
+                                        <p:column headerText="ESTILO">  
+                                            <h:outputText value="#{detalleFactura.estilo}" />
+                                        </p:column>
+
+                                        <p:column headerText="COLORES">  
+                                            <h:outputText value="#{detalleFactura.colores}" />
+                                        </p:column>
+
+                                        <p:column headerText="PU">  
+                                            <h:outputText value="$ #{funciones.redondearMas(detalleFactura.pu,2)}" />
+                                        </p:column>
+
+                                        <p:column headerText="MONTO">  
+                                            <h:outputText value="$ #{funciones.redondearMas(detalleFactura.montoLinea,2)}" />
+                                        </p:column>
+                                        
+                                        <p:columnGroup type="footer">
+                                            <p:row>  
+                                                <p:column colspan="4" footerText="SUMAS: " style="text-align:right"/>  
+                                                <p:column footerText="#{funciones.redondearMas(ventasController.nuevaFactura.sumas,2)}" /> 
+                                            </p:row>
+                                            <p:row rendered="false">  
+                                                <p:column colspan="4" footerText="#{ventasController.nuevaFactura.porcentajeDescuento} % DESCUENTO: " style="text-align:right"/>  
+                                                <p:column footerText="(#{funciones.redondearMas(ventasController.nuevaFactura.descuento,2)})" /> 
+                                            </p:row>
+                                            <p:row rendered="#{ventasController.nuevaFactura.tipoFactura == 'CCF'}">  
+                                                <p:column colspan="4" footerText="SUB TOTAL "  style="text-align:right"/>  
+                                                <p:column footerText="#{funciones.redondearMas(ventasController.nuevaFactura.subTotal,2)}" /> 
+                                            </p:row> 
+                                            <p:row rendered="#{ventasController.nuevaFactura.tipoFactura == 'CCF'}" >  
+                                                <p:column colspan="4" footerText="IVA: " style="text-align:right"/>  
+                                                <p:column footerText="#{funciones.redondearMas(ventasController.nuevaFactura.iva,2)}" /> 
+                                            </p:row>
+                                            <p:row>  
+                                                <p:column colspan="4" footerText="TOTAL A PAGAR: " style="text-align:right"/>  
+                                                <p:column footerText="#{funciones.redondearMas(ventasController.nuevaFactura.total,2)}" /> 
+                                            </p:row>  
+                                        </p:columnGroup>  
+                                    </p:dataTable>
+                                    <br/>
+                                    <p:outputLabel value="#{funciones.montoEnLetras(ventasController.nuevaFactura.total)}" style="float: right;font-weight: bold;"  />
+                                    <p:outputLabel value="SON : " style="float: right;font-weight: bold;" /><br/>
+                                    <p:commandButton value="FACTURAR" actionListener="#{ventasController.facturar()}" process="@form" update=":gwFacturacion,:frmFacturacion" />
+                                </h:form>
+                                
+                                
+                            </p:fieldset>
+                    </p:tab>
+                </p:wizard> 
+            </h:form>
+                
+       </p:panel>
+        
+        
+        
+        
+        
+        
+        
+         <!-- CONFIRMAR DESPACHAR VENTA -->
+        <p:confirmDialog message="DESPACHAR VENTA ACTUAL?" appendTo="@(body)" header="COMPLETANDO VENTA" severity="info"  widgetVar="cfdDespacharVenta">
+            <h:form id="frmDespacharVenta">
+                <h:panelGrid columns="2">
+                    <p:outputLabel value="DESPACHADO A:" />
+                    <p:selectOneMenu id="vendedor" value="#{ventasController.vendedor}" required="true" requiredMessage="Debe escoger un VENDEDOR" style="  width: 150px " styleClass="ui-selectonemenu-label" >
+                        <f:selectItem itemLabel="Selecciona Vendedor" value="#{null}" />
+                        <f:selectItems value="#{empleadoController.vendedores}"
+                                       var="vendedor"
+                                       itemValue="#{vendedor}"
+                                       itemLabel="#{vendedor.codempleado} - #{vendedor.nombreEmpleado} #{vendedor.apellidoEmpleado}" />
+                        <f:converter binding="#{empleadoConverter}"/>  
+                    </p:selectOneMenu>
+                    <p:outputLabel value="NOTA PARA VENTA:" />
+                    <p:inputTextarea value="#{ventasController.observacionesVenta}" cols="30" rows="3" />
+                </h:panelGrid>
+                <br/><br/>
+                <p:commandButton value="DESPACHAR " actionListener="#{ventasController.completarVENTA()}" oncomplete="handleSubmit(xhr, status, args, cfdDespacharVenta)" update=":gwFacturacion,:frmDespacharVenta"/>
+                <p:commandButton value="CANCELAR " onclick="cfdDespacharVenta.hide();" type="button" style="float: right" />
+            </h:form>
+            
+        </p:confirmDialog>
+         
+         
+         
+         
+         
+         
+          <!-- CAMBIO DE PRECIO-->
+        <p:dialog id="dlgCambioPrecio" widgetVar="cambioPrecioDialog" modal="true" resizable="false" appendTo="@(body)" header="CAMBIAR PRECIO"  >
+            <h:form id="frmCambioPrecio">
+                <h:panelGrid columns="2">
+                    <p:outputLabel value="ESTILO:" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{ventasController.de.inventario.producto.productoPK.codestilo}" />
+                
+                    <p:outputLabel value="PRECIO ACTUAL:" style="font-weight: bold; font-size: 12px; color: blue" />
+                    <p:outputLabel value="$ #{funciones.redondearMas(ventasController.de.precioFacturar,2)}" style="font-weight: bold; font-size: 12px;color: blue"/>
+                    <p:outputLabel value="NUEVO PRECIO : $" style="font-weight: bold; color: red; font-size: 14px;"/>
+                    <p:inputText value="#{ventasController.nuevoPrecio}" style="font-weight: bold; color: red; font-size: 14px;"  required="true" requiredMessage="Ingrese el NUEVO PRECIO a APLICAR a Producto"/>
+                    
+                </h:panelGrid>
+                <br/>
+                <p:commandButton value="APLICAR CAMBIO" actionListener="#{ventasController.validarCambioPrecio()}" oncomplete="mostrarConfirmarPrecios(args,cambioPrecioDialog, cfdConfirmarCambioPrecio)" update=":gwFacturacion,:frmConfirmarCambioPrecio,:frmCambioPrecio"/>
+                <p:commandButton value="CANCELAR" oncomplete="cambioPrecioDialog.hide()" style="float: right" />
+                
+            </h:form>
+         </p:dialog>
+        
+        
+        
+        
+         <!-- CONFIRMAR CAMBIO DE PRECIO -->
+    <p:confirmDialog message="SEGURO QUE DESEA APLICAR EL SIGUIENTE CAMBIO DE PRECIO:" appendTo="@(body)" header="CONFIRMANDO CAMBIO DE PRECIO" severity="info"  widgetVar="cfdConfirmarCambioPrecio">
+        <h:form id="frmConfirmarCambioPrecio">
+            <h:panelGrid columns="2">
+                
+                <p:outputLabel value="ESTILO:" style="font-weight: bold;"/>
+                <p:outputLabel value="#{ventasController.de.inventario.producto.productoPK.codestilo}" />
+                <p:outputLabel value="PRECIO ACTUAL:" style="font-weight: bold; font-size: 12px; color: blue" />
+                <p:outputLabel value="$ #{funciones.redondearMas(ventasController.de.precioFacturar,2)}" style="font-weight: bold; font-size: 12px;color: blue"/>
+                <p:outputLabel value="NUEVO PRECIO : $" style="font-weight: bold; color: red; font-size: 14px;"/>
+                <p:outputLabel value="#{ventasController.nuevoPrecio}" style="font-weight: bold; color: red; font-size: 14px;"  />
+                    
+            </h:panelGrid>
+            <br/><br/>
+            <p:commandButton value="CONFIRMAR Y APLICAR" actionListener="#{ventasController.confirmarCambioPrecio()}" process="@form" oncomplete="cfdConfirmarCambioPrecio.hide()" update=":gwFacturacion,:frmFacturacion:dtDetalleVenta,:frmFacturacion:pngDatosVenta"  />
+            <p:commandButton value="CANCELAR " onclick="cfdConfirmarCambioPrecio.hide();" type="button" style="float: right" />
+        </h:form>
+
+    </p:confirmDialog>
+         
+         
+         
+         
+          <!-- IMPRIMIR FACTURA -->
+          <p:confirmDialog widgetVar="cfdImprimir" message="IMPRIMIR FACTURA?" appendTo="@(body)" header="FACTURA" severity="info"  showEffect="fade" hideEffect="explode">  
+              <h:form>
+                  <div>
+                    <p:commandButton value="SI" actionListener="#{funciones.irA('/faces/vistas/ventas/factura.xhtml')}" oncomplete="cfdImprimir.hide();" process="@form" styleClass="ui-confirmdialog-yes" update=":gwFacturacion,:frmFacturacion" />  
+                    <p:commandButton value="NO" onclick="cfdImprimir.hide();" type="button" styleClass="ui-confirmdialog-no" style="float: rigth" update=":gwFacturacion,:frmFacturacion" />       
+                  </div>
+             </h:form>
+          </p:confirmDialog>  
+         
+        
+        </c:when>
+            
+            
+            <!-- SI NO TIENE LOS PERMISOS DA MSJ DE ERROR -->
+            <c:otherwise>
+                   <h:form>
+                        <div style="min-height: 300px; text-align: center; margin-top: 100px;">
+                            <p:outputLabel value="ACCESO DENEGADO" style="font-size: 30px;font-weight: bold;color:red"/>
+                            <br/><br/>
+                            <h:graphicImage url="/faces/resources/imagenes/locked.png" alt="ZONA RESTRINGIDA" width="200" />
+                            <br/><br/>
+                            <p:outputLabel value="NO TIENE PERMISO PARA VER ESTA PAGINA" style="font-size: 20px;font-weight: bold;color:red"/>
+                            <br/>
+                            <p:outputLabel value="CONSULTE CON EL ADMINISTRADOR DEL SISTEMA" style="font-size: 20px;font-weight: bold;"/>
+                        </div>
+                    </h:form>
+             </c:otherwise>
+        </c:choose>
+         
+         
+    </ui:define>
+    
+
+</ui:composition>

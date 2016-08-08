@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/resources/plantillas/plantillaPrincipal.xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+    <ui:define name="title">
+        <h:outputText value="ANULACIONES"/>
+    </ui:define>
+
+    <ui:define name="body">
+         <c:choose>
+        <!-- VERIFICA QUE TENGA PERMISOS -->
+        <c:when test="${empleadoController.verificarPermiso('CAD', 'ANULAR FACTURAS')}" >
+
+            
+        #{devolucionController.prepararAnulacion()}
+        <p:growl id="gwAnulacion"/>
+        
+            <p:panel  header="ANULACIONES DE FACTURAS" style="height:99%; width: 99.5%;" >
+                
+                <p:fieldset legend="FACTURA" style="float: left; width: 560px;height: 480px;">
+                     
+                    <h:form id="frmFactura">
+
+                        <!-- FACTURA -->
+                        <h:panelGrid columns="3">
+                            <p:outputLabel value="FACTURA N°:" style="font-weight: bold;" />
+                            <p:inputText value="#{devolucionController.numFactura}" required="true" requiredMessage="INGRESE EL NUMERO DE FACTURA"/>
+                            <br/>
+                            <p:outputLabel value="FECHA:" style="font-weight: bold;"/>
+                            <p:calendar value="#{devolucionController.fechaFactura}"  mode="popup" showOn="button" readonlyInput="true" effect="slideDown" pattern="dd/MM/yyyy" required="true" requiredMessage="INGRESE FECHA DE LA FACTURA" />
+                            <p:commandButton value="BUSCAR FACTURA" actionListener="#{devolucionController.buscarFacturaAnulacion()}" process="@form" update=":gwAnulacion,:frmFactura,:frmDetalleFactura" />
+                        </h:panelGrid>
+                        <h:panelGrid id="pngDatosfactura" columns="4">
+                            <p:outputLabel value="FACTURA N°:" style="font-weight: bold;" />
+                            <p:outputLabel value="#{devolucionController.factura.facturaPK.numfactura}" />
+                            <p:outputLabel value="TIPO:" style="font-weight: bold;" />
+                            <p:outputLabel value="#{devolucionController.factura.tipoFactura}" />
+                            <p:outputLabel value="FECHA:" style="font-weight: bold;"/>
+                            <p:outputLabel value="#{funciones.setFechaFormateada(devolucionController.factura.facturaPK.fechaFactura,1)}" />
+                            <p:outputLabel value="CONDICION DE PAGO:" style="font-weight: bold;"/>
+                            <p:outputLabel value="#{devolucionController.factura.condicionPago}" />
+                            <p:outputLabel value="CLIENTE:" style="font-weight: bold;"/>
+                            <p:outputLabel value="#{funciones.getNombreCliente(devolucionController.factura.cliente)}" />
+                            <p:outputLabel value="DUI:" style="font-weight: bold;" rendered="#{devolucionController.factura.tipoFactura == 'FCF'}" />
+                            <p:outputLabel value="#{devolucionController.factura.cliente.duiCliente}" rendered="#{devolucionController.factura.tipoFactura == 'FCF'}"  />
+                            <p:outputLabel value="NIT:" style="font-weight: bold;" />
+                            <p:outputLabel value="#{devolucionController.factura.cliente.nitCliente}"  />
+                            <p:outputLabel value="NRC:" style="font-weight: bold;" rendered="#{devolucionController.factura.tipoFactura == 'CCF'}" />
+                            <p:outputLabel value="#{devolucionController.factura.cliente.nrcCliente}" rendered="#{devolucionController.factura.tipoFactura == 'CCF'}" />
+                            
+                            <p:outputLabel value="ESTADO:" styleClass="#{(devolucionController.factura.estado == 'ACTIVA')?'color-activa':'color-cancelada'}" />
+                            <p:outputLabel value="#{devolucionController.factura.estado}" styleClass="#{(devolucionController.factura.estado == 'ACTIVA')?'color-activa':'color-cancelada'}"  />
+                            <p:outputLabel value="OBSERVACIONES:" />
+                            <p:outputLabel value="#{devolucionController.factura.observaciones}" />
+                            <p:outputLabel value="VENCIMIENTO CREDITO:" style="font-weight: bold; color: red" rendered="#{devolucionController.factura.condicionPago == 'AL CREDITO'}"/>
+                            <p:outputLabel value="#{funciones.setFechaFormateada(devolucionController.factura.fechaVencimiento,1)}" rendered="#{devolucionController.factura.condicionPago == 'AL CREDITO'}" style="font-weight: bold; color: red"/>
+                            
+
+                        </h:panelGrid>
+                        <br/>
+                        <p:dataTable id="dtDetalleFactura" var="detalleFactura" value="#{devolucionController.factura.detalleFacturaCollection}"
+                                     emptyMessage="NO HA ESPECIFICADO FACTURA" style="text-align: center">  
+
+                            <f:facet name="header">DETALLE DE FACTURA</f:facet>
+
+                            <p:column headerText="CANTIDAD" width="5">  
+                                <h:outputText value="#{detalleFactura.cantidad}" />
+                            </p:column>
+
+                            <p:column headerText="ESTILO">  
+                                <h:outputText value="#{detalleFactura.estilo}" />
+                            </p:column>
+
+                            <p:column headerText="COLORES">  
+                                <h:outputText value="#{detalleFactura.colores}" />
+                            </p:column>
+
+                            <p:column headerText="PU">  
+                                <h:outputText value="$ #{funciones.redondearMas(detalleFactura.pu,2)}" />
+                            </p:column>
+
+                            <p:column headerText="MONTO">  
+                                <h:outputText value="$ #{funciones.redondearMas(detalleFactura.montoLinea,2)}" />
+                            </p:column>
+                            
+
+                            <p:columnGroup type="footer">
+                                <p:row>  
+                                    <p:column colspan="4" footerText="SUMAS: " style="text-align:right"/>  
+                                    <p:column footerText="$ #{funciones.redondearMas(devolucionController.factura.sumas,2)}" /> 
+                                </p:row>
+                                <p:row>  
+                                    <p:column colspan="4" footerText="#{devolucionController.factura.porcentajeDescuento} % DESCUENTO: " style="text-align:right"/>  
+                                    <p:column footerText="($ #{funciones.redondearMas(devolucionController.factura.descuento,2)})" /> 
+                                </p:row>
+                                <p:row rendered="#{devolucionController.factura.tipoFactura == 'CCF'}">  
+                                    <p:column colspan="4" footerText="SUB TOTAL "  style="text-align:right"/>  
+                                    <p:column footerText="$ #{funciones.redondearMas(devolucionController.factura.subTotal,2)}" /> 
+                                </p:row> 
+                                <p:row rendered="#{devolucionController.factura.tipoFactura == 'CCF'}" >  
+                                    <p:column colspan="4" footerText="IVA: " style="text-align:right"/>  
+                                    <p:column footerText="$ #{funciones.redondearMas(devolucionController.factura.iva,2)}" /> 
+                                </p:row>
+                                <p:row>  
+                                    <p:column colspan="4" footerText="TOTAL A PAGAR: " style="text-align:right"/>  
+                                    <p:column footerText="$ #{funciones.redondearMas(devolucionController.factura.total,2)}" /> 
+                                </p:row>  
+                            </p:columnGroup>  
+                        </p:dataTable>
+                
+                        <br/><br/>
+                        <p:commandButton value="ANULAR FACTURA" actionListener="#{devolucionController.prepararAnular()}" process="@this" update=":gwAnulacion,:frmConfirmarAnulacion" />
+                        
+                    </h:form>
+                </p:fieldset>
+            
+                <p:fieldset legend="REINGRESO DE PRODUCTO" style="float: left; width: 580px;height: 480px;">
+                    <h:form id="frmDetalleFactura">  
+                        <p:outputLabel value="SELECCIONAR TODOS:"/>&nbsp;&nbsp;
+                        <p:selectBooleanCheckbox  value="#{devolucionController.selectAll}">  
+                            <p:ajax update=":gwAnulacion,dtAnuladosFactura" listener="#{devolucionController.seleccionarTodos()}" />
+                        </p:selectBooleanCheckbox> 
+                        
+                        <br/><br/>
+                        <p:dataTable id="dtAnuladosFactura" var="anulado" value="#{detalleEnvioController.getProductosAnulados(devolucionController.factura)}"
+                                     rowKey="#{anulado.detalleEnvioPK}"
+                                     emptyMessage="NO HAY PRODUCTOS ANULADOS" style="text-align: center">  
+
+                            <f:facet name="header">DETALLE DE FACTURA</f:facet>
+
+                            <p:column headerText="SELECCIONAR">  
+                                <div align="center">
+                                    <p:selectBooleanCheckbox value="#{devolucionController.agregar}" >  
+                                        <p:ajax update=":gwAnulacion" listener="#{devolucionController.agregarAlista(anulado)}" />
+                                    </p:selectBooleanCheckbox>  
+                                </div>
+                            </p:column>
+                            
+
+                            <p:column headerText="ESTILO">  
+                                <h:outputText value="#{anulado.inventario.producto.productoPK.codestilo}" />
+                            </p:column>
+
+                            <p:column headerText="COLOR">  
+                                <h:outputText value="#{anulado.inventario.color}" />
+                            </p:column>
+                            
+                            <p:column headerText="TALLA">  
+                                <h:outputText value="#{anulado.inventario.talla}" />
+                            </p:column>
+
+                            <p:column headerText="PRECIO FACTURADO">  
+                                <h:outputText value="$ #{funciones.redondearMas(anulado.precioFacturar,2)}" />
+                            </p:column>
+
+ 
+                        </p:dataTable>
+                        
+                        <br/><br/>
+                        
+                        <p:commandButton value="REPORTAR COMO PERDIDA" actionListener="#{devolucionController.prepararReportarPerdida()}" update=":gwAnulacion,:frmReportarPerdida" /> 
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <p:commandButton value="REINGRESAR PRODUCTO" actionListener="#{devolucionController.prepararReingresarProducto()}" update=":gwAnulacion,:frmReingresarProducto" /> 
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <p:commandButton value="VOLVER A FACTURAR" actionListener="#{devolucionController.prepararRefacturar()}" update=":gwAnulacion" /> 
+                        
+                    </h:form> 
+                </p:fieldset>
+       </p:panel>
+        
+        
+        
+        
+        <!-- CONFIRMAR ANULACION DE FACTURA -->
+    <p:confirmDialog message="SEGURO QUE DESEA ANULAR LA SIGUIENTE FACTURA:" appendTo="@(body)" header="CONFIRMANDO ANULACION" severity="info"  widgetVar="cfdConfirmarAnulacion">
+        <h:form id="frmConfirmarAnulacion">
+            <h:panelGrid columns="2">
+                <p:outputLabel value="FACTURA:" style="font-weight: bold" />
+                <p:outputLabel value="#{devolucionController.factura.facturaPK.numfactura}" />
+                <p:outputLabel value="FECHA:" style="font-weight: bold"/>
+                <p:outputLabel value="#{funciones.setFechaFormateada(devolucionController.factura.facturaPK.fechaFactura,1)}" />
+                <p:outputLabel value="ESTADO:" style="font-weight: bold"/>
+                <p:outputLabel value="#{devolucionController.factura.estado}" style="font-weight: bold"/>
+                <p:outputLabel value="COMENTARIO:"/>
+                <p:inputTextarea value="#{devolucionController.factura.observaciones}" cols="30" rows="2" />
+                    
+            </h:panelGrid>
+            <br/><br/>
+            <p:commandButton value="CONFIRMAR Y ANULAR" actionListener="#{devolucionController.anularFactura()}" oncomplete="cfdConfirmarAnulacion.hide()" process="@form" update=":gwAnulacion,:frmConfirmarAnulacion,:frmFactura,:frmDetalleFactura"/>
+            <p:commandButton value="CANCELAR " onclick="cfdConfirmarAnulacion.hide();" type="button" style="float: right" />
+        </h:form>
+
+    </p:confirmDialog>
+        
+        
+        <!-- REPORTAR PRODUCTOS COMO PERDIDOS -->
+        <p:confirmDialog message="¿SEGURO QUE DESEA REPORTAR LOS PRODUCTOS SELECCIONADOS COMO PERDIDOS?" appendTo="@(body)" header="REPORTAR PRODUCTOS COMO PERDIDOS" severity="info"  widgetVar="cfdReportarPerdida">
+            <h:form id="frmReportarPerdida">
+                <h:panelGrid columns="2">
+                    <p:outputLabel value="UNIDADES :" style="font-weight: bold;color: blue;font-size: 12px;"/>
+                    <p:outputLabel value="#{devolucionController.selectAnulados.size()}" style="font-weight: bold;color: blue;font-size: 12px;"/>
+                    <p:outputLabel value="COMENTARIO:"/>
+                    <p:inputTextarea value="#{devolucionController.notaAnulacion}" cols="30" rows="2" required="true" requiredMessage="Ingrese una nota aclaratoria"/>
+                    <p:outputLabel value="NOTA :" style="font-weight: bold;color: red"/>
+                      <p:outputLabel value="LOS PRODUCTOS YA NO ESTARAN DISPONIBLES PARA SU COMERCIALIZACION" style="font-weight: bold;color: red"/>
+                </h:panelGrid>
+                <br/><br/>
+                <p:commandButton value="CONFIRMAR" actionListener="#{devolucionController.reportarPerdida()}" oncomplete="handleSubmit(xhr, status, args, cfdReportarPerdida)" update=":gwAnulacion,:frmReportarPerdida,:frmFactura,:frmDetalleFactura"/>
+                <p:commandButton value="CANCELAR " onclick="cfdReportarPerdida.hide();" type="button" style="float: right" />
+            </h:form>
+        </p:confirmDialog>    
+        
+        
+        
+        
+        
+        
+        <!-- REINGRESAR PRODUCTO AL INVENTARIO -->
+        <p:confirmDialog message="¿SEGURO QUE DESEA REINGRESAR AL INVENTARIO LOS PRODUCTOS SELECCIONADOS?" appendTo="@(body)" header="REINGRESAR PRODUCTO" severity="info"  widgetVar="cfdReingresarProducto">
+            <h:form id="frmReingresarProducto">
+                <h:panelGrid columns="2">
+                    <p:outputLabel value="UNIDADES :" style="font-weight: bold;color: blue;font-size: 12px;"/>
+                    <p:outputLabel value="#{devolucionController.selectAnulados.size()}" style="font-weight: bold;color: blue;font-size: 12px;"/>
+                </h:panelGrid>
+                <br/><br/>
+                <p:commandButton value="CONFIRMAR" actionListener="#{devolucionController.reingresarProducto()}"  update=":gwAnulacion,:frmReingresarProducto,:frmFactura,:frmDetalleFactura"/>
+                <p:commandButton value="CANCELAR " onclick="cfdReingresarProducto.hide();" type="button" style="float: right" />
+            </h:form>
+        </p:confirmDialog>  
+        
+        
+         
+        
+        
+       
+        </c:when>
+            
+            
+            <!-- SI NO TIENE LOS PERMISOS DA MSJ DE ERROR -->
+            <c:otherwise>
+                   <h:form>
+                        <div style="min-height: 300px; text-align: center; margin-top: 100px;">
+                            <p:outputLabel value="ACCESO DENEGADO" style="font-size: 30px;font-weight: bold;color:red"/>
+                            <br/><br/>
+                            <h:graphicImage url="/faces/resources/imagenes/locked.png" alt="ZONA RESTRINGIDA" width="200" />
+                            <br/><br/>
+                            <p:outputLabel value="NO TIENE PERMISO PARA VER ESTA PAGINA" style="font-size: 20px;font-weight: bold;color:red"/>
+                            <br/>
+                            <p:outputLabel value="CONSULTE CON EL ADMINISTRADOR DEL SISTEMA" style="font-size: 20px;font-weight: bold;"/>
+                        </div>
+                    </h:form>
+             </c:otherwise>
+        </c:choose>
+        
+        
+        
+    </ui:define>
+    
+
+</ui:composition>

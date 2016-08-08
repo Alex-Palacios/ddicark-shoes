@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+    <ui:composition>
+            
+            <!-- PARA CREAR UN NUEVO FACTURA -->
+            <p:dialog id="dlgCrearFactura" widgetVar="crearFacturaDialog" modal="true" resizable="false" appendTo="@(body)" header="Ingresar Factura">
+
+                <h:form id="frmCrearFactura">
+                    <h:panelGroup id="displayCrearFactura" >
+                        <p:panelGrid columns="3" rendered="#{retaceoController.f != null}" >
+                            <p:outputLabel value="PROVEEDOR: " for="idProveedor" />
+                            <p:inputText id="idProveedor" value="#{retaceoController.f.proveedor.nombreProveedor}" readonly="true" required="true"  style="width: 150px;"/>
+                            <p:commandButton value="Elegir Proveedor" oncomplete="proveedoresDialog.show();" />
+                            <p:outputLabel value="TIPO DE FACTURA:" for="tipoFactura"/>
+                            <p:selectOneMenu id="tipoFactura" value="#{retaceoController.tipoFactura}" >
+                                <f:selectItem itemLabel="FCF" itemValue="FCF" itemDescription="Factura Consumidor Final" /> 
+                                <f:selectItem  itemLabel="CCF" itemValue="CCF" itemDescription="Credito Comprobante Fiscal"/>
+                                <f:selectItem  itemLabel="EXT" itemValue="EXT" itemDescription="Factura Extranjera" />
+                            </p:selectOneMenu><br/>
+                            <p:outputLabel value="N° DE FACTURA:" for="numFactura"/>
+                            <p:inputText id="numFactura" value="#{retaceoController.f.facturaIngresoPK.documentoCompra}"  required="true" requiredMessage="Ingrese Num del Documento">
+                                <f:validateLength maximum="10" />
+                            </p:inputText><br/>
+                            <p:outputLabel value="FECHA DOC:" for="fechaFactura"/>
+                            <p:calendar id="fechaFactura" value="#{retaceoController.f.facturaIngresoPK.fechaDocumento}"  mode="popup" showOn="button" readonlyInput="true" effect="slideDown" pattern="dd/MM/yyyy" required="true" requiredMessage="Ingrese Fecha del documento" /><br/>
+                            <p:outputLabel value="TIPO DE COMPRA:" for="tipoCompra"/>
+                            <p:selectOneMenu id="tipoCompra" value="#{retaceoController.f.tipoCompra}" >
+                                <f:selectItem itemLabel="AL CONTADO" itemValue="AL CONTADO" /> 
+                                <f:selectItem  itemLabel="AL CREDITO" itemValue="AL CREDITO" />
+                            </p:selectOneMenu><br/>
+                            <p:outputLabel id="labelFechaVenc" value="FECHA DE VENCIMIENTO:" for="fechaVenc"  />
+                            <p:calendar id="fechaVenc" value="#{retaceoController.f.fechavencCreditoCompra}"  mode="popup" showOn="button" readonlyInput="true" effect="slideDown" pattern="dd/MM/yyyy" title="Obligatorio si la compra es al CREDITO"/><br/>
+                            <p:outputLabel value="TOTAL UNIDADES:" for="totalUnidadesFactura"/>
+                            <p:inputText id="totalUnidadesFactura" value="#{retaceoController.f.totalUnidadesCompra}" required="true" requiredMessage="Ingrese el total de Unidades de la Factura"/><br/>
+                            <p:outputLabel value="TOTAL BULTOS:" for="totalBultosFactura"/>
+                            <p:inputText id="totalBultosFactura" value="#{retaceoController.f.totalBultosCompra}" required="true" requiredMessage="Ingrese el total de Bultos de la Factura"/><br/>
+                            <p:outputLabel value="MONTO FACTURA:" for="montoFactura"/>
+                            <p:inputText id="montoFactura" value="#{retaceoController.f.montoCompra}" required="true" requiredMessage="Ingrese el monto de la Factura"/><br/>
+                            <p:outputLabel value="DESCUENTO:" for="descFactura"/>
+                            <p:inputText id="descFactura" value="#{retaceoController.f.descuentoCompra}"  /><br/>
+                            
+                            <p:outputLabel value="SALIDA FACTURA:" for="salidaFactura" rendered="#{retaceoController.naturalezaCompra == 'IMPORTADO'}"/>
+                            <p:inputText id="salidaFactura" value="#{retaceoController.f.salidaCompra}" required="true" requiredMessage="Ingrese el costo de Salida de la Factura" rendered="#{retaceoController.naturalezaCompra == 'IMPORTADO'}"/>
+                        </p:panelGrid>
+                        
+                        
+                        <br/>
+                        &nbsp;&ensp;&nbsp;&ensp;<p:commandButton actionListener="#{retaceoController.addFactura}" value="Guardar" icon="ui-icon-disk"  update="displayCrearFactura,:frmPreFacturas:dtFacturas,:gwMsgRetaceo" oncomplete="handleSubmit(xhr,status,args,crearFacturaDialog);"  />&nbsp;&ensp;&nbsp;&ensp;&nbsp;&ensp;&nbsp;&ensp;&nbsp;&ensp;&nbsp;&ensp;&nbsp;&ensp;&nbsp;
+                        &nbsp;&ensp;&nbsp;&ensp;<p:commandButton value="Cancelar" icon="ui-icon-close" update="displayCrearFactura" onclick="crearFacturaDialog.hide()" />
+                    </h:panelGroup>
+                </h:form>
+                
+                <!-- INCLUYE FORMULARIO PARA ELEGIR PROVEEDOR -->
+                <ui:include src="proveedores.xhtml" />
+            </p:dialog>
+    </ui:composition>
+
+</html>

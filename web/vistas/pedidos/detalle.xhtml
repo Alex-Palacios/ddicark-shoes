@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <ui:composition>
+            <!--VISTA QUE SE RENDERIZARA SI EL TIPO DE PRODUCTO ES CALZADO -->
+            <h:panelGroup rendered="${pedidoController.tipoProducto == 1}"  >
+                <h:panelGrid>
+                    <p:panel>
+                        <h:panelGrid id="pngPedido" columns="2">
+                        <h:panelGrid columns="4" cellspacing="4">
+                            <p:outputLabel value="ORDEN DE PEDIDO N°:" />
+                            <p:inputText id="ordenPedido"  value="#{pedidoController.pedido.pedidoPK.numpedido}" maxlength="10" required="true" requiredMessage="Ingrese el Numero de Orden" readonly="#{pedidoController.detalle.size() > 0}" />
+                            <p:outputLabel value="FECHA DE PEDIDO:" />
+                            <p:calendar id="fechaPedido" value="#{pedidoController.pedido.pedidoPK.fechaPedido}"  mode="popup" showOn="button" readonlyInput="true" effect="slideDown" pattern="dd/MM/yyyy" required="true" requiredMessage="Ingrese Fecha del PEDIDO" disabled="#{pedidoController.detalle.size() > 0}" />
+                            <p:outputLabel value="POSIBLE FECHA DE ENTREGA:" />
+                            <p:calendar id="fechaEntrega" value="#{pedidoController.pedido.fechaEntrega}"  mode="popup" showOn="button" readonlyInput="true" effect="slideDown" pattern="dd/MM/yyyy" required="true" requiredMessage="Ingrese Fecha de Entrega del PEDIDO" disabled="#{pedidoController.detalle.size() > 0}"/>
+                            <p:outputLabel value="TIPO DE PAGO:" />
+                            <p:selectOneMenu value="#{pedidoController.pedido.tipoPago}" >
+                                <f:selectItem itemLabel="AL CONTADO" itemValue="AL CONTADO" /> 
+                                <f:selectItem  itemLabel="AL CREDITO" itemValue="AL CREDITO" />
+                            </p:selectOneMenu>
+                        </h:panelGrid>
+                            
+                        <h:panelGrid columns="2" >
+                            <p:outputLabel value="OBSERVACIONES:" />
+                            <p:inputTextarea value="#{pedidoController.pedido.observacionesPedido}" cols="30" rows="3"/>
+                        </h:panelGrid>
+                        </h:panelGrid>
+                    </p:panel> 
+                   
+                    <h:panelGroup>
+                        <p:commandButton actionListener="#{pedidoController.ingresarCurva()}"  value="INGRESAR CURVA" update=":gwPedido,:frmPedidos:pedido,:frmCurva" oncomplete="mostrarDialog(xhr,status,args,estiloDialog);"  process="@form" style="width: 80px;"/>
+                        <p:commandButton actionListener="#{pedidoController.reset()}" value="RESETEAR PEDIDO" update=":gwPedido,:frmPedidos:pedido,:frmCurva" process="@this" style="width: 80px;margin-left: 30% "/> 
+                        <p:commandButton actionListener="#{pedidoController.resetDetalle()}" value="RESETEAR DETALLE" update=":gwPedido,:frmPedidos:pedido:dtDetallePedido" process="@this" style="width: 80px;margin-left: 30% "/> 
+                        <p:commandButton actionListener="#{pedidoController.guardarPEDIDO()}" value="GUARDAR PEDIDO" update=":gwPedido,:frmPedidos:pedido" process="@this,pngPedido" style="width: 80px;float: right;"/>
+                    </h:panelGroup>
+                    
+                    <!--DETALLE PEDIDO -->
+                    <div>
+                    <p:dataTable id="dtDetallePedido" var="detalle" value="#{pedidoController.detalle}"
+                                 emptyMessage="NO HA DETALLADO PEDIDO" style="text-align: center; "
+                                 scrollable="true" scrollHeight="200" >  
+
+                            <f:facet name="header">DETALLE DE PEDIDO</f:facet>
+
+                            <p:column   headerText="CODIGO ESTILO" >  
+                                <h:outputText value="#{detalle.producto.productoPK.codestilo}" />
+                            </p:column> 
+                            <p:column headerText="COLOR" > 
+                                <h:outputText value="#{detalle.color}"/>
+                            </p:column>
+                            <p:column headerText="TALLA" > 
+                                <h:outputText value="#{detalle.talla}"/>
+                            </p:column>
+                            <p:column headerText="PARES" >
+                                <h:outputText value="#{detalle.cantidad}"/>
+                            </p:column>
+                            <p:column headerText="P/U"> 
+                                <h:outputText value="#{funciones.redondearMas(detalle.pu,2)}"/>
+                            </p:column>
+                            <p:column headerText="MONTO">
+                                <h:outputText value="#{funciones.redondearMas(detalle.monto,2)}"/>
+                            </p:column>
+                            <p:columnGroup type="footer">
+                                <p:row>
+                                    <p:column rendered="false" />
+                                    <p:column rendered="false" />
+                                    <p:column rendered="false" />
+                                    <p:column rendered="false" />
+                                    <p:column rendered="false" />
+                                    <p:column rendered="false" />
+                                </p:row>
+                                <p:row>  
+                                    <p:column colspan="5" footerText="TOTAL: " style="text-align:right"/>  
+                                    <p:column footerText="#{funciones.redondearMas(pedidoController.pedido.totalPedido,2)}" />   
+                                </p:row>  
+                            </p:columnGroup>  
+                        </p:dataTable></div>
+                </h:panelGrid>
+                  
+            </h:panelGroup>
+            
+            
+            <!--VISTA QUE SE RENDERIZARA SI EL TIPO DE PRODUCTO ES CARTERA -->
+            <h:panelGroup rendered="${pedidoController.tipoProducto == 2}" >
+                CARTERA
+            </h:panelGroup>
+            
+            
+            <!--VISTA QUE SE RENDERIZARA SI EL TIPO DE PRODUCTO ES ROPA -->
+            <h:panelGroup rendered="${pedidoController.tipoProducto == 3}" >
+                ROPA
+            </h:panelGroup>
+    </ui:composition>
+    
+</html>

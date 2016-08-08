@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <ui:composition>
+
+        <p:dialog id="dlgVerProveedor" widgetVar="verProveedorDialog" modal="true" resizable="false" appendTo="@(body)" header="Datos del Proveedor">
+
+            <h:form id="frmVerProveedor">
+                 
+                <h:panelGroup id="displayProveedor">
+                    <p:panelGrid id="pgdVer" columns="2" rendered="#{proveedorController.selected != null}">
+                        
+                        <p:outputLabel value="Nombre Proveedor:" style="font-weight: bold;"/>
+                        <p:outputLabel value="#{proveedorController.selected.nombreProveedor}"/>
+                        
+                        <p:outputLabel value="DUI Proveedor:" style="font-weight: bold;" />
+                        <p:outputLabel value="#{proveedorController.selected.duiProveedor}" />
+                        
+                        <p:outputLabel value="NIT Proveedor:" style="font-weight: bold;" />
+                        <p:outputLabel value="#{proveedorController.selected.nitProveedor}" />
+                        
+                        <p:outputLabel value="NRC/RUC:" style="font-weight: bold;" />
+                        <p:outputLabel value="#{proveedorController.selected.nrcProveedor}" />
+                        
+                        <p:outputLabel value="Rubro:" style="font-weight: bold;"/>
+                        <p:outputLabel value="#{proveedorController.selected.rubroProveedor}"  />
+
+                        <p:outputLabel value="Direccion:" style="font-weight: bold;" />
+                        <p:outputLabel value="#{proveedorController.selected.direccionProveedor}" />
+                        
+                        <p:outputLabel value="Pais de Domicilio:" style="font-weight: bold;"/>
+                        <p:outputLabel value="#{proveedorController.selected.paisProveedor}" />
+                        
+                        <p:outputLabel value="Telefono:" style="font-weight: bold;"/>
+                        <p:outputLabel value="#{proveedorController.selected.telProveedor}" />
+                        
+                        <p:outputLabel value="Contacto:" style="font-weight: bold;" />
+                        <p:outputLabel value="#{proveedorController.selected.nombreContacto}"/>
+                        
+                        <p:outputLabel value="Tel Contacto:" style="font-weight:bold;" />
+                        <p:outputLabel value="#{proveedorController.selected.telContacto}"/>
+                        
+                        <p:outputLabel value="NOTA:" style="font-weight:bold;" />
+                        <p:outputLabel value="#{proveedorController.selected.notaProveedor}"/>
+                        
+                        
+                    </p:panelGrid>
+                    <br/>
+                    <div align="center">
+                        <p:commandButton value="Cerrar Ventana" icon="ui-icon-delete" update=":frmVerProveedor" onclick="verProveedorDialog.hide()" />
+                    </div>
+                </h:panelGroup>
+
+            </h:form>
+
+        </p:dialog>
+
+    </ui:composition>
+
+</html>

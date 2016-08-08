@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+    <!-- USERTANDO PLANTILLA -->
+    <ui:composition template="/resources/plantillas/plantillaLogin.xhtml">
+
+        <!-- SE DEFINE EL CUERPO DE LA PAGINA DE LOGIN -->
+        <ui:define name="body">
+            
+            
+            <p style="margin-left: 20px;"> 
+                <br/>Bienvenid@s al Sistema D&rsquo;DICARK <br/>
+                Por favor Ingrese sus credenciales: 
+            </p>
+            <p:panel  header="Inicio de Sesion" style="text-align: center;">
+                <h:form id="frmLogin">
+                    <h:panelGrid columns="2" style=" margin-left: auto;margin-right: auto">
+                        <p:outputLabel for="username" value="Username"/>
+                        <p:inputText id="username" required="true" value="#{empleadoController.username}" requiredMessage="No ha ingresado un usuario" />
+                        <p:outputLabel for="password" value="Password"/>
+                        <p:password id="password" required="true"  value="#{empleadoController.password}" requiredMessage="No ha ingresado una contrase&ntilde;a"  />
+                        
+                    </h:panelGrid>
+                    &nbsp;
+                    <p:commandButton actionListener="#{empleadoController.login}"   value="Iniciar Sesion"  update=":frmLogin,:gwMsgLogin"  onclick="logear();" />
+                        
+                   
+                </h:form>
+            </p:panel>
+             
+             
+                 
+        </ui:define>
+
+
+
+    </ui:composition>
+</html>
+

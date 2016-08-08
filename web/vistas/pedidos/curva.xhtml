@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <ui:composition>
+        
+        <!-- DIALOGO PARA INGRESAR CURVA DEL PEDIDO -->
+            <p:dialog id="dlgCurva" widgetVar="curvaDialog" modal="true" resizable="false" appendTo="@(body)" header="INGRESANDO CURVA DE PEDIDO" >
+                <p:growl id="gwCurva" />
+                <h:form id="frmCurva">
+                    <p:outputLabel value="COLORES:" style="font-weight: bold;" rendered="#{pedidoController.color == 'NONE'}"/>
+                    <p:selectOneMenu value="#{pedidoController.numColores}" onchange="actCurva()" rendered="#{pedidoController.color == 'NONE'}" >
+                        <f:selectItem itemLabel="1" itemValue="1" />
+                        <f:selectItem itemLabel="2" itemValue="2" />
+                        <f:selectItem itemLabel="3" itemValue="3" />
+                        <f:selectItem itemLabel="4" itemValue="4" />
+                        <f:selectItem itemLabel="5" itemValue="5" />
+                        <f:selectItem itemLabel="6" itemValue="6" />
+                    </p:selectOneMenu> 
+                    <p:remoteCommand name="actCurva" update="pnlCurvaColores"/>
+                    <p:outputLabel value="TALLAS:" style="font-weight: bold;" rendered="#{pedidoController.color == 'NONE'}"/>
+                    <p:selectOneMenu value="#{pedidoController.numTallas}" onchange="actCurva()" rendered="#{pedidoController.color == 'NONE'}" >
+                        <f:selectItem itemLabel="1" itemValue="1" />
+                        <f:selectItem itemLabel="2" itemValue="2" />
+                        <f:selectItem itemLabel="3" itemValue="3" />
+                        <f:selectItem itemLabel="4" itemValue="4" />
+                        <f:selectItem itemLabel="5" itemValue="5" />
+                        <f:selectItem itemLabel="6" itemValue="6" />
+                        <f:selectItem itemLabel="7" itemValue="7" />
+                        <f:selectItem itemLabel="8" itemValue="8" />
+                        <f:selectItem itemLabel="9" itemValue="9" />
+                        <f:selectItem itemLabel="10" itemValue="10" />
+                    </p:selectOneMenu> 
+                       <p:panelGrid id="pnlCurvaColores" styleClass="prueba" >
+                            <f:facet name="header">
+                                <p:row>
+                                    <p:column rowspan="2" style="width: 175px;">C O L O R</p:column>
+                                    <p:column colspan="10">T A L L A S</p:column>
+                                </p:row>
+                                <p:row>
+                                    <p:column rendered="#{pedidoController.numTallas > 0}" ><p:inputText value="#{pedidoController.tallas[0]}" style="width: 15px;"/></p:column>
+                                    <p:column rendered="#{pedidoController.numTallas > 1}" ><p:inputText value="#{pedidoController.tallas[1]}" style="width: 15px;"/></p:column>
+                                    <p:column rendered="#{pedidoController.numTallas > 2}" ><p:inputText value="#{pedidoController.tallas[2]}" style="width: 15px;"/></p:column>
+                                    <p:column rendered="#{pedidoController.numTallas > 3}" ><p:inputText value="#{pedidoController.tallas[3]}" style="width: 15px;"/></p:column>
+                                    <p:column rendered="#{pedidoController.numTallas > 4}" ><p:inputText value="#{pedidoController.tallas[4]}" style="width: 15px;"/></p:column>
+                                    <p:column rendered="#{pedidoController.numTallas > 5}" ><p:inputText value="#{pedidoController.tallas[5]}" style="width: 15px;"/></p:column>
+                                    <p:column rendered="#{pedidoController.numTallas > 6}" ><p:inputText value="#{pedidoController.tallas[6]}" style="width: 15px;"/></p:column>
+                                    <p:column rendered="#{pedidoController.numTallas > 7}" ><p:inputText value="#{pedidoController.tallas[7]}" style="width: 15px;"/></p:column>
+                                    <p:column rendered="#{pedidoController.numTallas > 8}" ><p:inputText value="#{pedidoController.tallas[8]}" style="width: 15px;"/></p:column>
+                                    <p:column rendered="#{pedidoController.numTallas > 9}" ><p:inputText value="#{pedidoController.tallas[9]}" style="width: 15px;"/></p:column>
+                                </p:row>
+                            </f:facet>
+                        
+                            <p:row>
+                                <p:column style="text-align: center"><p:inputText value="#{pedidoController.curva[0].color}"  style="text-align: center"/></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 0}" style="text-align: center" ><p:spinner value="#{pedidoController.curva[0].t1}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 1}" style="text-align: center" ><p:spinner value="#{pedidoController.curva[0].t2}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 2}" style="text-align: center"><p:spinner value="#{pedidoController.curva[0].t3}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 3}" style="text-align: center"><p:spinner value="#{pedidoController.curva[0].t4}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 4}" style="text-align: center"><p:spinner value="#{pedidoController.curva[0].t5}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 5}" style="text-align: center"><p:spinner value="#{pedidoController.curva[0].t6}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 6}" style="text-align: center"><p:spinner value="#{pedidoController.curva[0].t7}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 7}" style="text-align: center"><p:spinner value="#{pedidoController.curva[0].t8}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 8}" style="text-align: center"><p:spinner value="#{pedidoController.curva[0].t9}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 9}" style="text-align: center"><p:spinner value="#{pedidoController.curva[0].t10}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                            </p:row>
+                        
+                            <p:row rendered="#{pedidoController.numColores > 1}">
+                                <p:column style="text-align: center"><p:inputText value="#{pedidoController.curva[1].color}" style="text-align: center" /></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 0}" style="text-align: center"><p:spinner value="#{pedidoController.curva[1].t1}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 1}" style="text-align: center"><p:spinner value="#{pedidoController.curva[1].t2}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 2}" style="text-align: center"><p:spinner value="#{pedidoController.curva[1].t3}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 3}" style="text-align: center"><p:spinner value="#{pedidoController.curva[1].t4}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 4}" style="text-align: center"><p:spinner value="#{pedidoController.curva[1].t5}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 5}" style="text-align: center"><p:spinner value="#{pedidoController.curva[1].t6}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 6}" style="text-align: center"><p:spinner value="#{pedidoController.curva[1].t7}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 7}" style="text-align: center"><p:spinner value="#{pedidoController.curva[1].t8}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 8}" style="text-align: center"><p:spinner value="#{pedidoController.curva[1].t9}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 9}" style="text-align: center"><p:spinner value="#{pedidoController.curva[1].t10}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                            </p:row>
+                            
+                            <p:row rendered="#{pedidoController.numColores > 2}">
+                                <p:column style="text-align: center"><p:inputText value="#{pedidoController.curva[2].color}" style="text-align: center" /></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 0}" style="text-align: center"><p:spinner value="#{pedidoController.curva[2].t1}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 1}" style="text-align: center"><p:spinner value="#{pedidoController.curva[2].t2}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 2}" style="text-align: center"><p:spinner value="#{pedidoController.curva[2].t3}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 3}" style="text-align: center"><p:spinner value="#{pedidoController.curva[2].t4}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 4}" style="text-align: center"><p:spinner value="#{pedidoController.curva[2].t5}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 5}" style="text-align: center"><p:spinner value="#{pedidoController.curva[2].t6}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 6}" style="text-align: center"><p:spinner value="#{pedidoController.curva[2].t7}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 7}" style="text-align: center"><p:spinner value="#{pedidoController.curva[2].t8}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 8}" style="text-align: center"><p:spinner value="#{pedidoController.curva[2].t9}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 9}" style="text-align: center"><p:spinner value="#{pedidoController.curva[2].t10}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                            </p:row>
+                            
+                            <p:row rendered="#{cajaController.numColores > 3}">
+                                <p:column style="text-align: center"><p:inputText value="#{cajaController.curva[3].color}" style="text-align: center" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 0}" style="text-align: center"><p:spinner value="#{pedidoController.curva[3].t1}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 1}" style="text-align: center"><p:spinner value="#{pedidoController.curva[3].t2}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 2}" style="text-align: center"><p:spinner value="#{pedidoController.curva[3].t3}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 3}" style="text-align: center"><p:spinner value="#{pedidoController.curva[3].t4}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 4}" style="text-align: center"><p:spinner value="#{pedidoController.curva[3].t5}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 5}" style="text-align: center"><p:spinner value="#{pedidoController.curva[3].t6}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 6}" style="text-align: center"><p:spinner value="#{pedidoController.curva[3].t7}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 7}" style="text-align: center"><p:spinner value="#{pedidoController.curva[3].t8}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 8}" style="text-align: center"><p:spinner value="#{pedidoController.curva[3].t9}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 9}" style="text-align: center"><p:spinner value="#{pedidoController.curva[3].t10}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                            </p:row>
+                            
+                            <p:row rendered="#{pedidoController.numColores > 4}">
+                                <p:column style="text-align: center"><p:inputText value="#{pedidoController.curva[4].color}" style="text-align: center" /></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 0}" style="text-align: center"><p:spinner value="#{pedidoController.curva[4].t1}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 1}" style="text-align: center"><p:spinner value="#{pedidoController.curva[4].t2}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 2}" style="text-align: center"><p:spinner value="#{pedidoController.curva[4].t3}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 3}" style="text-align: center"><p:spinner value="#{pedidoController.curva[4].t4}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 4}" style="text-align: center"><p:spinner value="#{pedidoController.curva[4].t5}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 5}" style="text-align: center"><p:spinner value="#{pedidoController.curva[4].t6}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 6}" style="text-align: center"><p:spinner value="#{pedidoController.curva[4].t7}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 7}" style="text-align: center"><p:spinner value="#{pedidoController.curva[4].t8}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 8}" style="text-align: center"><p:spinner value="#{pedidoController.curva[4].t9}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 9}" style="text-align: center"><p:spinner value="#{pedidoController.curva[4].t10}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                            </p:row>
+                            
+                            <p:row rendered="#{pedidoController.numColores > 5}">
+                                <p:column style="text-align: center"><p:inputText value="#{pedidoController.curva[5].color}" style="text-align: center" /></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 0}" style="text-align: center"><p:spinner value="#{pedidoController.curva[5].t1}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 1}" style="text-align: center"><p:spinner value="#{pedidoController.curva[5].t2}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 2}" style="text-align: center"><p:spinner value="#{pedidoController.curva[5].t3}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 3}" style="text-align: center"><p:spinner value="#{pedidoController.curva[5].t4}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 4}" style="text-align: center"><p:spinner value="#{pedidoController.curva[5].t5}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 5}" style="text-align: center"><p:spinner value="#{pedidoController.curva[5].t6}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 6}" style="text-align: center"><p:spinner value="#{pedidoController.curva[5].t7}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 7}" style="text-align: center"><p:spinner value="#{pedidoController.curva[5].t8}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 8}" style="text-align: center"><p:spinner value="#{pedidoController.curva[5].t9}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{pedidoController.numTallas > 9}" style="text-align: center"><p:spinner value="#{pedidoController.curva[5].t10}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                            </p:row>
+                           
+                           <f:facet name="footer">
+                                <p:row>
+                                    <p:column style="text-align: right;" >P/U CON IVA: $</p:column>
+                                    <p:column><p:outputLabel value="#{funciones.redondearMas(pedidoController.pu,2)}"/></p:column>
+                                </p:row>
+                               <p:row>
+                                    <p:column style="text-align: right;" >UNIDADES</p:column>
+                                    <p:column><p:outputLabel id="unidades" value="#{pedidoController.unidadesCaja}"/></p:column>
+                                </p:row>
+                               <p:row>
+                                    <p:column style="text-align: right;" >CAJAS</p:column>
+                                    <p:column><p:spinner id="cajas" value="#{pedidoController.numCajas}" min="1"/></p:column>
+                                </p:row>
+                            </f:facet>
+                    </p:panelGrid>
+                    <br/>
+                        <p:commandButton actionListener="#{pedidoController.listarCurvaDetalle()}" value="LISTAR CURVA" update=":gwPedido,:frmPedidos:pedido,:frmCurva" oncomplete="handleSubmit(xhr,status,args,curvaDialog);" style="width: 80px;"/>
+                         <p:commandButton value="CERRAR VENTANA" onclick="curvaDialog.hide();" style="float:right; width: 80px;" />
+                </h:form>
+            </p:dialog>
+        
+        
+        
+        
+        <p:dialog widgetVar="estiloDialog" modal="true" resizable="false" appendTo="@(body)" header="INGRESANDO PEDIDO" >
+                
+                <h:form id="frmEstilo">
+                       
+                    <p:panelGrid columns="2" styleClass="prueba" >
+                        <p:outputLabel value="ESTILO: "/>
+                        <p:selectOneMenu value="#{pedidoController.producto}" panelStyle="overflow-y:scroll" style="width:110px;" required="true" requiredMessage="Ingrese Estilo"
+                                          effect="fade" var="e" filter="true" filterMatchMode="startsWith">
+                            <f:selectItem itemLabel="Seleccione Estilo.." />
+                            <f:selectItems value="#{productoController.getEstilos(1)}"
+                                           var="estilo"
+                                           itemValue="#{estilo}"
+                                           itemLabel="#{estilo.productoPK.codestilo}"
+                                           />
+                            <f:converter binding="#{productoConverter}" />
+                            <p:ajax update="colores" listener="#{pedidoController.actualizarColores(pedidoController.producto)}" />
+                            <p:column width="100">
+                                #{e.productoPK.codestilo}
+                            </p:column>
+                        </p:selectOneMenu>
+                        <p:outputLabel value="COLOR: "/>
+                        <p:selectOneMenu id="colores" value="#{pedidoController.color}" panelStyle="overflow-y:scroll" style="width:110px;" required="true" requiredMessage="Ingrese Color"
+                                          effect="fade" filter="true" filterMatchMode="startsWith">
+                            <f:selectItem itemLabel="OTRO" itemValue="NONE" />
+                            <f:selectItems value="#{pedidoController.colores}" />
+                        </p:selectOneMenu>
+                    </p:panelGrid>
+                    
+                    <p:commandButton value="CURVA" actionListener="#{pedidoController.prepararCurvaPedido()}" process="@form" update=":frmEstilo,:gwPedido,:frmCurva"  />
+                    <p:commandButton value="CERRAR" onclick="estiloDialog.hide();" style="float:right" />
+                    
+                </h:form>
+            </p:dialog>
+            
+    </ui:composition>
+
+</html>

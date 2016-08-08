@@ -1,0 +1,459 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/resources/plantillas/plantillaPrincipal.xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+
+    <ui:define name="title">
+        <h:outputText value="CORTE DE INVENTARIO" />
+    </ui:define>
+
+    <ui:define name="body">
+        
+        <c:choose>
+        <!-- VERIFICA QUE TENGA PERMISOS -->
+        <c:when test="${empleadoController.verificarPermiso('INVENTARIO', 'CORTE DE INVENTARIO')}" >
+
+            
+        #{corteInventarioInicial.prepararCorteInventarioInicial()}
+        <p:panel  header="CORTE INICIAL INVENTARIO DE CALZADO">
+            
+            <p:growl id="gwCorte" />
+            <p:fieldset legend="INFORMACION GENERAL DEL PRODUCTO">
+            
+                <h:form id="frmInfo">
+               
+                    <!-- INFORMACION GENERAL DEL PRODUCTO -->
+                    <h:panelGrid columns="4" cellpadding="4" id="pnlGeneral"  >
+                        <p:outputLabel value="ESTILO:" />
+                        <p:selectOneMenu id="somEstilo"  value="#{corteInventarioInicial.estilo}" disabled="#{corteInventarioInicial.ingresarCurva}" panelStyle="height:300px;overflow-y:scroll"   required="true" requiredMessage="Ingrese Estilo"  
+                                          effect="fade" var="e"  filter="true" filterMatchMode="startsWith">
+                            <f:selectItem itemLabel="Seleccione Estilo.." itemValue="#{null}"  />
+                            <f:selectItems value="#{productoController.getEstilos(1)}" 
+                                           var="estilo" 
+                                           itemValue="#{estilo}"
+                                           itemLabel="#{estilo.productoPK.codestilo}" 
+                                           />
+                            <f:converter binding="#{productoConverter}" />
+                            <p:column>  
+                                #{e.productoPK.codestilo} 
+                            </p:column>
+                        </p:selectOneMenu>
+
+                        <p:outputLabel value="MARCA:" />
+                        <p:autoComplete value="#{corteInventarioInicial.marca}" readonly="#{corteInventarioInicial.ingresarCurva}"  completeMethod="#{inventarioController.autoCompletarMarca}" size="15" required="true" requiredMessage="Ingrese la MARCA"/>
+
+                        <p:outputLabel value="MATERIAL:"/>
+                        <p:autoComplete value="#{corteInventarioInicial.material}" readonly="#{corteInventarioInicial.ingresarCurva}" dropdown="true"  completeMethod="#{inventarioController.autoCompletarMaterial}" size="13" required="true" requiredMessage="Ingrese MATERIAL"/> 
+
+                        <p:outputLabel value="GENERO:" />
+                        <p:selectOneMenu value="#{corteInventarioInicial.genero}" >
+                            <f:selectItem itemLabel="MASCULINO" itemValue="M" /> 
+                            <f:selectItem  itemLabel="FEMENINO" itemValue="F" />
+                            <f:selectItem  itemLabel="UNISEX" itemValue="U" />
+                        </p:selectOneMenu>
+
+                        <p:outputLabel value="PARA:" />
+                        <p:selectOneMenu value="#{corteInventarioInicial.clasePersona}" style="width: 100px;" >
+                            <f:selectItem  itemLabel="ADULTOS" itemValue="A" itemDescription="Adultos" /> 
+                            <f:selectItem itemLabel="JUVENIL" itemValue="J" itemDescription="Adolescentes" />
+                            <f:selectItem  itemLabel="NI&Ntilde;OS" itemValue="N" />
+                            <f:selectItem itemLabel="INFANTES" itemValue="I" itemDescription="Bebes" />
+                        </p:selectOneMenu>
+
+                     </h:panelGrid>
+                
+                    <p:commandButton value="DEFINIR CURVA" actionListener="#{corteInventarioInicial.definirCurva()}" update=":gwCorte,:frmCurva,:frmInfo" process="@form" />
+                </h:form>
+            </p:fieldset>
+            
+ 
+            
+            <br/>
+            
+            <h:form id="frmCurva">
+                <!-- CURVA A INGRESAR -->
+                <p:fieldset  rendered="#{corteInventarioInicial.ingresarCurva}">
+                    <h:panelGroup id="displayCurva">
+
+                        <h:panelGrid columns="8">
+                            <p:outputLabel value="COLORES:" style="font-weight: bold;" tabindex="1"/>
+                            <p:selectOneMenu value="#{corteInventarioInicial.numcolores}" onchange="actCurva()"  >
+                                <f:selectItem itemLabel="1" itemValue="1" />
+                                <f:selectItem itemLabel="2" itemValue="2" />
+                                <f:selectItem itemLabel="3" itemValue="3" />
+                                <f:selectItem itemLabel="4" itemValue="4" />
+                                <f:selectItem itemLabel="5" itemValue="5" />
+                                <f:selectItem itemLabel="6" itemValue="6" />
+                            </p:selectOneMenu> 
+                            <p:remoteCommand name="actCurva" update="pnlCurva"/>
+                            <p:outputLabel value="TALLAS:" style="font-weight: bold;"/>
+                            <p:selectOneMenu value="#{corteInventarioInicial.numTallas}" onchange="actCurva()" tabindex="1"  >
+                                <f:selectItem itemLabel="1" itemValue="1" />
+                                <f:selectItem itemLabel="2" itemValue="2" />
+                                <f:selectItem itemLabel="3" itemValue="3" />
+                                <f:selectItem itemLabel="4" itemValue="4" />
+                                <f:selectItem itemLabel="5" itemValue="5" />
+                                <f:selectItem itemLabel="6" itemValue="6" />
+                                <f:selectItem itemLabel="7" itemValue="7" />
+                                <f:selectItem itemLabel="8" itemValue="8" />
+                                <f:selectItem itemLabel="9" itemValue="9" />
+                                <f:selectItem itemLabel="10" itemValue="10" />
+                            </p:selectOneMenu> 
+                            <p:outputLabel value="INGRESAR POR:"/>
+                            <p:selectOneMenu value="#{corteInventarioInicial.ingresarPorCaja}" onchange="actCurva()" tabindex="1" >
+                                <f:selectItem  itemLabel="CAJAS" itemValue="true" /> 
+                                <f:selectItem  itemLabel="UNIDADES" itemValue="false" />
+                            </p:selectOneMenu>
+
+                        </h:panelGrid>
+                        <br/><br/>
+                        <h:panelGrid columns="2">
+                            <p:panelGrid id="pnlCurva" styleClass="panelgrid" >
+                                    <f:facet name="header">
+                                        <p:row>
+                                            <p:column rowspan="2" style="width: 175px;">C O L O R</p:column>
+                                            <p:column colspan="10">T A L L A S</p:column>
+                                        </p:row>
+                                        <p:row>
+                                            <p:column rendered="#{corteInventarioInicial.numTallas > 0}"><p:inputText  value="#{corteInventarioInicial.tallas[0]}" style="width:20px;" tabindex="2"/></p:column>
+                                            <p:column rendered="#{corteInventarioInicial.numTallas > 1}"><p:inputText  value="#{corteInventarioInicial.tallas[1]}" style="width:20px;" tabindex="2"/></p:column>
+                                            <p:column rendered="#{corteInventarioInicial.numTallas > 2}"><p:inputText  value="#{corteInventarioInicial.tallas[2]}" style="width:20px;" tabindex="2"/></p:column>
+                                            <p:column rendered="#{corteInventarioInicial.numTallas > 3}"><p:inputText  value="#{corteInventarioInicial.tallas[3]}" style="width:20px;" tabindex="2"/></p:column>
+                                            <p:column rendered="#{corteInventarioInicial.numTallas > 4}"><p:inputText  value="#{corteInventarioInicial.tallas[4]}" style="width:20px;" tabindex="2"/></p:column>
+                                            <p:column rendered="#{corteInventarioInicial.numTallas > 5}"><p:inputText  value="#{corteInventarioInicial.tallas[5]}" style="width:20px;" tabindex="2"/></p:column>
+                                            <p:column rendered="#{corteInventarioInicial.numTallas > 6}"><p:inputText  value="#{corteInventarioInicial.tallas[6]}" style="width:20px;" tabindex="2"/></p:column>
+                                            <p:column rendered="#{corteInventarioInicial.numTallas > 7}"><p:inputText  value="#{corteInventarioInicial.tallas[7]}" style="width:20px;" tabindex="2"/></p:column>
+                                            <p:column rendered="#{corteInventarioInicial.numTallas > 8}"><p:inputText  value="#{corteInventarioInicial.tallas[8]}" style="width:20px;" tabindex="2"/></p:column>
+                                            <p:column rendered="#{corteInventarioInicial.numTallas > 9}"><p:inputText  value="#{corteInventarioInicial.tallas[9]}" style="width:20px;" tabindex="2"/></p:column>
+                                        </p:row>
+                                    </f:facet>
+                                    <p:row>
+                                        <p:column><p:autoComplete value="#{corteInventarioInicial.curva[0].color}" completeMethod="#{inventarioController.autoCompletarColor}" tabindex="3"  /></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 0}"><p:spinner  value="#{corteInventarioInicial.curva[0].t1}" min="0" maxlength="2" tabindex="3" /></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 1}"><p:spinner  value="#{corteInventarioInicial.curva[0].t2}" min="0" maxlength="2" tabindex="3" /></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 2}"><p:spinner  value="#{corteInventarioInicial.curva[0].t3}" min="0" maxlength="2" tabindex="3"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 3}"><p:spinner  value="#{corteInventarioInicial.curva[0].t4}" min="0" maxlength="2" tabindex="3"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 4}"><p:spinner  value="#{corteInventarioInicial.curva[0].t5}" min="0" maxlength="2" tabindex="3"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 5}"><p:spinner  value="#{corteInventarioInicial.curva[0].t6}" min="0" maxlength="2" tabindex="3"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 6}"><p:spinner  value="#{corteInventarioInicial.curva[0].t7}" min="0" maxlength="2" tabindex="3"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 7}"><p:spinner  value="#{corteInventarioInicial.curva[0].t8}" min="0" maxlength="2" tabindex="3"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 8}"><p:spinner  value="#{corteInventarioInicial.curva[0].t9}" min="0" maxlength="2" tabindex="3"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 9}"><p:spinner  value="#{corteInventarioInicial.curva[0].t10}" min="0" maxlength="2" tabindex="3"/></p:column>
+                                    </p:row>
+
+                                <p:row rendered="#{corteInventarioInicial.numcolores > 1}">
+                                        <p:column><p:autoComplete value="#{corteInventarioInicial.curva[1].color}" completeMethod="#{inventarioController.autoCompletarColor}" tabindex="4"  /></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 0}" ><p:spinner value="#{corteInventarioInicial.curva[1].t1}" min="0" maxlength="2" tabindex="4"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 1}"><p:spinner  value="#{corteInventarioInicial.curva[1].t2}" min="0" maxlength="2" tabindex="4"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 2}"><p:spinner  value="#{corteInventarioInicial.curva[1].t3}" min="0" maxlength="2" tabindex="4"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 3}"><p:spinner  value="#{corteInventarioInicial.curva[1].t4}" min="0" maxlength="2" tabindex="4"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 4}"><p:spinner  value="#{corteInventarioInicial.curva[1].t5}" min="0" maxlength="2" tabindex="4"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 5}"><p:spinner  value="#{corteInventarioInicial.curva[1].t6}" min="0" maxlength="2" tabindex="4"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 6}"><p:spinner  value="#{corteInventarioInicial.curva[1].t7}" min="0" maxlength="2" tabindex="4"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 7}"><p:spinner  value="#{corteInventarioInicial.curva[1].t8}" min="0" maxlength="2" tabindex="4"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 8}"><p:spinner  value="#{corteInventarioInicial.curva[1].t9}" min="0" maxlength="2" tabindex="4"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 9}"><p:spinner  value="#{corteInventarioInicial.curva[1].t10}" min="0" maxlength="2" tabindex="4"/></p:column>
+                                    </p:row>
+
+                                    <p:row rendered="#{corteInventarioInicial.numcolores > 2}">
+                                        <p:column><p:autoComplete value="#{corteInventarioInicial.curva[2].color}" completeMethod="#{inventarioController.autoCompletarColor}" tabindex="5" /></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 0}"><p:spinner  value="#{corteInventarioInicial.curva[2].t1}" min="0" maxlength="2" tabindex="5"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 1}"><p:spinner  value="#{corteInventarioInicial.curva[2].t2}" min="0" maxlength="2" tabindex="5"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 2}"><p:spinner  value="#{corteInventarioInicial.curva[2].t3}" min="0" maxlength="2" tabindex="5"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 3}"><p:spinner  value="#{corteInventarioInicial.curva[2].t4}" min="0" maxlength="2" tabindex="5"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 4}"><p:spinner  value="#{corteInventarioInicial.curva[2].t5}" min="0" maxlength="2" tabindex="5"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 5}"><p:spinner value="#{corteInventarioInicial.curva[2].t6}" min="0" maxlength="2" tabindex="5"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 6}" ><p:spinner value="#{corteInventarioInicial.curva[2].t7}" min="0" maxlength="2" tabindex="5"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 7}"><p:spinner  value="#{corteInventarioInicial.curva[2].t8}" min="0" maxlength="2" tabindex="5"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 8}" ><p:spinner value="#{corteInventarioInicial.curva[2].t9}" min="0" maxlength="2" tabindex="5"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 9}"><p:spinner value="#{corteInventarioInicial.curva[2].t10}" min="0" maxlength="2" tabindex="5"/></p:column>
+                                    </p:row>
+
+                                    <p:row rendered="#{corteInventarioInicial.numcolores > 3}">
+                                        <p:column><p:autoComplete value="#{corteInventarioInicial.curva[3].color}"  completeMethod="#{inventarioController.autoCompletarColor}" tabindex="6" /></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 0}" ><p:spinner value="#{corteInventarioInicial.curva[3].t1}" min="0" maxlength="2" tabindex="6"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 1}"><p:spinner  value="#{corteInventarioInicial.curva[3].t2}" min="0" maxlength="2" tabindex="6"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 2}"><p:spinner  value="#{corteInventarioInicial.curva[3].t3}" min="0" maxlength="2" tabindex="6"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 3}"><p:spinner  value="#{corteInventarioInicial.curva[3].t4}" min="0" maxlength="2" tabindex="6"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 4}"><p:spinner  value="#{corteInventarioInicial.curva[3].t5}" min="0" maxlength="2" tabindex="6"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 5}"><p:spinner  value="#{corteInventarioInicial.curva[3].t6}" min="0" maxlength="2" tabindex="6"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 6}"><p:spinner  value="#{corteInventarioInicial.curva[3].t7}" min="0" maxlength="2" tabindex="6"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 7}"><p:spinner  value="#{corteInventarioInicial.curva[3].t8}" min="0" maxlength="2" tabindex="6"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 8}"><p:spinner  value="#{corteInventarioInicial.curva[3].t9}" min="0" maxlength="2" tabindex="6"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 9}"><p:spinner value="#{corteInventarioInicial.curva[3].t10}" min="0" maxlength="2" tabindex="6"/></p:column>
+                                    </p:row>
+
+                                    <p:row rendered="#{corteInventarioInicial.numcolores > 4}">
+                                        <p:column><p:autoComplete value="#{corteInventarioInicial.curva[4].color}"  completeMethod="#{inventarioController.autoCompletarColor}" tabindex="7" /></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 0}"><p:spinner  value="#{corteInventarioInicial.curva[4].t1}" min="0" maxlength="2" tabindex="7"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 1}"><p:spinner  value="#{corteInventarioInicial.curva[4].t2}" min="0" maxlength="2" tabindex="7"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 2}" ><p:spinner value="#{corteInventarioInicial.curva[4].t3}" min="0" maxlength="2" tabindex="7"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 3}" ><p:spinner value="#{corteInventarioInicial.curva[4].t4}" min="0" maxlength="2" tabindex="7"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 4}"><p:spinner  value="#{corteInventarioInicial.curva[4].t5}" min="0" maxlength="2" tabindex="7"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 5}"><p:spinner  value="#{corteInventarioInicial.curva[4].t6}" min="0" maxlength="2" tabindex="7"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 6}"><p:spinner  value="#{corteInventarioInicial.curva[4].t7}" min="0" maxlength="2" tabindex="7"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 7}"><p:spinner  value="#{corteInventarioInicial.curva[4].t8}" min="0" maxlength="2" tabindex="7"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 8}"><p:spinner  value="#{corteInventarioInicial.curva[4].t9}" min="0" maxlength="2" tabindex="7"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 9}" ><p:spinner value="#{corteInventarioInicial.curva[4].t10}" min="0" maxlength="2" tabindex="7"/></p:column>
+                                    </p:row>
+
+                                    <p:row rendered="#{corteInventarioInicial.numcolores > 5}">
+                                        <p:column><p:autoComplete value="#{corteInventarioInicial.curva[5].color}" completeMethod="#{inventarioController.autoCompletarColor}" tabindex="8"  /></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 0}" ><p:spinner value="#{corteInventarioInicial.curva[5].t1}" min="0" maxlength="2" tabindex="8"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 1}"><p:spinner  value="#{corteInventarioInicial.curva[5].t2}" min="0" maxlength="2" tabindex="8"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 2}"><p:spinner  value="#{corteInventarioInicial.curva[5].t3}" min="0" maxlength="2" tabindex="8"/></p:column>
+                                        <p:column  rendered="#{corteInventarioInicial.numTallas > 3}"><p:spinner value="#{corteInventarioInicial.curva[5].t4}" min="0" maxlength="2" tabindex="8"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 4}"><p:spinner  value="#{corteInventarioInicial.curva[5].t5}" min="0" maxlength="2" tabindex="8"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 5}"><p:spinner  value="#{corteInventarioInicial.curva[5].t6}" min="0" maxlength="2" tabindex="8"/></p:column>
+                                        <p:column  rendered="#{corteInventarioInicial.numTallas > 6}"><p:spinner value="#{corteInventarioInicial.curva[5].t7}" min="0" maxlength="2" tabindex="8"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 7}"><p:spinner  value="#{corteInventarioInicial.curva[5].t8}" min="0" maxlength="2" tabindex="8"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 8}"><p:spinner  value="#{corteInventarioInicial.curva[5].t9}" min="0" maxlength="2" tabindex="8"/></p:column>
+                                        <p:column rendered="#{corteInventarioInicial.numTallas > 9}"><p:spinner  value="#{corteInventarioInicial.curva[5].t10}" min="0" maxlength="2" tabindex="8"/></p:column>
+                                    </p:row>
+
+                                    <f:facet name="footer">
+                                        <p:row rendered="#{corteInventarioInicial.ingresarPorCaja}">
+                                            <p:column colspan="#{corteInventarioInicial.numTallas}" style="text-align: right;" ># CAJAS</p:column>
+                                            <p:column><p:spinner value="#{corteInventarioInicial.numcajas}" min="0" tabindex="9" /></p:column>
+                                        </p:row>
+                                        <p:row>
+                                            <p:column colspan="#{corteInventarioInicial.numTallas}" style="text-align: right;" >COSTO UNITARIO CONTABLE $</p:column>
+                                            <p:column><p:inputText value="#{corteInventarioInicial.costoReal}" tabindex="9" style="width:30px;" required="true" requiredMessage="Se requiere el COSTO UNITARIO DEL PRODUCTO"  /></p:column>
+                                        </p:row>
+                                        <p:row>
+                                            <p:column colspan="#{corteInventarioInicial.numTallas}" style="text-align: right;" >PRECIO VENTA UNITARIO $</p:column>
+                                            <p:column><p:inputText value="#{corteInventarioInicial.precioVenta}" tabindex="9" style="width:30px;" required="true" requiredMessage="Se requiere el PRECIO DE VENTA UNITARIO"  /></p:column>
+                                        </p:row>
+                                    </f:facet>
+                            </p:panelGrid>
+
+                            <h:panelGroup>
+
+                                <p:commandButton value="CAMBIAR ESTILO" actionListener="#{corteInventarioInicial.resetear()}" process="@this" update=":gwCorte,:frmInfo,:frmCurva"  style="font-size: 10px;width: 115px;height:35px;" tabindex="10" /><br/><br/>
+
+                                <p:commandButton value="LIMPIAR CURVA" actionListener="#{corteInventarioInicial.resetearCurvaTalla()}" process="@this" update=":frmCurva" style="font-size: 10px;width: 115px;height:35px;" tabindex="10"/><br/><br/>
+                                <p:commandButton value="INGRESAR PRODUCTO  " actionListener="#{corteInventarioInicial.leerCodigos()}"   update=":gwCorte,:frmCurva,:frmCodigoUnitario,:frmCodigoCaja" style="font-size: 5px;width: 115px;height:35px;" tabindex="10" />
+
+                            </h:panelGroup>
+                       </h:panelGrid>
+                    </h:panelGroup>
+
+                </p:fieldset>
+            
+            </h:form>
+            
+        </p:panel>
+        
+ 
+        
+        
+        <!-- CODIFICAR UNIDAD -->
+        <p:dialog id="dlgCodigoUnidad" widgetVar="codigoUnidadDialog" modal="true" closable="false" resizable="false" appendTo="@(body)" header="CODIFICANDO UNIDAD"  >
+
+            <h:form id="frmCodigoUnitario">
+                <p:panelGrid columns="2" styleClass="noBorderPanelGrid" >
+
+                        <p:outputLabel value="UNIDADES A INGRESAR"/>
+                        <p:outputLabel value="#{corteInventarioInicial.unidades.size()}"/>
+
+                        <p:outputLabel value="UBICACION DE LOS PRODUCTOS:" />
+                        <p:inputText value="#{corteInventarioInicial.ubicacionUnidad}" required="true" requiredMessage="Se requiere ubicacion en bodega de la unidad" />
+
+                </p:panelGrid> 
+                <br/>
+                
+                <p:commandButton  value="INGRESAR AL INVENTARIO" actionListener="#{corteInventarioInicial.ingresarUnitario()}" update=":gwCorte, :frmCodigoUnitario, :frmCurva" process="@form" />
+
+                <p:commandButton value="CANCELAR" onclick="codigoUnidadDialog.hide();"/>
+            </h:form>
+
+        </p:dialog>
+
+        
+        
+        
+        
+        <!-- CODIFICAR CAJA -->
+        <p:dialog id="dlgCodigoCaja" widgetVar="codigoCajaCodigoDialog" modal="true" closable="false" resizable="false" appendTo="@(body)" header="CODIFICANDO CAJA"  >
+
+            <h:form id="frmCodigoCaja">
+                <h:panelGroup id="displayCodigoCaja" >
+                    
+                   <h:panelGrid columns="2" style="text-align: right;" >
+                       <p:outputLabel value="ESTILO: " style="font-weight: bold;"/>
+                       <p:outputLabel value="#{corteInventarioInicial.caja.producto.productoPK.codestilo}" style="font-weight: bold;color: blue"/>
+                       <p:outputLabel value="UNIDADES: " style="font-weight: bold;"/>
+                       <p:outputLabel value="#{corteInventarioInicial.caja.unidadesCaja}" style="font-weight: bold;"/>
+                       <p:outputLabel value="COSTO REAL UNITARIO $" style="font-weight: bold;"/>
+                       <p:outputLabel value="#{funciones.redondearMas(corteInventarioInicial.caja.costoUnitario,2)}" style="font-weight: bold;"/>
+                       <p:outputLabel value="COSTO CAJA $" style="font-weight: bold;"/>
+                       <p:outputLabel value="#{funciones.redondearMas(corteInventarioInicial.caja.costoCaja,2)}" style="font-weight: bold;"/>  
+                       <p:outputLabel value="PRECIO MAYOREO UNITARIO $" style="font-weight: bold;"/>
+                       <p:outputLabel value="#{funciones.redondearMas(corteInventarioInicial.caja.precioventaUnidad,2)}" style="font-weight: bold;"/>
+                       
+                   </h:panelGrid> 
+                   <br/><br/>
+                   <p:outputLabel value="DETALLE CURVA DE LA CAJA" />
+                    <p:panelGrid id="pnlCurvaCaja" styleClass="prueba" >
+                            <f:facet name="header">
+                                <p:row>
+                                    <p:column rowspan="2" style="width: 175px;">C O L O R</p:column>
+                                    <p:column colspan="10">T A L L A S</p:column>
+                                </p:row>
+                                <p:row>
+                                    <p:column rendered="#{corteInventarioInicial.numTallas > 0}" >#{corteInventarioInicial.tallas[0]}</p:column>
+                                    <p:column rendered="#{corteInventarioInicial.numTallas > 1}" >#{corteInventarioInicial.tallas[1]}</p:column>
+                                    <p:column rendered="#{corteInventarioInicial.numTallas > 2}" >#{corteInventarioInicial.tallas[2]}</p:column>
+                                    <p:column rendered="#{corteInventarioInicial.numTallas > 3}" >#{corteInventarioInicial.tallas[3]}</p:column>
+                                    <p:column rendered="#{corteInventarioInicial.numTallas > 4}" >#{corteInventarioInicial.tallas[4]}</p:column>
+                                    <p:column rendered="#{corteInventarioInicial.numTallas > 5}" >#{corteInventarioInicial.tallas[5]}</p:column>
+                                    <p:column rendered="#{corteInventarioInicial.numTallas > 6}" >#{corteInventarioInicial.tallas[6]}</p:column>
+                                    <p:column rendered="#{corteInventarioInicial.numTallas > 7}" >#{corteInventarioInicial.tallas[7]}</p:column>
+                                    <p:column rendered="#{corteInventarioInicial.numTallas > 8}" >#{corteInventarioInicial.tallas[8]}</p:column>
+                                    <p:column rendered="#{corteInventarioInicial.numTallas > 9}" >#{corteInventarioInicial.tallas[9]}</p:column>
+                                </p:row>
+                            </f:facet>
+                        
+                            <p:row>
+                                <p:column style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[0].color}"/></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 0}" style="text-align: center" ><p:outputLabel value="#{corteInventarioInicial.curva[0].t1}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 1}" style="text-align: center" ><p:outputLabel value="#{corteInventarioInicial.curva[0].t2}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[0].t3}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[0].t4}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[0].t5}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[0].t6}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[0].t7}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[0].t8}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[0].t9}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[0].t10}" /></p:column>
+                            </p:row>
+                        
+                            <p:row rendered="#{corteInventarioInicial.numcolores > 1}">
+                                <p:column style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[1].color}" style="text-align: center" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 0}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[1].t1}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 1}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[1].t2}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[1].t3}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[1].t4}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[1].t5}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[1].t6}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[1].t7}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[1].t8}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[1].t9}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[1].t10}" /></p:column>
+                            </p:row>
+                            
+                            <p:row rendered="#{corteInventarioInicial.numcolores > 2}">
+                                <p:column style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[2].color}" style="text-align: center" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 0}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[2].t1}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 1}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[2].t2}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[2].t3}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[2].t4}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[2].t5}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[2].t6}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[2].t7}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[2].t8}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[2].t9}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[2].t10}" /></p:column>
+                            </p:row>
+                            
+                            <p:row rendered="#{corteInventarioInicial.numcolores > 3}">
+                                <p:column style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[3].color}" style="text-align: center" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 0}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[3].t1}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 1}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[3].t2}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[3].t3}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[3].t4}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[3].t5}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[3].t6}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[3].t7}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[3].t8}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[3].t9}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[3].t10}" /></p:column>
+                            </p:row>
+                            
+                            <p:row rendered="#{corteInventarioInicial.numcolores > 4}">
+                                <p:column style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[4].color}" style="text-align: center" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 0}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[4].t1}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 1}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[4].t2}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[4].t3}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[4].t4}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[4].t5}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[4].t6}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[4].t7}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[4].t8}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[4].t9}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[4].t10}" /></p:column>
+                            </p:row>
+                            
+                            <p:row rendered="#{corteInventarioInicial.numcolores > 5}">
+                                <p:column style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[5].color}" style="text-align: center" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 0}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[5].t1}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 1}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[5].t2}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[5].t3}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[5].t4}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[5].t5}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[5].t6}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[5].t7}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[5].t8}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[5].t9}" /></p:column>
+                                <p:column rendered="#{corteInventarioInicial.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{corteInventarioInicial.curva[5].t10}" /></p:column>
+                            </p:row>
+                    </p:panelGrid>
+                   <br/><br/>
+                   <h:panelGrid columns="3">
+                        
+                        <p:outputLabel value="Codigo Caja:" />
+                        <p:inputText id="codigoBarraCaja" value="#{corteInventarioInicial.codigoBarra}" maxlength="20" required="true" requiredMessage="Ingrese el codigo de barra" widgetVar="codigo"  />
+                     
+                        <p:commandButton  value="&laquo;&laquo; LEER &raquo;&raquo;" actionListener="#{corteInventarioInicial.ingresarCaja()}" update=":gwCorte, :frmCodigoCaja, :frmCurva" />
+                        
+                        <p:outputLabel value="Ubicacion Caja:" />
+                        <p:inputTextarea id="ubicacionCaja" value="#{corteInventarioInicial.caja.ubicacionCaja}" cols="20" rows="3" required="true" requiredMessage="Ingrese Ubicacion de la caja"  />
+                        <br/>
+                        <p:outputLabel value="CAJAS POR CODIFICAR:" style="font-weight: bold;font-size: 15px;color: red"/>
+                        <p:outputLabel value="#{corteInventarioInicial.cajas.size()}" style="font-weight: bold;color: red;font-size: 15px;"/>  
+                        <br/>
+                        <p:commandButton value="CANCELAR" oncomplete="codigoCajaCodigoDialog.hide()"/>
+                   </h:panelGrid>
+                    
+                </h:panelGroup>
+            </h:form>
+
+        </p:dialog>
+        
+        
+        
+        
+        
+        </c:when>
+            
+            
+            <!-- SI NO TIENE LOS PERMISOS DA MSJ DE ERROR -->
+            <c:otherwise>
+                   <h:form>
+                        <div style="min-height: 300px; text-align: center; margin-top: 100px;">
+                            <p:outputLabel value="ACCESO DENEGADO" style="font-size: 30px;font-weight: bold;color:red"/>
+                            <br/><br/>
+                            <h:graphicImage url="/faces/resources/imagenes/locked.png" alt="ZONA RESTRINGIDA" width="200" />
+                            <br/><br/>
+                            <p:outputLabel value="NO TIENE PERMISO PARA VER ESTA PAGINA" style="font-size: 20px;font-weight: bold;color:red"/>
+                            <br/>
+                            <p:outputLabel value="CONSULTE CON EL ADMINISTRADOR DEL SISTEMA" style="font-size: 20px;font-weight: bold;"/>
+                        </div>
+                    </h:form>
+                
+             </c:otherwise>
+        </c:choose>
+        
+        
+    </ui:define>
+    
+
+</ui:composition>
+    

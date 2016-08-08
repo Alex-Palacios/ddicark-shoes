@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/resources/plantillas/plantillaPrincipal.xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+
+    <ui:define name="title">
+        <h:outputText value="PEDIDOS" />
+    </ui:define>
+
+    <ui:define name="body">
+        
+        <c:choose>
+        <!-- VERIFICA QUE TENGA PERMISOS -->
+        <c:when test="${empleadoController.verificarPermiso('PEDIDOS', 'PEDIDOS')}" >
+
+       #{pedidoController.prepararConsultaPedidos()}
+        <p:panel  header="P E D I D O S &nbsp;&nbsp;A L &nbsp;&nbsp;R E G I S T R A D O S" style="height:99.3%; width: 99.5%;" >
+            <p:growl id="gwPedidos" />
+            
+             <h:form id="frmPedidos">
+                 <p:fieldset>
+                        <h:panelGrid columns="2" style="float: left">
+                            <p:outputLabel value="MES:" />
+                            <p:selectOneMenu value="#{pedidoController.month}"  >
+                                <f:selectItem itemLabel="ENERO" itemValue="1" />
+                                <f:selectItem itemLabel="FEBRERO" itemValue="2"/>
+                                <f:selectItem itemLabel="MARZO" itemValue="3"/>
+                                <f:selectItem itemLabel="ABRIL" itemValue="4"/>
+                                <f:selectItem itemLabel="MAYO" itemValue="5"/>
+                                <f:selectItem itemLabel="JUNIO" itemValue="6"/>
+                                <f:selectItem itemLabel="JULIO" itemValue="7"/>
+                                <f:selectItem itemLabel="AGOSTO" itemValue="8"/>
+                                <f:selectItem itemLabel="SEPTIEMBRE" itemValue="9"/>
+                                <f:selectItem itemLabel="OCTUBRE" itemValue="10"/>
+                                <f:selectItem itemLabel="NOVIEMBRE" itemValue="11"/>
+                                <f:selectItem itemLabel="DICIEMBRE" itemValue="12"/>
+                            </p:selectOneMenu>
+                            <p:outputLabel value="AÑO:" style="font-weight: bold;" />
+                            <p:selectOneMenu value="#{pedidoController.year}" editable="true">
+                                <f:selectItem itemLabel="2012" itemValue="2012"/>
+                                <f:selectItem itemLabel="2013" itemValue="2013"/>
+                                <f:selectItem itemLabel="2014" itemValue="2014"/>
+                                <f:selectItem itemLabel="2015" itemValue="2015"/>
+                                <f:selectItem itemLabel="2016" itemValue="2016"/>
+                            </p:selectOneMenu>
+                        </h:panelGrid>
+                        
+                     <p:commandButton value="CONSULTAR" actionListener="#{pedidoController.actualizarConsultaPedidos()}" process="@form" update="dtPedidos" />
+                        
+                 </p:fieldset>
+                 
+                 <p:contextMenu for="dtPedidos"> 
+                     <p:menuitem value="Eliminar" actionListener="#{pedidoController.prepareEliminarPedido}" update=":gwPedidos,:frmEliminarPedido" icon="ui-icon-trash"  />  
+                </p:contextMenu>
+                 <p:dataTable id="dtPedidos" var="pedidos" value="#{pedidoController.pedidosRegistrados}" filteredValue="#{pedidoController.filtroPedidos}"
+                              style="text-align: center;" scrollable="true" scrollHeight="450" selectionMode="single" selection="#{pedidoController.seleccion}" rowKey="#{pedidos.pedidoPK}"
+                             emptyMessage="NO HAY PEDIDOS REGISTRADOSOS"> 
+
+                        <p:column>  
+                            <f:facet name="header">  
+                                    ORDEN DE PEDIDO  
+                            </f:facet>  
+                            <h:outputText value="#{pedidos.pedidoPK.numpedido}" />  
+                        </p:column>  
+
+                        <p:column>  
+                            <f:facet name="header">  
+                                    FECHA PEDIDO 
+                            </f:facet>  
+                            <h:outputText value="#{funciones.setFechaFormateada(pedidos.pedidoPK.fechaPedido,1)}" />  
+                        </p:column>  
+                     
+                        <p:column filterBy="#{pedidos.clientePedido.obtenerNombreCliente()}" filterMatchMode="contains">  
+                            <f:facet name="header">  
+                                    CUENTA CLIENTE 
+                            </f:facet>  
+                             <h:outputText value="#{pedidos.clientePedido.obtenerNombreCliente()}" />  
+                        </p:column> 
+                     
+                        <p:column filterBy="tipoPago" filterOptions="#{pedidoController.condicionPagoOptions}" filterMatchMode="exact">  
+                            <f:facet name="header">  
+                                    TIPO PAGO 
+                            </f:facet>  
+                            <h:outputText value="#{pedidos.tipoPago}" />  
+                        </p:column> 
+                     
+                        <p:column>  
+                            <f:facet name="header">  
+                                    TOTAL 
+                            </f:facet>  
+                            <h:outputText value="#{funciones.redondearMas(pedidos.totalPedido,2)}" />  
+                        </p:column> 
+                        
+                        <p:column >  
+                            <f:facet name="header">  
+                                    FECHA DE ENTREGA 
+                            </f:facet>  
+                             <h:outputText value="#{funciones.setFechaFormateada(pedidos.fechaEntrega,1)}" />  
+                        </p:column>
+                        
+                        <p:column>  
+                            <f:facet name="header">  
+                                    ESTADO CREDITO 
+                            </f:facet>  
+                            <h:outputText value="#{pedidos.estadoPedido}" />  
+                        </p:column>
+                     
+                        <p:column filterBy="#{pedidos.responsablePedido.nombreEmpleado}">  
+                            <f:facet name="header">  
+                                    REALIZADO POR 
+                            </f:facet>  
+                            <h:outputText value="#{pedidos.responsablePedido.nombreEmpleado}" />  
+                        </p:column>
+
+                        <p:rowExpansion>  
+                            <p:dataTable id="dtDetallePedido" var="detalle" value="#{detallePedidoController.ejbFacadeDetallePedido.getDetallePedido(pedidos.pedidoPK)}"
+                                 style="text-align: center; "  scrollable="true" scrollHeight="100" >  
+
+                                    <f:facet name="header">DETALLE DE PEDIDO</f:facet>
+
+                                    <p:column   headerText="CODIGO ESTILO" >  
+                                        <h:outputText value="#{detalle.producto.productoPK.codestilo}" />
+                                    </p:column> 
+                                    <p:column headerText="COLOR" > 
+                                        <h:outputText value="#{detalle.color}"/>
+                                    </p:column>
+                                    <p:column headerText="TALLA" > 
+                                        <h:outputText value="#{detalle.talla}"/>
+                                    </p:column>
+                                    <p:column headerText="PARES" >
+                                        <h:outputText value="#{detalle.cantidad}"/>
+                                    </p:column>
+                                    <p:column headerText="P/U"> 
+                                        <h:outputText value="#{detalle.pu}"/>
+                                    </p:column>
+                                    <p:column headerText="MONTO">
+                                        <h:outputText value="#{funciones.redondearMas(detalle.monto,2)}"/>
+                                    </p:column>
+                                    <p:columnGroup type="footer">
+                                        <p:row>
+                                            <p:column rendered="false" />
+                                            <p:column rendered="false" />
+                                            <p:column rendered="false" />
+                                            <p:column rendered="false" />
+                                            <p:column rendered="false" />
+                                            <p:column rendered="false" />
+                                        </p:row>
+                                        <p:row>  
+                                            <p:column colspan="5" footerText="TOTAL: " style="text-align:right"/>  
+                                            <p:column footerText="#{funciones.redondearMas(pedidosCredito.totalPedido,2)}" />   
+                                        </p:row>  
+                                    </p:columnGroup>  
+                                </p:dataTable>
+                        </p:rowExpansion>  
+                    </p:dataTable>  
+             </h:form>
+            
+       </p:panel>
+        
+         
+            
+            
+            
+            <!-- ELIMINAR PEDIDO -->
+        <p:dialog widgetVar="eliminarPedido" modal="true" resizable="false" appendTo="@(body)" header="ELIMINAR PEDIDO" >
+            <h:form id="frmEliminarPedido">
+                <p:outputLabel value="SEGURO QUE DESEA ELIMINAR EL PEDIDO?" />
+                <h:panelGrid columns="2">
+                    <p:outputLabel value="ORDEN DE PEDIDO N&deg;:"/>
+                    <p:outputLabel value="#{pedidoController.seleccion.pedidoPK.numpedido}"/>
+                    <p:outputLabel value="FECHA:"/>
+                    <p:outputLabel value="#{funciones.setFechaFormateada(pedidoController.seleccion.pedidoPK.fechaPedido,1)}"/>
+                    <p:outputLabel value="CLIENTE:"/>
+                    <p:outputLabel value="#{pedidoController.seleccion.clientePedido.obtenerNombreCliente()}"/>
+                </h:panelGrid><br/>
+                <p:commandButton value="SI " actionListener="#{pedidoController.eliminarPedido()}" oncomplete="eliminarPedido.hide();" update=":gwPedidos, :frmEliminarPedido,:frmPedidos"/>
+                <p:commandButton value="NO " onclick="eliminarPedido.hide();" type="button" style="float: right" />
+            </h:form>
+            
+         </p:dialog>
+            
+            
+            
+        </c:when>
+            
+            
+            <!-- SI NO TIENE LOS PERMISOS DA MSJ DE ERROR -->
+            <c:otherwise>
+                   <h:form>
+                        <div style="min-height: 300px; text-align: center; margin-top: 100px;">
+                            <p:outputLabel value="ACCESO DENEGADO" style="font-size: 30px;font-weight: bold;color:red"/>
+                            <br/><br/>
+                            <h:graphicImage url="/faces/resources/imagenes/locked.png" alt="ZONA RESTRINGIDA" width="200" />
+                            <br/><br/>
+                            <p:outputLabel value="NO TIENE PERMISO PARA VER ESTA PAGINA" style="font-size: 20px;font-weight: bold;color:red"/>
+                            <br/>
+                            <p:outputLabel value="CONSULTE CON EL ADMINISTRADOR DEL SISTEMA" style="font-size: 20px;font-weight: bold;"/>
+                        </div>
+                    </h:form>
+             </c:otherwise>
+        </c:choose>
+        
+        
+        
+    </ui:define>
+    
+
+</ui:composition>
+    

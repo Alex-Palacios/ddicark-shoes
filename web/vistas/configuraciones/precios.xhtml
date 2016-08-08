@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/resources/plantillas/plantillaPrincipal.xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+    <ui:define name="title">
+        <h:outputText value="Control de Precios"/>
+    </ui:define>
+
+    <ui:define name="body">
+        <c:choose>
+        <!-- VERIFICA QUE TENGA PERMISOS -->
+        <c:when test="${empleadoController.verificarPermiso('CONTROL GENERAL', 'CONTROL GENERAL')}" >
+
+
+       <p:panel  header="C O N T R O L&nbsp;&nbsp;D E &nbsp;&nbsp;P R E C I O S" style="height:99.3%; width: 99.5%;" >
+            <p:growl id="gwPrecios"/>
+            
+             
+            <h:form id="frmPrecios">
+                    
+                    <p:fieldset>
+                        
+                        <h:panelGrid columns="3" style="float: right">
+                            <p:outputLabel value="TIPO DE PRODUCTO:" style="font-weight: bold;" />
+                            <p:selectOneRadio value="#{productoController.tipoProducto}" onchange="updatePrecios()">
+                                <f:selectItem itemLabel="CALZADO" itemValue="1"/>
+                                <f:selectItem itemLabel="CARTERAS" itemValue="2"/>
+                                <f:selectItem itemLabel="ROPA" itemValue="3"/>
+                                <f:selectItem itemLabel="BOLZONES" itemValue="4"/>
+                             </p:selectOneRadio>
+                            <p:remoteCommand name="updatePrecios" action="#{productoController.resetFiltroCatalogo()}" update=":frmPrecios"/>
+                        </h:panelGrid>
+                        
+                        <h:commandLink> 
+                           <p:graphicImage library="imagenes" name="excel.png" title="Exportar a Excel" />  
+                           <p:dataExporter type="xls" target="dtPrecios" fileName="Precios" postProcessor="#{inventarioController.postProcessXLS}" />  
+                        </h:commandLink> 
+                        <h:commandLink>  
+                           <p:graphicImage library="imagenes" name="pdf.png" title="Exportar en PDF"/>  
+                           <p:dataExporter type="pdf" target="dtPrecios" fileName="Precios" preProcessor="#{inventarioController.preProcessPDF}"/>  
+                        </h:commandLink>
+                        
+                 </p:fieldset>
+                
+                
+                    <p:dataTable id="dtPrecios" var="estilo" value="#{productoController.getEstilos(productoController.tipoProducto)}"
+                                 paginator="true" rows="50" paginatorPosition="top"  paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}" 
+                                 emptyMessage="CATALOGO VACIO" style="text-align: center " scrollable="true" scrollHeight="450"
+                                 filteredValue="#{productoController.filtroCatalogo}" >
+                        
+                        <p:column width="5%" exportable="false">  
+                                <div align="center">
+                                    <p:commandButton actionListener="#{productoController.prepararEditar(estilo)}" oncomplete="editarEstiloDialog.show()" process="@form" icon="ui-icon-wrench" title="Cambiar Precio" style="height: 20px; width:20px;" update=":frmEditarEstilo">
+                                       
+                                    </p:commandButton>
+                                </div>
+                        </p:column>
+                        
+                        
+                        <p:column headerText="CODIGO ESTILO" filterBy="#{estilo.productoPK.codestilo}"> 
+                            <f:facet name="header">  
+                                <h:outputText value="ESTILO" />  
+                            </f:facet> 
+                            <h:outputText value="#{estilo.productoPK.codestilo}" />  
+                        </p:column>
+                        
+                        <p:column headerText="NOMBRE ESTILO"> 
+                            <f:facet name="header">  
+                                <h:outputText value="NOMBRE" />  
+                            </f:facet> 
+                            <h:outputText value="#{estilo.nombreEstilo}" />  
+                        </p:column>
+                        
+                        <p:column headerText="DESCRIPCION">  
+                            <f:facet name="header">  
+                                <h:outputText value="DESCRIPCION" />  
+                            </f:facet> 
+                            <h:outputText value="#{estilo.detalleEstilo}" />  
+                        </p:column>
+                        
+                        <p:column headerText="PRECIO MAYOREO">  
+                            <f:facet name="header">  
+                                <h:outputText value="PRECIO MAYOREO S/IVA" />  
+                            </f:facet> 
+                            <h:outputText value="#{funciones.precioIsZero(estilo.precioventaMayoreo)?'N/E':estilo.precioventaMayoreo}" styleClass="#{funciones.precioIsZero(estilo.precioventaMayoreo)?'':'color-activa'}"/>  
+                        </p:column>
+                        
+                        <p:column headerText="PRECIO DETALLE" exportable="false"> 
+                            <f:facet name="header">  
+                                <h:outputText value="PRECIO DETALLE" />  
+                            </f:facet> 
+                            <h:outputText value="#{funciones.precioIsZero(estilo.precioventaUnidad)?'N/E':estilo.precioventaUnidad}" />  
+                        </p:column>
+                          
+
+                    </p:dataTable> 
+                    
+            </h:form>
+            
+       </p:panel>
+        
+        <!-- Dialogo para crear un nuevo estilo -->
+        <ui:include src="dialogosPrecios.xhtml"/>
+        
+        
+        
+        
+        
+         
+        </c:when>
+            
+            
+            <!-- SI NO TIENE LOS PERMISOS DA MSJ DE ERROR -->
+            <c:otherwise>
+                   <h:form>
+                        <div style="min-height: 300px; text-align: center; margin-top: 100px;">
+                            <p:outputLabel value="ACCESO DENEGADO" style="font-size: 30px;font-weight: bold;color:red"/>
+                            <br/><br/>
+                            <h:graphicImage url="/faces/resources/imagenes/locked.png" alt="ZONA RESTRINGIDA" width="200" />
+                            <br/><br/>
+                            <p:outputLabel value="NO TIENE PERMISO PARA VER ESTA PAGINA" style="font-size: 20px;font-weight: bold;color:red"/>
+                            <br/>
+                            <p:outputLabel value="CONSULTE CON EL ADMINISTRADOR DEL SISTEMA" style="font-size: 20px;font-weight: bold;"/>
+                        </div>
+                    </h:form>
+             </c:otherwise>
+        </c:choose>
+    </ui:define>
+    
+
+</ui:composition>

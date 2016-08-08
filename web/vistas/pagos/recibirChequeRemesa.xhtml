@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/resources/plantillas/plantillaPrincipal.xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+    <ui:define name="title">
+        <h:outputText value="CONFIRMAR CHEQUE y REMESA"/>
+    </ui:define>
+
+    <ui:define name="body">
+         <c:choose>
+        <!-- VERIFICA QUE TENGA PERMISOS -->
+        <c:when test="${empleadoController.verificarPermiso('VENTAS', 'REGISTRAR PAGOS') and (empleadoController.usuario.puestoEmpleado == 'SUPERADMIN' or empleadoController.usuario.puestoEmpleado == 'CONTADOR' or empleadoController.usuario.puestoEmpleado == 'GERENTE')}" >
+
+            #{pagoVentaController.prepararChequesRemesasRegistrados()}
+            <p:panel  header="RECIBIR CHEQUES Y REMESAS" style="height:99.3%; width: 99.5%;" >
+            <p:growl id="gwRecibir"/>
+            
+            <h:form id="frmRecibir">
+               
+                
+              <p:contextMenu for="dtPagos"> 
+                    <p:menuitem value="Confirmar" oncomplete="PF('confirmar').show()" update=":frmConfirmar" icon="ui-icon-check" styleClass="menu-context" />  
+                    <p:menuitem value="Rechazar" oncomplete="PF('rechazar').show()" update=":frmRechazar" icon="ui-icon-close" styleClass="menu-context" />  
+              </p:contextMenu>   
+                        
+              <!-- PAGOS A REMESAR -->
+              <p:dataTable id="dtPagos" var="pago" value="#{pagoVentaController.chequesRegistrados}"
+                           selection="#{pagoVentaController.cheque}" rowKey="#{pago.idpago}" selectionMode="single" 
+                           filteredValue="#{pagoVentaController.filtroChequesRegistrados}"
+                           emptyMessage="NO HAY PAGOS REGISTRADOS" style="text-align: center;">  
+                    
+                    <p:column   headerText="Recibo" filterBy="recibo" filterStyle="width:30px;" > 
+                        <f:facet name="header">  
+                            <h:outputText value="Recibo" />  
+                        </f:facet> 
+                        <h:outputText value="#{pago.serieRECIBO} - #{pago.recibo}" style="font-size: 14px; font-weight: bold" />
+                    </p:column>
+                    
+                    <p:column   headerText="Fecha Pago"> 
+                        <f:facet name="header">  
+                            <h:outputText value="Fecha Pago" />  
+                        </f:facet> 
+                        <h:outputText value="#{funciones.setFechaFormateada(pago.fechaPago,1)}" />
+                    </p:column>
+                    
+                    <p:column   headerText="Cliente" filterBy="#{pago.factura.cliente.obtenerNombreCliente()}" filterMatchMode="contains" > 
+                        <f:facet name="header">  
+                            <h:outputText value="Cliente" />  
+                        </f:facet> 
+                        <h:outputText value="#{pago.factura.cliente.obtenerNombreCliente()}" />
+                    </p:column>
+                    
+                    <p:column   headerText="Factura" > 
+                        <f:facet name="header">  
+                            <h:outputText value="Factura" style="font-size: 12px; font-weight: bold" />  
+                        </f:facet> 
+                        <h:outputText value="#{pago.factura.facturaPK.numfactura}" />
+                    </p:column>
+                    
+                    <p:column   headerText="Fecha Factura"> 
+                        <f:facet name="header">  
+                            <h:outputText value="Fecha Factura" />  
+                        </f:facet> 
+                        <h:outputText value="#{funciones.setFechaFormateada(pago.factura.facturaPK.fechaFactura,1)}" />
+                    </p:column>
+                    
+                    <p:column   headerText="Monto Factura" > 
+                        <f:facet name="header">  
+                            <h:outputText value="Monto Factura" />  
+                        </f:facet> 
+                        <h:outputText value="#{pago.factura.total}" style="font-size: 12px; font-weight: lighter" />
+                    </p:column>
+                    
+                    <p:column   headerText="Saldo Actual" > 
+                        <f:facet name="header">  
+                            <h:outputText value="Saldo Actual" />  
+                        </f:facet> 
+                        <h:outputText value="#{funciones.redondearMas(pago.factura.saldo + pago.totalPago,2)}" style="font-size: 12px; font-weight: lighter" />
+                    </p:column>
+                    
+                  <p:column   headerText="VENDEDOR" filterBy="#{pago.responsableCobro.nombreEmpleado}" filterMatchMode="contains" > 
+                        <f:facet name="header">  
+                            <h:outputText value="Vendedor" />  
+                        </f:facet> 
+                        <h:outputText value="#{funciones.getNombreEmpleado(pago.responsableCobro)}"  />
+                    </p:column>
+                    
+                    <p:column   headerText="TIPO PAGO" filterBy="tipoPago" filterOptions="#{facturaController.tipoPagoOptions}" filterMatchMode="exact"  > 
+                        <f:facet name="header"  >  
+                            <h:outputText value="Tipo Pago" />  
+                        </f:facet> 
+                        <h:outputText value="#{pago.tipoPago}" />
+                    </p:column>
+                    
+                    <p:column   headerText="BANCO" > 
+                        <f:facet name="header">  
+                            <h:outputText value="Banco" />  
+                        </f:facet> 
+                        <h:outputText value="#{pago.banco}" />
+                    </p:column>
+                    
+                    <p:column   headerText="Referencia" > 
+                        <f:facet name="header">  
+                            <h:outputText value="Referencia" />  
+                        </f:facet> 
+                        <h:outputText value="#{pago.identificador}" />
+                    </p:column>
+                    
+                    <p:column   headerText="ABONO" > 
+                        <f:facet name="header">  
+                            <h:outputText value="Abono" />  
+                        </f:facet> 
+                        <h:outputText value="#{funciones.redondearMas(pago.abono,2)}" style="font-size: 12px; font-weight: lighter" />
+                    </p:column>
+                    
+                    <p:column   headerText="Descuento" > 
+                        <f:facet name="header">  
+                            <h:outputText value="Descuento" />  
+                        </f:facet> 
+                        <h:outputText value="#{funciones.redondearMas(pago.descuento,2)}" style="font-size: 12px; font-weight: lighter" />
+                    </p:column>
+                    
+                    <p:column   headerText="TOTAL" > 
+                        <f:facet name="header">  
+                            <h:outputText value="Total" />  
+                        </f:facet> 
+                        <h:outputText value="#{funciones.redondearMas(pago.totalPago,2)}" style="font-size: 12px; font-weight: lighter" />
+                    </p:column>
+                    
+                    
+                    <p:column   headerText="ESTADO" > 
+                        <f:facet name="header">  
+                            <h:outputText value="Estado" />  
+                        </f:facet> 
+                        <h:outputText value="#{pago.estado}" />
+                    </p:column>
+                    
+                    <p:column   headerText="NOTA" > 
+                        <f:facet name="header">  
+                            <h:outputText value="Nota" />  
+                        </f:facet> 
+                        <h:outputText value="#{pago.nota}" />
+                    </p:column>
+                   
+                </p:dataTable>
+                    
+                
+            </h:form>
+                
+       </p:panel>
+        
+            
+            
+            
+            
+        
+        
+        <!-- CONFIRMAR CHEQUE O REMESA-->
+        <p:dialog widgetVar="confirmar" modal="true" resizable="false" appendTo="@(body)" header="CONFIRMAR CHEQUE O REMESA" >
+                <h:form id="frmConfirmar">
+                    <p:panelGrid columns="2" rendered="#{pagoVentaController.cheque != null}">
+                        <p:outputLabel value="RECIBO" />
+                        <p:outputLabel value="#{pagoVentaController.cheque.recibo}" />
+                        <p:outputLabel value="FECHA PAGO" />
+                        <p:outputLabel value="#{funciones.setFechaFormateada(pagoVentaController.cheque.fechaPago, 1)}" />
+                        <p:outputLabel value="BANCO" />
+                        <p:outputLabel value="#{pagoVentaController.cheque.banco}" />
+                        <p:outputLabel value="REFERENCIA" />
+                        <p:outputLabel value="#{pagoVentaController.cheque.identificador}" />
+                        <p:outputLabel value="MONTO CHEQUE/REMESA" />
+                        <p:outputLabel value="#{funciones.redondearMas(pagoVentaController.cheque.totalPago, 2)}" />
+                        <p:outputLabel value="FACTURA" />
+                        <p:outputLabel value="#{pagoVentaController.cheque.factura.facturaPK.numfactura} - #{funciones.setFechaFormateada(pagoVentaController.cheque.factura.facturaPK.fechaFactura,1)}" />
+                        <p:outputLabel value="CLIENTE" />
+                        <p:outputLabel value="#{pagoVentaController.cheque.factura.cliente.obtenerNombreCliente()}" />
+                        <p:outputLabel value="FECHA CONFIRMACION:" />
+                        <p:calendar value="#{pagoVentaController.cheque.fechaRecibido}"  mode="popup" showOn="button" readonlyInput="true" effect="slideDown" pattern="dd/MM/yyyy" required="true" requiredMessage="Ingrese Fecha de Confirmacion de Cheque o Remesa" />
+                        <p:outputLabel value="NOTA" />
+                        <p:inputTextarea value="#{pagoVentaController.cheque.nota}" cols="50" rows="3" />
+                    </p:panelGrid>
+                    <p:commandButton value="CONFIRMAR CHEQUE/REMESA" actionListener="#{pagoVentaController.recibirChequeRemesa()}" type="submit"  oncomplete="confirmar.hide();" update=":gwRecibir, :frmRecibir"  />
+                    <p:commandButton value="CANCELAR " onclick="confirmar.hide();" type="button" style="float: right" />
+            
+                </h:form>
+        </p:dialog>    
+         
+        
+        
+        
+        <!-- RECHAZAR CHEQUE O REMESA-->
+        <p:dialog widgetVar="rechazar" modal="true" resizable="false" appendTo="@(body)" header="RECHAZAR CHEQUE O REMESA" >
+                
+                <h:form id="frmRechazar">
+                     <p:panelGrid columns="2" rendered="#{pagoVentaController.cheque != null}">
+                        <p:outputLabel value="RECIBO" />
+                        <p:outputLabel value="#{pagoVentaController.cheque.recibo}" />
+                        <p:outputLabel value="FECHA PAGO" />
+                        <p:outputLabel value="#{funciones.setFechaFormateada(pagoVentaController.cheque.fechaPago, 1)}" />
+                        <p:outputLabel value="BANCO" />
+                        <p:outputLabel value="#{pagoVentaController.cheque.banco}" />
+                        <p:outputLabel value="REFERENCIA" />
+                        <p:outputLabel value="#{pagoVentaController.cheque.identificador}" />
+                        <p:outputLabel value="MONTO CHEQUE/REMESA" />
+                        <p:outputLabel value="#{funciones.redondearMas(pagoVentaController.cheque.totalPago, 2)}" />
+                        <p:outputLabel value="FACTURA" />
+                        <p:outputLabel value="#{pagoVentaController.cheque.factura.facturaPK.numfactura} - #{funciones.setFechaFormateada(pagoVentaController.cheque.factura.facturaPK.fechaFactura,1)}" />
+                        <p:outputLabel value="CLIENTE" />
+                        <p:outputLabel value="#{pagoVentaController.cheque.factura.cliente.obtenerNombreCliente()}" />
+                        <p:outputLabel value="NOTA" />
+                        <p:inputTextarea value="#{pagoVentaController.cheque.nota}" cols="50" rows="3" />
+                    </p:panelGrid>
+                    <p:commandButton value="RECHAZAR CHEQUE/REMESA" actionListener="#{pagoVentaController.rechazarChequeRemesa()}" type="submit"  oncomplete="rechazar.hide();" update=":gwRecibir, :frmRecibir"  />
+                    <p:commandButton value="CANCELAR " onclick="rechazar.hide();" type="button" style="float: right" />
+            
+                </h:form>
+        </p:dialog>
+        
+       
+        </c:when>
+            
+            
+            <!-- SI NO TIENE LOS PERMISOS DA MSJ DE ERROR -->
+            <c:otherwise>
+                   <h:form>
+                        <div style="min-height: 300px; text-align: center; margin-top: 100px;">
+                            <p:outputLabel value="ACCESO DENEGADO" style="font-size: 30px;font-weight: bold;color:red"/>
+                            <br/><br/>
+                            <h:graphicImage url="/faces/resources/imagenes/locked.png" alt="ZONA RESTRINGIDA" width="200" />
+                            <br/><br/>
+                            <p:outputLabel value="NO TIENE PERMISO PARA VER ESTA PAGINA" style="font-size: 20px;font-weight: bold;color:red"/>
+                            <br/>
+                            <p:outputLabel value="CONSULTE CON EL ADMINISTRADOR DEL SISTEMA" style="font-size: 20px;font-weight: bold;"/>
+                        </div>
+                    </h:form>
+             </c:otherwise>
+        </c:choose>
+        
+        
+    </ui:define>
+    
+
+</ui:composition>

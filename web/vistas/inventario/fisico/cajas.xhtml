@@ -1,0 +1,458 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/resources/plantillas/plantillaPrincipal.xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp" >
+
+
+    <ui:define name="title">
+        <h:outputText value="INVENTARIO FISICO" />
+    </ui:define>
+
+    <ui:define name="body">
+        <c:choose>
+        <!-- VERIFICA QUE TENGA PERMISOS -->
+        <c:when test="${empleadoController.verificarPermiso('INVENTARIO', 'FISICO')}" >
+
+        #{existenciasController.prepararConsultaCajasFisicas()}
+        <p:panel  header="C O N T R O L &nbsp;&nbsp; D E &nbsp;&nbsp; I N V E N T A R I O" >
+            <p:growl id="gwInventario" />
+            
+             <h:form id="frmInventario">
+                 
+                  <!-- Filtro Personalizado -->
+                  <p:fieldset>
+                        
+                        <h:commandLink> 
+                           <p:graphicImage library="imagenes" name="excel.png" title="Exportar a Excel" />  
+                           <p:dataExporter type="xls" target="dtInventarioFisico" fileName="Existencias" postProcessor="#{inventarioController.postProcessXLS}" />  
+                        </h:commandLink> 
+                        <h:commandLink rendered="false">  
+                           <p:graphicImage library="imagenes" name="pdf.png" title="Exportar en PDF"/>  
+                           <p:dataExporter type="pdf" target="dtInventarioFisico" fileName="Existencias" preProcessor="#{inventarioController.preProcessPDF}"/>  
+                        </h:commandLink>
+                        <h:panelGrid id="pngTotales" columns="2" style="float: right">
+                            <p:outputLabel value="TOTAL CAJAS: " style="font-weight: bold"/>
+                            <p:outputLabel value="#{existenciasController.numCajasFisicas}"/>
+                        </h:panelGrid>
+                 </p:fieldset>
+                  
+                  <p:remoteCommand name="actUnidades" update=":frmInventario:pngTotales"/>
+                  
+                  <p:dataTable id="dtInventarioFisico" var="inventario" value="#{existenciasController.cajasFisico}"
+                              emptyMessage="NO HAY PRODUCTO EN INVENTARIO" scrollable="true" scrollHeight="350" style="text-align: center;"
+                              paginator="true" rows="100" paginatorPosition="top"  paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}" 
+                              filteredValue="#{existenciasController.filtroCajasFisico}"  >
+                              
+                      
+                     <p:ajax event="filter" onsuccess="actUnidades()" />
+                        
+                              
+                     <p:column filterBy="#{inventario.getItemColumna(0)}" filterMaxLength="20" filterStyle="width:60px;"> 
+                            <f:facet name="header" id="prueba">  
+                                <h:outputText value="CODIGO" />  
+                            </f:facet> 
+                         <h:outputText  value="#{inventario.getItemColumna(0)}"  />
+                        </p:column>
+                        
+                        <p:column filterBy="#{inventario.getItemColumna(1)}" filterStyle="width: 65px;"> 
+                            <f:facet name="header">  
+                                <h:outputText value="ESTILO" />  
+                            </f:facet> 
+                            <h:outputText value="#{inventario.getItemColumna(1)}" />
+                        </p:column>
+                        
+                        <p:column filterBy="#{inventario.getItemColumna(2)}" filterStyle="width: 150px;" width="200"> 
+                            <f:facet name="header">  
+                                <h:outputText value="COLORES" />  
+                            </f:facet> 
+                            <h:outputText value="#{inventario.getItemColumna(2)}" />
+                        </p:column>
+                        
+                        <p:column width="100"> 
+                            <f:facet name="header">  
+                                <h:outputText value="CURVA" />  
+                            </f:facet> 
+                            <h:outputText value="#{inventario.getItemColumna(3)}" />
+                        </p:column>
+                        
+                        <p:column> 
+                            <f:facet name="header">  
+                                <h:outputText value="UNIDADES" />  
+                            </f:facet> 
+                            <h:outputText value="#{inventario.getItemColumna(4)}" />
+                        </p:column>
+                        
+                        <p:column> 
+                            <f:facet name="header">  
+                                <h:outputText value="PU S/IVA" />  
+                            </f:facet> 
+                            <h:outputText value="#{inventario.getItemColumna(5)}" />
+                        </p:column>
+                        
+                        <p:column  exportable="false"> 
+                            <f:facet name="header">  
+                                <h:outputText value="UBICACION" />  
+                            </f:facet> 
+                            <h:outputText value="#{inventario.getItemColumna(6)}" />
+                        </p:column>
+                        
+                        <p:column filterBy="#{inventario.getItemColumna(7)}" filterOptions="#{existenciasController.completaOptions}"  
+                                  filterMatchMode="exact" > 
+                            <f:facet name="header">  
+                                <h:outputText value="COMPLETA" />  
+                            </f:facet> 
+                            <h:outputText value="#{inventario.getItemColumna(7)?'COMPLETA':'INCOMPLETA'}" />
+                        </p:column>
+                        
+                        <p:column> 
+                            <f:facet name="header">  
+                                <h:outputText value="U.D" />  
+                            </f:facet> 
+                            <h:outputText value="#{inventario.getItemColumna(8)}" />
+                        </p:column>
+                     
+                        <p:column width="3%" exportable="false">  
+                            <div align="center">
+                                <p:commandButton actionListener="#{cajaController.mostrarDetalleCaja(inventario.getItemColumna(0))}" oncomplete="detalleCajaDialog.show()" process="@form" icon="ui-icon-search" title="Ver Detalle" style="height: 15px; width:15px;" update=":gwInventario,:frmDetalleCaja" >
+                                     <f:setPropertyActionListener value="#{inventario}" target="#{existenciasController.actual}"  />
+                                </p:commandButton>
+                            </div>
+                        </p:column>
+                     
+                        <p:column width="3%" exportable="false">  
+                            <div align="center">
+                                <p:commandButton actionListener="#{existenciasController.buscarCaja(inventario.getItemColumna(0))}" oncomplete="cajaDialog.show()" process="@form" icon="ui-icon-pencil" title="Ver Detalle" style="height: 15px; width:15px;" update=":frmCaja" >
+                                    <f:setPropertyActionListener value="#{inventario}" target="#{existenciasController.actual}"  />
+                                </p:commandButton>
+                            </div>
+                        </p:column>
+                  </p:dataTable>  
+                  
+                  
+                  
+                  
+             </h:form>
+       </p:panel>
+        
+        
+       
+    <!-- PARA CONFIRMAR LISTAR CAJA -->
+    <p:dialog id="dlgDetalleCajaDialog" widgetVar="detalleCajaDialog" modal="true" resizable="false" appendTo="@(body)" header="DETALLE DE LA CAJA"  >
+
+        <h:form id="frmDetalleCaja">
+            <h:panelGroup >
+
+                <h:panelGrid columns="2" style="text-align: right;" rendered="#{cajaController.cajaSeleccionada != null}" >
+                   <p:outputLabel value="NUMCAJA: " style="font-weight: bold;"/>
+                   <p:outputLabel value="#{cajaController.cajaSeleccionada.numcaja}" style="font-weight: bold;color: blue"/>
+                   <p:outputLabel value="ESTILO: " style="font-weight: bold;"/>
+                   <p:outputLabel value="#{cajaController.cajaSeleccionada.producto.productoPK.codestilo}" style="font-weight: bold;"/>
+                   <p:outputLabel value="UNIDADES: " style="font-weight: bold;"/>
+                   <p:outputLabel value="#{cajaController.cajaSeleccionada.unidadesCaja}" style="font-weight: bold;"/>
+                   <p:outputLabel value="UBICACION EN BODEGA:" style="font-weight: bold;"/>
+                   <p:outputLabel value="#{cajaController.cajaSeleccionada.ubicacionCaja}" style="font-weight: bold;"/>  
+                   <p:outputLabel value="CAJA COMPLETA:" style="font-weight: bold;color: red"/>
+                   <p:outputLabel value="#{cajaController.cajaSeleccionada.completa? 'SI':'NO'}" style="font-weight: bold;color: red"/>
+
+               </h:panelGrid> 
+               <br/><br/>
+               <p:outputLabel value="DETALLE CURVA DE LA CAJA" />
+                <p:panelGrid id="pnlCurvaColores" styleClass="prueba" >
+                        <f:facet name="header">
+                            <p:row>
+                                <p:column rowspan="2" style="width: 175px;">C O L O R</p:column>
+                                <p:column colspan="10">T A L L A S</p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column rendered="#{cajaController.numTallas > 0}" >#{cajaController.tallas[0]}</p:column>
+                                <p:column rendered="#{cajaController.numTallas > 1}" >#{cajaController.tallas[1]}</p:column>
+                                <p:column rendered="#{cajaController.numTallas > 2}" >#{cajaController.tallas[2]}</p:column>
+                                <p:column rendered="#{cajaController.numTallas > 3}" >#{cajaController.tallas[3]}</p:column>
+                                <p:column rendered="#{cajaController.numTallas > 4}" >#{cajaController.tallas[4]}</p:column>
+                                <p:column rendered="#{cajaController.numTallas > 5}" >#{cajaController.tallas[5]}</p:column>
+                                <p:column rendered="#{cajaController.numTallas > 6}" >#{cajaController.tallas[6]}</p:column>
+                                <p:column rendered="#{cajaController.numTallas > 7}" >#{cajaController.tallas[7]}</p:column>
+                                <p:column rendered="#{cajaController.numTallas > 8}" >#{cajaController.tallas[8]}</p:column>
+                                <p:column rendered="#{cajaController.numTallas > 9}" >#{cajaController.tallas[9]}</p:column>
+                            </p:row>
+                        </f:facet>
+
+                        <p:row>
+                            <p:column style="text-align: center"><p:outputLabel value="#{cajaController.curva[0].color}"/></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 0}" style="text-align: center" ><p:outputLabel value="#{cajaController.curva[0].t1}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 1}" style="text-align: center" ><p:outputLabel value="#{cajaController.curva[0].t2}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[0].t3}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[0].t4}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[0].t5}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[0].t6}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[0].t7}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[0].t8}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[0].t9}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[0].t10}" /></p:column>
+                        </p:row>
+
+                        <p:row rendered="#{cajaController.numColores > 1}">
+                            <p:column style="text-align: center"><p:outputLabel value="#{cajaController.curva[1].color}" style="text-align: center" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 0}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[1].t1}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 1}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[1].t2}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[1].t3}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[1].t4}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[1].t5}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[1].t6}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[1].t7}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[1].t8}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[1].t9}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[1].t10}" /></p:column>
+                        </p:row>
+
+                        <p:row rendered="#{cajaController.numColores > 2}">
+                            <p:column style="text-align: center"><p:outputLabel value="#{cajaController.curva[2].color}" style="text-align: center" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 0}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[2].t1}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 1}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[2].t2}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[2].t3}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[2].t4}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[2].t5}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[2].t6}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[2].t7}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[2].t8}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[2].t9}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[2].t10}" /></p:column>
+                        </p:row>
+
+                        <p:row rendered="#{cajaController.numColores > 3}">
+                            <p:column style="text-align: center"><p:outputLabel value="#{cajaController.curva[3].color}" style="text-align: center" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 0}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[3].t1}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 1}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[3].t2}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[3].t3}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[3].t4}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[3].t5}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[3].t6}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[3].t7}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[3].t8}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[3].t9}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[3].t10}" /></p:column>
+                        </p:row>
+
+                        <p:row rendered="#{cajaController.numColores > 4}">
+                            <p:column style="text-align: center"><p:outputLabel value="#{cajaController.curva[4].color}" style="text-align: center" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 0}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[4].t1}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 1}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[4].t2}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[4].t3}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[4].t4}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[4].t5}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[4].t6}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[4].t7}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[4].t8}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[4].t9}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[4].t10}" /></p:column>
+                        </p:row>
+
+                        <p:row rendered="#{cajaController.numColores > 5}">
+                            <p:column style="text-align: center"><p:outputLabel value="#{cajaController.curva[5].color}" style="text-align: center" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 0}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[5].t1}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 1}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[5].t2}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[5].t3}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[5].t4}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[5].t5}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[5].t6}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[5].t7}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[5].t8}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[5].t9}" /></p:column>
+                            <p:column rendered="#{cajaController.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[5].t10}" /></p:column>
+                        </p:row>
+                </p:panelGrid>
+               <br/>
+               <p:outputLabel value="UNIDADES ACTUALES DISPONIBLES: " />
+               <p:outputLabel value="#{cajaController.unidadesActuales}" style="font-weight: bold; color: blue; font-size: 15px;" />
+            </h:panelGroup><br/>
+            
+            <p:commandButton value="CERRAR"  oncomplete="detalleCajaDialog.hide()" style="float: right" />
+        </h:form>
+
+    </p:dialog>   
+        
+    
+    
+    
+    
+    
+        <!-- DIALOGO QUE MUESTRA INFO DE LA CAJA  -->
+    <p:dialog id="dlgCaja" widgetVar="cajaDialog" modal="true" resizable="false" appendTo="@(body)" header="DETALLE" width="850">
+
+        <h:form id="frmCaja" >
+                <p:panelGrid id="pnlCaja" columns="2" styleClass="noBorderPanelGrid">
+                    <p:outputLabel value="CODIGO CAJA:" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{existenciasController.cajaFisica.numcaja}" style="font-weight: bold;color: red"/>
+                    <p:outputLabel value="ESTILO:" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{existenciasController.cajaFisica.producto.productoPK.codestilo}" style="font-weight: bold;color: blue"/>
+                    <p:outputLabel value="UNIDADES CAJA:" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{existenciasController.cajaFisica.unidadesCaja}"/>
+                    <p:outputLabel value="CAJA COMPLETA:" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{existenciasController.cajaFisica.completa?'SI':'NO'}"/>
+                </p:panelGrid>
+                <p:dataTable id="dtDetalleCaja" var="articulo" value="#{existenciasController.detalleCaja}" 
+                             emptyMessage="CAJA VACIA" scrollable="true" scrollHeight="200"  style="text-align: center; " >  
+
+                        <f:facet name="header">DETALLE DE LA CAJA</f:facet>
+
+                        <p:column   headerText="ESTILO" >  
+                            <h:outputText value="#{articulo.producto.productoPK.codestilo}" />
+                        </p:column>
+
+                        <p:column   headerText="COLOR" >  
+                            <h:outputText value="#{articulo.color}" />
+                        </p:column>
+
+                        <p:column   headerText="TALLA" >  
+                            <h:outputText value="#{articulo.talla}" />
+                        </p:column>
+                        
+                        <p:column   headerText="MARCA" >  
+                            <h:outputText value="#{articulo.marca}" />
+                        </p:column>
+                        
+                        <p:column   headerText="PRECIO" >  
+                            <h:outputText value="#{funciones.redondearMas(articulo.preciomayoreo,2)}" />
+                        </p:column>
+
+                        <p:column   headerText="ESTADO" >  
+                            <h:outputText value="#{articulo.estadoproducto}" />
+                        </p:column>
+                        
+                        <p:column   headerText="NOTA" >  
+                            <h:outputText value="#{articulo.notaProducto}" />
+                        </p:column>
+                        
+                        <p:column width="3%" >  
+                            <div align="center">
+                                <p:commandButton actionListener="#{existenciasController.cancelarEditarInfoUnidad()}" oncomplete="unidadDialog.show()" update=":frmUnidad" icon="ui-icon-pencil" title="Editar" style="height: 15px; width:15px;"  >
+                                    <f:setPropertyActionListener value="#{articulo}" target="#{existenciasController.articuloFisico}"  />  
+                                </p:commandButton>
+                            </div>
+                        </p:column>
+
+                </p:dataTable>
+                <p:outputLabel value="Ubicacion:"  />
+                <p:inputText value="#{existenciasController.cajaFisica.ubicacionCaja}" required="true" requiredMessage="Se requiere ubicacion en bodega de la Caja" />
+                <p:commandButton value="CAMBIAR UBICACION" actionListener="#{existenciasController.cambiarUbicacionCaja()}" oncomplete="submit(xhr, status, args, cajaDialog) " update=":gwInventario,:frmCaja,:frmInventario:dtInventarioFisico" process="@form"/>        
+            <br/><br/>
+                <div align="center">
+                    <p:commandButton value="CERRAR" oncomplete="cajaDialog.hide();"  />
+                </div>
+
+        </h:form>
+
+    </p:dialog>
+            
+            
+        
+        
+        <!-- PARA VER Y ACTUALIZAR INFORMACION DE UNA UNIDAD -->
+        <p:dialog id="dlgUnidad" widgetVar="unidadDialog" modal="true" resizable="false" appendTo="@(body)" header="ARTICULO"  >
+
+            <h:form id="frmUnidad">
+                <p:growl id="gwUnidad" />
+                <h:panelGroup id="displayUnidad" rendered="#{existenciasController.articuloFisico != null}">
+                    <p:panelGrid columns="2" styleClass="noBorderPanelGrid" >
+                        <p:outputLabel value="Codigo Unidad:" />
+                        <p:outputLabel value="#{existenciasController.articuloFisico.codigo}" />
+                        <p:outputLabel value="Estilo:" />
+                        <p:outputLabel value="#{existenciasController.articuloFisico.producto.productoPK.codestilo}" />
+                        <p:outputLabel value="Color:" />
+                        <p:outputLabel value="#{existenciasController.articuloFisico.color}" rendered="#{!existenciasController.editarArticuloFisico}"/>
+                        <p:inputText value="#{existenciasController.articuloFisico.color}"  rendered="#{existenciasController.editarArticuloFisico}" required="true" requiredMessage="Ingrese Color" />
+                        <p:outputLabel value="Talla:" />
+                        <p:outputLabel value="#{existenciasController.articuloFisico.talla}" rendered="#{!existenciasController.editarArticuloFisico}"/>
+                        <p:inputText value="#{existenciasController.articuloFisico.talla}" rendered="#{existenciasController.editarArticuloFisico}"  required="true" requiredMessage="Ingrese Talla" />
+                        <p:outputLabel value="Marca:" />
+                        <p:outputLabel value="#{existenciasController.articuloFisico.marca}" rendered="#{!existenciasController.editarArticuloFisico}"/>
+                        <p:autoComplete id="marca" value="#{existenciasController.articuloFisico.marca}"  completeMethod="#{inventarioController.autoCompletarMarca}" required="true" requiredMessage="Ingrese la MARCA" rendered="#{existenciasController.editarArticuloFisico}"/>
+                        <p:outputLabel value="Material:" />
+                        <p:outputLabel value="#{existenciasController.articuloFisico.material}" rendered="#{!existenciasController.editarArticuloFisico}"/>
+                        <p:autoComplete id="material" dropdown="true" value="#{existenciasController.articuloFisico.material}"  completeMethod="#{inventarioController.autoCompletarMaterial}" rendered="#{existenciasController.editarArticuloFisico}"/> 
+                        <p:outputLabel value="Genero:" />
+                        <p:outputLabel value="#{funciones.generoLabel(existenciasController.articuloFisico.genero)}" rendered="#{!existenciasController.editarArticuloFisico}"/>
+                        <p:selectOneMenu value="#{existenciasController.articuloFisico.genero}" rendered="#{existenciasController.editarArticuloFisico}" style="width: 100px;">
+                                <f:selectItem  itemLabel="FEMENINO" itemValue="F" />
+                                <f:selectItem itemLabel="MASCULINO" itemValue="M" />
+                                <f:selectItem  itemLabel="UNISEX" itemValue="U" />
+                        </p:selectOneMenu>
+                        <p:outputLabel value="Para:" />
+                        <p:outputLabel value="#{funciones.clasePersonaLabel(existenciasController.articuloFisico.clasepersona)}" rendered="#{!existenciasController.editarArticuloFisico}"/>
+                        <p:selectOneMenu value="#{existenciasController.articuloFisico.clasepersona}" style="width: 100px;" rendered="#{existenciasController.editarArticuloFisico}">
+                                <f:selectItem  itemLabel="ADULTOS" itemValue="A" itemDescription="Adultos" /> 
+                            <f:selectItem itemLabel="JUVENIL" itemValue="J" itemDescription="Adolescentes" />
+                                <f:selectItem  itemLabel="NI&Ntilde;OS" itemValue="N" />
+                                <f:selectItem itemLabel="INFANTES" itemValue="I" itemDescription="Bebes" />
+                        </p:selectOneMenu>
+                        <p:outputLabel value="Procedencia:"  />
+                        <p:outputLabel value="#{existenciasController.articuloFisico.procedencia}" />
+                        <p:outputLabel value="Costo Unitario:" />
+                        <p:outputLabel value="#{existenciasController.articuloFisico.costounitario}" />
+                        <p:outputLabel value="Costo Real:" />
+                        <p:outputLabel value="#{funciones.redondearMas(existenciasController.articuloFisico.costoreal,2)}" />
+                        <p:outputLabel value="Precio Mayoreo:" />
+                        <p:outputLabel value="#{funciones.redondearMas(existenciasController.articuloFisico.preciomayoreo,2)}" />
+                        <p:outputLabel value="Precio Detalle:" />
+                        <p:outputLabel value="#{funciones.redondearMas(existenciasController.articuloFisico.preciounitario,2)}" />
+                        <p:outputLabel value="Ubicacion:" rendered="#{existenciasController.articuloFisico.numcaja eq null}" />
+                        <p:outputLabel value="#{existenciasController.articuloFisico.ubicacionProducto}" rendered="#{(!existenciasController.editarArticuloFisico) and (existenciasController.articuloFisico.numcaja eq null)}"/>
+                        <p:inputText value="#{existenciasController.articuloFisico.ubicacionProducto}" required="true" requiredMessage="Se requiere ubicacion en bodega de la unidad" rendered="#{existenciasController.editarArticuloFisico and existenciasController.articuloFisico.numcaja eq null}"/>
+                        <p:outputLabel value="Pertenece a Caja N°:" rendered="#{existenciasController.articuloFisico.numcaja ne null}" />
+                        <p:outputLabel value="#{existenciasController.articuloFisico.numcaja.numcaja}" rendered="#{existenciasController.articuloFisico.numcaja ne null}"/>
+                        <p:outputLabel value="ESTADO:" style="font-weight: bold;" />
+                        <p:outputLabel value="#{existenciasController.articuloFisico.estadoproducto}" rendered="#{!existenciasController.editarArticuloFisico}" style="font-weight: bold;" />
+                        <p:selectOneMenu value="#{existenciasController.articuloFisico.estadoproducto}" rendered="#{existenciasController.editarArticuloFisico}" style="width: 100px;">
+                                <f:selectItem  itemLabel="EN EXISTENCIA" itemValue="EN EXISTENCIA" />
+                                <f:selectItem itemLabel="DEFECTUOSO" itemValue="DEFECTUOSO" />
+                        </p:selectOneMenu>
+                        <p:outputLabel value="NOTA:" />
+                        <p:outputLabel value="#{existenciasController.articuloFisico.notaProducto}" rendered="#{!existenciasController.editarArticuloFisico}"/>
+                        <p:inputTextarea value="#{existenciasController.articuloFisico.notaProducto}" cols="30" rows="3" rendered="#{existenciasController.editarArticuloFisico}"/>
+                        
+                    </p:panelGrid>
+                    <br/>
+                    <p:commandButton value="CERRAR" oncomplete="unidadDialog.hide();" rendered="#{!existenciasController.editarArticuloFisico}" />
+                    <p:commandButton value="EDITAR INFO" actionListener="#{existenciasController.editarInfoUnidad()}" update=":frmUnidad,:gwInventario" process="@this" rendered="#{!existenciasController.editarArticuloFisico}" style="float: right"/>
+                    <p:commandButton value="CANCELAR" actionListener="#{existenciasController.cancelarEditarInfoUnidad()}" update=":frmUnidad" process="@this" rendered="#{existenciasController.editarArticuloFisico}" style="float: right"/>
+                    <p:commandButton value="GUARDAR CAMBIOS" actionListener="#{existenciasController.guardarCambiosUnidadCaja()}" oncomplete="submit(xhr, status, args, unidadDialog) " update=":gwInventario,:frmUnidad,:frmCaja,:frmInventario:dtInventarioFisico" process="@form" rendered="#{existenciasController.editarArticuloFisico}" />
+
+                </h:panelGroup>
+            </h:form>
+
+        </p:dialog>
+        
+        
+
+        
+        </c:when>
+            
+            
+            <!-- SI NO TIENE LOS PERMISOS DA MSJ DE ERROR -->
+            <c:otherwise>
+                   <h:form>
+                        <div style="min-height: 300px; text-align: center; margin-top: 100px;">
+                            <p:outputLabel value="ACCESO DENEGADO" style="font-size: 30px;font-weight: bold;color:red"/>
+                            <br/><br/>
+                            <h:graphicImage url="/faces/resources/imagenes/locked.png" alt="ZONA RESTRINGIDA" width="200" />
+                            <br/><br/>
+                            <p:outputLabel value="NO TIENE PERMISO PARA VER ESTA PAGINA" style="font-size: 20px;font-weight: bold;color:red"/>
+                            <br/>
+                            <p:outputLabel value="CONSULTE CON EL ADMINISTRADOR DEL SISTEMA" style="font-size: 20px;font-weight: bold;"/>
+                        </div>
+                    </h:form>
+             </c:otherwise>
+        </c:choose>
+
+         
+    </ui:define>
+    
+
+</ui:composition>
+    

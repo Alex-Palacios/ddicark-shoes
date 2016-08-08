@@ -1,0 +1,123 @@
+
+.ui-widget {
+    font-size: 10px !important;
+}
+.ui-layout-north {
+    z-index:20 !important;
+    overflow:visible !important;
+}
+
+.ui-widget-header {
+    text-align: center;
+    text-transform: uppercase;
+}
+.ui-datatable-footer text{
+    float: right;
+ }
+ .dataTable-text column{
+     font-size: 10px;
+ }
+ .ui-layout-north .ui-layout-unit-content {
+    overflow:visible !important;
+}
+
+
+.ui-panelgrid-header{
+    font-size: 10px;
+}
+
+
+.noBorderPanelGrid tr, .noBorderPanelGrid td{  
+    border-style: hidden !important; 
+}
+
+.panelGrid text{
+    text-align: center;
+}
+
+.centrar-celda-texto tr, .centrar-celda-texto td{
+    text-align: center;
+}
+
+
+
+.ico-estado-cuenta{
+    background-image: url('../resources/iconos/estadoCuenta.png') !important;
+    width: 80px;
+    height: 80px;
+}
+
+.ico-pdf{
+    background-image: url('../resources/imagenes/pdf.png') !important;
+    background-size: 20px,20px;
+}
+
+
+.ico-excel{
+    background-image: url('../resources/imagenes/excel.png') !important;
+    background-size: 20px,20px;
+}
+
+.ui-spinner-input {
+    width: 12px;
+    padding-left: 0px;
+    text-align: left;
+}
+
+.ui-spinner-button{
+    float: right;
+    width: 5px;
+}
+
+.tabPanel{
+    width: 100%;
+    height: 99%;
+}
+
+.panelgrid inputtext{
+    text-align: center;
+}
+
+
+.fila-green {
+    background-color: green;
+    color: black;
+}
+
+.fila-yellow {
+    background-color: yellow;
+    color: black;
+}
+
+.fila-orange {
+    background-color: orange;
+    color: black;
+}
+
+.fila-red {
+    background-color: red;
+    color: black;
+}
+
+.ui-wizard-nav-back{
+    width: 100px;
+}
+
+.ui-wizard-nav-next{
+    width: 100px;
+    float: left;
+}
+
+.selectoneradio-table{
+    width: 100px;
+}
+
+.color-activa{
+    font-weight: bold;
+    color: green;
+}
+
+.color-cancelada{
+    font-weight: bold;
+    color: red;
+}

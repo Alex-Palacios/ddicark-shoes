@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/resources/plantillas/plantillaPrincipal.xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+    <ui:define name="title">
+        <h:outputText value="REPORTE DE VENTAS MENSUAL"/>
+    </ui:define>
+
+    <ui:define name="body">
+        
+        <c:choose>
+        <!-- VERIFICA QUE TENGA PERMISOS -->
+        <c:when test="${empleadoController.verificarPermiso('VENTAS', 'VENTAS')}" >
+
+        <p:panel  header="PARAMETROS DEL REPORTE" style="height:99.3%; width: 99.5%;" >
+            <p:growl id="gwRptVentas"/>
+            
+            #{reportesController.prepararRptVentasMes()}
+            <h:form id="frmRptVentas">
+                <p:fieldset>
+                        <h:panelGrid columns="2" style="float: left">
+                            <p:outputLabel value="MES:" />
+                            <p:selectOneMenu value="#{reportesController.month}"  >
+                                <f:selectItem itemLabel="ENERO" itemValue="1" />
+                                <f:selectItem itemLabel="FEBRERO" itemValue="2"/>
+                                <f:selectItem itemLabel="MARZO" itemValue="3"/>
+                                <f:selectItem itemLabel="ABRIL" itemValue="4"/>
+                                <f:selectItem itemLabel="MAYO" itemValue="5"/>
+                                <f:selectItem itemLabel="JUNIO" itemValue="6"/>
+                                <f:selectItem itemLabel="JULIO" itemValue="7"/>
+                                <f:selectItem itemLabel="AGOSTO" itemValue="8"/>
+                                <f:selectItem itemLabel="SEPTIEMBRE" itemValue="9"/>
+                                <f:selectItem itemLabel="OCTUBRE" itemValue="10"/>
+                                <f:selectItem itemLabel="NOVIEMBRE" itemValue="11"/>
+                                <f:selectItem itemLabel="DICIEMBRE" itemValue="12"/>
+                            </p:selectOneMenu>
+                            <p:outputLabel value="AÑO:" style="font-weight: bold;" />
+                            <p:selectOneMenu value="#{reportesController.year}" editable="true">
+                                <f:selectItem itemLabel="2012" itemValue="2012"/>
+                                <f:selectItem itemLabel="2013" itemValue="2013"/>
+                                <f:selectItem itemLabel="2014" itemValue="2014"/>
+                                <f:selectItem itemLabel="2015" itemValue="2015"/>
+                                <f:selectItem itemLabel="2016" itemValue="2016"/>
+                            </p:selectOneMenu>
+                        </h:panelGrid>
+                        
+                    <p:commandButton value="CONSULTAR" actionListener="#{reportesController.actualizarReporteVentasMes()}" process="@form" update="dtRptVentas" />
+                        
+                 </p:fieldset>
+                
+                
+                <h:commandLink> 
+                    <p:graphicImage library="imagenes" name="excel.png" title="Exportar a Excel" />  
+                    <p:dataExporter type="xls" target="dtRptVentas" fileName="VentasMes" postProcessor="#{reportesController.postProcessXLS}" />  
+                </h:commandLink> 
+                <p:dataTable id="dtRptVentas" var="ventas" value="#{reportesController.ventasMes}" filteredValue="#{reportesController.ventasMesFiltro}"
+                             style="text-align: center;" scrollable="true" scrollHeight="450"
+                             emptyMessage="NO HAY VENTAS">
+                    
+                    <f:facet name="header">VENTAS DEL MES</f:facet>  
+
+                    <p:column >  
+                        <f:facet name="header">  
+                            <h:outputText value="TIPO" />  
+                        </f:facet>  
+                        <h:outputText value="#{ventas.getItemColumna(0)}" />
+                    </p:column> 
+                    
+                    <p:column filterBy="#{ventas.getItemColumna(1)}">  
+                        <f:facet name="header">  
+                            <h:outputText value="FACTURA" />  
+                        </f:facet>  
+                        <h:outputText value="#{ventas.getItemColumna(1)}" />
+                    </p:column> 
+                    
+                    <p:column >  
+                        <f:facet name="header">  
+                            <h:outputText value="FECHA" />  
+                        </f:facet>  
+                        <h:outputText value="#{ventas.getItemColumna(2)}" />
+                    </p:column> 
+                    
+                    
+                    <p:column filterBy="#{ventas.getItemColumna(3)}">  
+                        <f:facet name="header">  
+                            <h:outputText value="CLIENTE" />  
+                        </f:facet>  
+                        <h:outputText value="#{ventas.getItemColumna(3)}" />
+                    </p:column> 
+                    
+                    
+                    <p:column filterBy="#{ventas.getItemColumna(4)}">  
+                        <f:facet name="header">  
+                            <h:outputText value="ESTILO" />  
+                        </f:facet>  
+                        <h:outputText value="#{ventas.getItemColumna(4)}" />
+                    </p:column> 
+                    
+                    
+                    
+                    <p:column >  
+                        <f:facet name="header">  
+                            <h:outputText value="COSTO" />  
+                        </f:facet>  
+                        <h:outputText value="#{ventas.getItemColumna(5)}" />
+                    </p:column> 
+                    
+                    
+                    <p:column >  
+                        <f:facet name="header">  
+                            <h:outputText value="PRECIO" />  
+                        </f:facet>  
+                        <h:outputText value="#{ventas.getItemColumna(6)}" />
+                    </p:column> 
+                    
+                    <p:column>  
+                        <f:facet name="header">  
+                            <h:outputText value="CANTIDAD" />  
+                        </f:facet>  
+                        <h:outputText value="#{ventas.getItemColumna(7)}" />
+                    </p:column> 
+                    
+                </p:dataTable> 
+                
+                
+            </h:form>
+       </p:panel>
+        
+        
+         
+            <!-- CANCELAR ENVIO -->
+        <p:dialog widgetVar="cancelarEnvio" modal="true" resizable="false" appendTo="@(body)" header="CANCELAR ENVIO" >
+            <h:form id="frmCancelarEnvio">
+                <p:outputLabel value="SEGURO QUE DESEA CANCELAR EL ENVIO?" />
+                <h:panelGrid columns="2">
+                    <p:outputLabel value="NOTA DE ENVIO N&deg;:"/>
+                    <p:outputLabel value="#{envioController.seleccion.numenvio}"/>
+                    <p:outputLabel value="PEDIDO:"/>
+                    <p:outputLabel value="#{envioController.seleccion.pedido.pedidoPK.numpedido}"/>
+                    <p:outputLabel value="CLIENTE:"/>
+                    <p:outputLabel value="#{envioController.seleccion.pedido.clientePedido.obtenerNombreCliente()}"/>
+                </h:panelGrid><br/>
+                <p:commandButton value="SI " actionListener="#{envioController.cancelarEnvio()}" oncomplete="cancelarEnvio.hide();" update=":gwRptVentas, :frmCancelarEnvio,:frmRptVentas"/>
+                <p:commandButton value="NO " onclick="cancelarEnvio.hide();" type="button" style="float: right" />
+            </h:form>
+            
+         </p:dialog>
+        
+        
+        </c:when>
+            
+            
+            <!-- SI NO TIENE LOS PERMISOS DA MSJ DE ERROR -->
+            <c:otherwise>
+                   <h:form>
+                        <div style="min-height: 300px; text-align: center; margin-top: 100px;">
+                            <p:outputLabel value="ACCESO DENEGADO" style="font-size: 30px;font-weight: bold;color:red"/>
+                            <br/><br/>
+                            <h:graphicImage url="/faces/resources/imagenes/locked.png" alt="ZONA RESTRINGIDA" width="200" />
+                            <br/><br/>
+                            <p:outputLabel value="NO TIENE PERMISO PARA VER ESTA PAGINA" style="font-size: 20px;font-weight: bold;color:red"/>
+                            <br/>
+                            <p:outputLabel value="CONSULTE CON EL ADMINISTRADOR DEL SISTEMA" style="font-size: 20px;font-weight: bold;"/>
+                        </div>
+                    </h:form>
+             </c:otherwise>
+        </c:choose>
+        
+        
+    </ui:define>
+    
+
+</ui:composition>

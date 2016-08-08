@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/resources/plantillas/plantillaPrincipal.xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+    <ui:define name="title">
+        <h:outputText value="REINGRESOS"/>
+    </ui:define>
+
+    <ui:define name="body">
+        
+        <c:choose>
+        <!-- VERIFICA QUE TENGA PERMISOS -->
+        <c:when test="${empleadoController.verificarPermiso('BODEGA', 'REINGRESO DE PRODUCTOS')}" >
+
+            #{detalleEnvioController.prepararConsultaReingreso()}
+        <p:growl id="gwReingreso"/>
+        <p:panel  header="REINGRESO DE PRODUCTO AL INVENTARIO" style="height:99.3%; width: 99.5%;" >
+            
+            <h:form id="frmReingreso">
+                
+                <p:remoteCommand name="actSeleccion" actionListener="#{detalleEnvioController.actualizarSeleccionFiltro()}" update="selectAll"/>
+                
+                <p:outputLabel value="REINGRESAR TODOS:"/>&nbsp;&nbsp;
+                <p:selectBooleanCheckbox id="selectAll"  value="#{detalleEnvioController.reingresarTodos}">  
+                    <p:ajax update=":gwReingreso,dtReingresos" listener="#{detalleEnvioController.seleccionarTodos()}" />
+                </p:selectBooleanCheckbox> 
+                &nbsp;&nbsp;
+                <p:commandButton value="REINGRESAR SELECCIONADOS" actionListener="#{detalleEnvioController.prepararReingresarSeleccionados()}" update=":gwReingreso,:frmReingresoSeleccionados" style="width: 120px;"  />
+                
+                <p:dataTable id="dtReingresos" var="reingreso" value="#{detalleEnvioController.reingresosDevoluciones}"
+                             filteredValue="#{detalleEnvioController.filtroReingreso}"
+                                 emptyMessage="NO HAY REINGRESOS DE PRODUCTOS" style="text-align: center "  >
+                        
+                    <p:ajax event="filter" onsuccess="actSeleccion()" />
+                    
+                    <p:column width="2px">  
+                        <div align="center">
+                            <p:selectBooleanCheckbox value="#{detalleEnvioController.reingresar}" >  
+                                <p:ajax update=":gwReingreso" listener="#{detalleEnvioController.addListaReingreso(reingreso)}" />
+                            </p:selectBooleanCheckbox>  
+                        </div>
+                    </p:column>
+                    
+                    <p:column headerText="FACTURA" filterBy="#{reingreso.lineaVenta.factura.facturaPK.numfactura}">
+                        <p:outputLabel value="#{reingreso.lineaVenta.factura.facturaPK.numfactura}" />
+                    </p:column>
+                    
+                    <p:column headerText="FECHA">
+                        <p:outputLabel value="#{funciones.setFechaFormateada(reingreso.lineaVenta.factura.facturaPK.fechaFactura,1)}" />
+                    </p:column>
+                    
+                    <p:column headerText="ORDEN ENVIO" filterBy="#{reingreso.envio.numenvio}">
+                        <p:outputLabel value="#{reingreso.envio.numenvio}" />
+                    </p:column>
+                    
+                    <p:column headerText="CODIGO CAJA" filterBy="#{reingreso.inventario.numcaja.numcaja}">
+                        <p:outputLabel value="#{reingreso.inventario.numcaja.numcaja}" />
+                    </p:column>
+
+                    <p:column headerText="ESTILO" filterBy="#{reingreso.inventario.producto.productoPK.codestilo}">
+                        <p:outputLabel value="#{reingreso.inventario.producto.productoPK.codestilo}" />
+                    </p:column>
+                    
+                    <p:column headerText="COLOR">
+                        <p:outputLabel value="#{reingreso.inventario.color}" />
+                    </p:column>
+                    
+                    <p:column headerText="TALLA">
+                        <p:outputLabel value="#{reingreso.inventario.talla}" />
+                    </p:column>
+                    
+                    <p:column headerText="PRECIO">
+                        <p:outputLabel value="#{funciones.redondearMas(reingreso.inventario.preciomayoreo,2)}" />
+                    </p:column>
+                    
+                    
+                    <p:column headerText="ESTADO">
+                        <p:outputLabel value="#{reingreso.nota}" />
+                    </p:column>
+                    
+                    
+                    <p:column width="5%">  
+                        <div align="center">
+                            <p:commandButton actionListener="#{detalleEnvioController.prepararReingreso(reingreso)}" oncomplete="cfdEstadoproducto.show()" icon="ui-icon-arrowreturnthick-1-w" title="Reingresar" style="height: 15px; width:15px;" update=":frmReingreso, :gwReingreso,:frmEstadoProducto" >
+                                
+                            </p:commandButton>
+                        </div>
+                    </p:column>
+                </p:dataTable> 
+            </h:form>
+       </p:panel>
+        
+        
+        
+        
+        
+         <!-- CONFIRMAR REINGRESO -->
+        <p:confirmDialog message="ESTADO DEL PRODUCTO DEVUELTO:" appendTo="@(body)" header="REINGRESO DE PRODUCTO" severity="info"  widgetVar="cfdEstadoproducto">
+            <h:form id="frmEstadoProducto">
+                <h:panelGrid columns="2">
+                    <p:outputLabel value="FACTURA: " style="font-weight: bold;"/>
+                    <p:outputLabel value="#{detalleEnvioController.de.lineaVenta.factura.facturaPK.numfactura}"/>
+                    <p:outputLabel value="CODIGO: " style="font-weight: bold;"/>
+                    <p:outputLabel value="#{detalleEnvioController.de.inventario.codigo}"/>
+                    <p:outputLabel value="ESTILO: " style="font-weight: bold;"/>
+                    <p:outputLabel value="#{detalleEnvioController.de.inventario.producto.productoPK.codestilo}"/>
+                    <p:outputLabel value="COLOR: " style="font-weight: bold;"/>
+                    <p:outputLabel value="#{detalleEnvioController.de.inventario.color}"/>
+                    <p:outputLabel value="TALLA: " style="font-weight: bold;"/>
+                    <p:outputLabel value="#{detalleEnvioController.de.inventario.talla}"/>
+                    <p:outputLabel value="CAJA: " style="font-weight: bold;"/>
+                    <p:outputLabel value="#{detalleEnvioController.de.inventario.numcaja.numcaja}"/>
+                    <p:outputLabel value="REINGRESAR A INVENTARIO COMO:" style="font-weight: bold;"/>
+                    <p:selectOneMenu value="#{detalleEnvioController.nuevoEstado}" required="true" requiredMessage="Debe especificar NUEVO ESTADO DEL PRODUCTO DEVUELTO" style="  width: 150px "  >
+                        <f:selectItem itemLabel="EN EXISTENCIA" itemValue="EN EXISTENCIA"/> 
+                        <f:selectItem itemLabel="DEFECTUOSO" itemValue="DEFECTUOSO"/> 
+                        <f:selectItem itemLabel="PERDIDA" itemValue="PERDIDA"/>
+                    </p:selectOneMenu>
+                    <p:outputLabel value="UBICACION PRODUCTO:" />
+                    <p:inputText value="#{detalleEnvioController.de.inventario.ubicacionProducto}" required="#{detalleEnvioController.de.inventario.numcaja eq null}" requiredMessage="INGRESE NUEVA UBICACION" />
+                    <p:outputLabel value="NOTA PRODUCTO:" />
+                    <p:inputTextarea value="#{detalleEnvioController.de.inventario.notaProducto}" cols="30" rows="3" />
+                </h:panelGrid>
+                <br/><br/>
+                <p:commandButton value="CONFIRMAR" actionListener="#{detalleEnvioController.reingresarProducto()}"  oncomplete="handleSubmit(xhr, status, args, cfdEstadoproducto)" update=":gwReingreso, :frmReingreso,:frmEstadoProducto"  />
+                <p:commandButton value="CANCELAR " onclick="cfdEstadoproducto.hide();" type="button" style="float: right" />
+            </h:form>
+            
+        </p:confirmDialog>
+         
+         
+         
+        
+        
+         <!-- CONFIRMAR REINGRESO SELECCIONADOS -->
+        <p:confirmDialog message="ESTADO DE PRODUCTOS :" appendTo="@(body)" header="REINGRESO DE PRODUCTOS" severity="info"  widgetVar="cfdEstadoSeleccionados">
+            <h:form id="frmReingresoSeleccionados">
+                <h:panelGrid columns="2">
+                    <p:outputLabel value="PRODUCTOS A REINGRESAR: " style="font-weight: bold;"/>
+                    <p:outputLabel value="#{detalleEnvioController.listaReingreso.size()}"/>
+                    
+                    <p:outputLabel value="REINGRESAR A INVENTARIO COMO:" style="font-weight: bold;"/>
+                    <p:selectOneMenu value="#{detalleEnvioController.nuevoEstado}" required="true" requiredMessage="ESPECIFICAR ESTADO DE PRODUCTOS DEVUELTOS" style="  width: 150px "  >
+                        <f:selectItem itemLabel="EN EXISTENCIA" itemValue="EN EXISTENCIA"/> 
+                        <f:selectItem itemLabel="DEFECTUOSO" itemValue="DEFECTUOSO"/> 
+                        <f:selectItem itemLabel="PERDIDA" itemValue="PERDIDA"/>
+                    </p:selectOneMenu>
+                </h:panelGrid>
+                <br/><br/>
+                <p:commandButton value="CONFIRMAR" actionListener="#{detalleEnvioController.reingresarSeleccionados()}"  oncomplete="cfdEstadoSeleccionados.hide();" update=":gwReingreso, :frmReingreso"  />
+                <p:commandButton value="CANCELAR " onclick="cfdEstadoSeleccionados.hide();" type="button" style="float: right" />
+            </h:form>
+            
+        </p:confirmDialog>
+        
+        
+        
+        
+        </c:when>
+            
+            
+            <!-- SI NO TIENE LOS PERMISOS DA MSJ DE ERROR -->
+            <c:otherwise>
+                   <h:form>
+                        <div style="min-height: 300px; text-align: center; margin-top: 100px;">
+                            <p:outputLabel value="ACCESO DENEGADO" style="font-size: 30px;font-weight: bold;color:red"/>
+                            <br/><br/>
+                            <h:graphicImage url="/faces/resources/imagenes/locked.png" alt="ZONA RESTRINGIDA" width="200" />
+                            <br/><br/>
+                            <p:outputLabel value="NO TIENE PERMISO PARA VER ESTA PAGINA" style="font-size: 20px;font-weight: bold;color:red"/>
+                            <br/>
+                            <p:outputLabel value="CONSULTE CON EL ADMINISTRADOR DEL SISTEMA" style="font-size: 20px;font-weight: bold;"/>
+                        </div>
+                    </h:form>
+             </c:otherwise>
+        </c:choose>
+        
+    </ui:define>
+    
+
+</ui:composition>

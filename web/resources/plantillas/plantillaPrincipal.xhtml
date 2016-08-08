@@ -1,0 +1,242 @@
+<?xml version='1.0' encoding='UTF-8' ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:f="http://java.sun.com/jsf/core">
+    <h:head>
+        <title>
+            <ui:insert name="title">D'DICARK - SHOES</ui:insert>
+        </title>
+        <h:outputStylesheet library="css" name="estilosGeneral.css"/>
+        <h:outputStylesheet library="css" name="estilosEspecifico.css"/>
+        <h:outputScript library="scripts" name="scriptGeneral.js"/>
+        
+        
+    </h:head>
+
+    <h:body> 
+        
+<c:choose>
+              
+            <!-- VERIFICA QUE HAYAN HECHO LOGIN -->
+            <c:when test="${empleadoController.isLogin == true}" >
+                
+                    
+                    <!-- MENSAJES INSTANTANEOS -->
+                    <p:growl id="gwMsgPP" life="5000"/>
+
+                    <!-- CONTENEDOR DE TODA LA PAGINA -->
+                    <p:layout fullPage="true">
+   
+                        <!-- CONTENEDOR DEL ENCABEZADO -->
+                        <p:layoutUnit position="north" size="175" header="SISTEMA D'DICARK SHOES S.A de C.V version 1.0">
+                            <!--AQUI IRA UN MENU BAR y UN BANNER ELEGANTE:) -->
+                            <p:graphicImage url="/faces/resources/imagenes/banner.gif" style="height: 100px; width: 100%" />
+                            
+                            
+                            <h:form id="frmMenu">
+                            <p:menubar >
+                                <p:menuitem value="HOME" url="/faces/vistas/home.xhtml" icon="ui-icon-home"/>
+                                <p:submenu label="VER" >
+                                    <p:menuitem value="PROVEEDORES" url="/faces/vistas/proveedores/proveedores.xhtml" /> 
+                                    <p:menuitem value="CARTERA CLIENTES" url="/faces/vistas/clientes/clientes.xhtml"  />
+                                    <p:menuitem value="CATALOGO" url="/faces/vistas/estilos/catalogo.xhtml"  />
+                                </p:submenu>
+                                
+                                <p:submenu label="COMPRAS" >
+                                   <p:menuitem value="NUEVA IMPORTACION" url="/faces/vistas/retaceo/importacion.xhtml" />
+                                   <p:menuitem value="COMPRA NACIONAL" url="/faces/vistas/retaceo/nacional.xhtml"  />
+                                   <p:menuitem value="PAGOS DE DEUDAS" url="/faces/vistas/pagos/pagosProveedores.xhtml"  />
+                                   <p:menuitem value="VER COMPRAS" icon="ui-icon-search" url="/faces/vistas/compras/compras.xhtml"  />
+                                </p:submenu>
+                                
+                                <p:submenu label="INGRESOS" >
+                                    <p:menuitem value="APROBAR INGRESOS" url="/faces/vistas/retaceo/retaceos.xhtml" />
+                                    <p:menuitem value="PREINGRESO DE FACTURAS" url="/faces/vistas/preingresos/preingresos.xhtml"  />
+                                    <p:menuitem value="CODIFICACION DE PRODUCTO" url="/faces/vistas/ingresos/ingresos.xhtml" />
+                                </p:submenu>
+                                
+                                <p:submenu label="BODEGA" >
+                                    <p:menuitem value="ASIGNACION DE MUESTRAS" url="/faces/vistas/muestras/muestras.xhtml" />
+                                    <p:submenu label="PROCESAR PEDIDO" >
+                                        <p:menuitem value="EXISTENCIAS vrs PEDIDOS" url="/faces/vistas/bodega/existencias-pedidos.xhtml"/>
+                                        <p:menuitem value="DESPACHO DE MERCANCIA" url="/faces/vistas/bodega/despacho.xhtml"/>
+                                    </p:submenu>
+                                    <p:menuitem value="ORDENES DE ENVIO" url="/faces/vistas/envios/notasEnvios.xhtml" />
+                                    <p:menuitem value="REINGRESO DE PRODUCTO" url="/faces/vistas/devoluciones/reingreso.xhtml" />
+                                    
+                                </p:submenu>
+
+                                <p:submenu label="INVENTARIO" >
+                                    <p:submenu label="INVENTARIO FISICO" >
+                                        <p:menuitem value="BUSCAR POR CAJAS" url="/faces/vistas/inventario/fisico/cajas.xhtml"  />
+                                        <p:menuitem value="BUSCAR POR UNIDADES" url="/faces/vistas/inventario/fisico/unidades.xhtml" />
+                                        <p:menuitem value="COMBINAR CAJAS" url="/faces/vistas/inventario/fisico/combinar.xhtml" />
+                                    </p:submenu>
+                                    <p:submenu label="VER EXISTENCIAS"  >
+                                        <p:menuitem value="POR CAJAS" url="/faces/vistas/inventario/existencias/existenciasCajas.xhtml" />
+                                        <p:menuitem value="POR UNIDADES" url="/faces/vistas/inventario/existencias/existenciasUnidades.xhtml" />
+                                    </p:submenu>
+                                    <p:menuitem value="CORTE DE INVENTARIO" url="/faces/vistas/inventario/corte.xhtml"   />
+                                    <p:menuitem value="INVENTARIO FISICO 2016" url="/faces/vistas/inventario/fisico/fisico2016.xhtml"   />
+                                    <p:menuitem value="INVENTARIO ANTERIOR" url="/faces/vistas/inventario/fisico/copia.xhtml"  />
+                                </p:submenu>
+                                
+                                <p:submenu label="CONTROL GENERAL"  >
+                                    <p:menuitem value="REGLAS DEL NEGOCIO" url="/faces/vistas/configuraciones/reglasNegocio.xhtml" />
+                                    <p:menuitem value="CONTROL DE PRECIOS" url="/faces/vistas/configuraciones/precios.xhtml" />
+                                    <p:submenu label="ADMON CUENTAS" >
+                                        <p:menuitem value="USUARIOS" url="/faces/vistas/usuarios/usuarios.xhtml" icon="ui-icon-person" />
+                                        <p:menuitem value="PERMISOS" url="/faces/vistas/usuarios/permisos.xhtml" icon="ui-icon-locked" />
+                                    </p:submenu>
+                                </p:submenu>
+
+                                <p:submenu label="PEDIDOS" >
+                                    <p:menuitem value="NUEVO PEDIDO" url="/faces/vistas/pedidos/pedidos.xhtml"  />
+                                    <p:menuitem value="VER PEDIDOS" icon="ui-icon-search" url="/faces/vistas/pedidos/verPedidos.xhtml" />
+                                </p:submenu>
+                                
+                                <p:submenu label="CREDITOS" >
+                                    <p:menuitem value="APROBAR CREDITOS" url="/faces/vistas/creditos/aprobaciones.xhtml"   />
+                                    <p:menuitem value="VER CREDITOS" icon="ui-icon-search" url="/faces/vistas/creditos/creditos.xhtml"  />
+                                </p:submenu>
+                                
+                                <p:submenu label="VENTAS" >
+                                    <p:menuitem value="FACTURACION" url="/faces/vistas/ventas/facturacion.xhtml"   />
+                                    <p:menuitem value="VER VENTAS" icon="ui-icon-search" url="/faces/vistas/ventas/ventas.xhtml"  />
+                                    <p:menuitem value="VER FACTURAS" icon="ui-icon-search" url="/faces/vistas/facturas/facturas.xhtml"  />
+                                </p:submenu>
+
+                                <p:submenu label="PAGOS"  >
+                                    <p:submenu label="REGISTRAR PAGOS"  >
+                                            <p:menuitem value="FACTURAS AL CONTADO" url="/faces/vistas/pagos/pagosContado.xhtml" />
+                                            <p:menuitem value="FACTURAS AL CREDITO" url="/faces/vistas/pagos/pagosCredito.xhtml" />
+                                    </p:submenu>
+                                    <p:submenu label="RECIBIR" >
+                                            <p:menuitem value="PAGOS" url="/faces/vistas/pagos/recibirPagos.xhtml" />
+                                            <p:menuitem value="CHEQUES Y REMESAS" url="/faces/vistas/pagos/recibirChequeRemesa.xhtml" />
+                                    </p:submenu>
+                                    <p:submenu label="REMESAS" rendered="false" >
+                                            <p:menuitem value="NUEVA REMESA" url="/faces/vistas/pagos/nuevaRemesa.xhtml" />
+                                            <p:menuitem value="VER REMESAS" icon="ui-icon-search" url="/faces/vistas/pagos/remesas.xhtml" />
+                                    </p:submenu>
+                                    
+                                    <p:menuitem value="VER PAGOS" icon="ui-icon-search" url="/faces/vistas/pagos/pagosVenta.xhtml" />
+                                   
+                                </p:submenu>   
+
+                                <p:submenu label="C.A.D" >
+                                    <p:menuitem value="CAMBIO DE PRODUCTOS" url="/faces/vistas/devoluciones/cambios.xhtml"   /> 
+                                    <p:submenu label="DEVOLUCIONES"  >
+                                        <p:menuitem value="REGISTRAR DEVOLUCION" url="/faces/vistas/devoluciones/registrarDevolucion.xhtml" />
+                                        <p:menuitem value="APLICAR DEVOLUCION" url="/faces/vistas/devoluciones/aplicarDevolucion.xhtml" />
+                                        <p:menuitem value="DEVOLUCIONES" icon="ui-icon-search" url="/faces/vistas/devoluciones/devoluciones.xhtml" />
+                                     </p:submenu>
+                                     <p:menuitem value="ANULACION DE FACTURA" url="/faces/vistas/devoluciones/anulaciones.xhtml"  />
+                                </p:submenu>
+
+                                <p:submenu label="REPORTES" >
+                                     <p:menuitem value="VENTAS MENSUAL" url="/faces/vistas/reportes/rptVentas.xhtml" />
+                                </p:submenu>
+
+                                <p:submenu label="AYUDA" icon="ui-icon-help" rendered="false">
+                                     <p:menuitem value="MANUAL DE USUARIO" url="#" />
+                                     <p:menuitem value="ACERCA DEL AUTOR" url="#" />
+                                     <p:menuitem value="LICENCIA" url="#" />
+                                </p:submenu>
+
+                                <f:facet name="options">
+                                    <p:outputLabel value="Logout" style="margin-right: 10px; font:bold; font-style: italic; "/>
+                                    <p:commandLink actionListener="#{empleadoController.logout()}">
+                                        <p:graphicImage url="/faces/resources/imagenes/logout.png" style="height: 23px;"/>
+                                    </p:commandLink>
+                                </f:facet> 
+                            </p:menubar>
+                            </h:form>
+                        </p:layoutUnit>
+
+                        <!-- CONTENEDOR DEL PIE DE PAGINA -->
+                        <p:layoutUnit position="south" size="30">
+                            <div align="center">
+                                <p:outputLabel style="text-align: center"> D'DICARK &copy; Copyright 2013</p:outputLabel>
+                            </div>
+                        </p:layoutUnit>
+
+
+                        <!-- CONTENEDOR DE LA IZQUIERDA -->
+                        <!--<p:layoutUnit  position="west" size="100" resizable="true" closable="true" collapsible="true" header="Options">
+                             AUN NOSE QUE PONER AQUI  
+                        </p:layoutUnit>
+                        -->
+
+
+                         <!-- CONTENEDOR DE LA DERECHA -->
+                         <p:layoutUnit  position="east"  size="185" collapsible="true" header="GADGET" collapsed="true">
+                             
+                            <!-- AQUI IRA UN CALENDARIO, RELOJ , Y ESPACIO DE NOTAS  -->
+                            <p:calendar mode="inline" navigator="none"/>
+                            <br />
+                            <p:graphicImage url="/faces/resources/imagenes/logoKarol.JPG" style="width:170px;" />
+                            <br /><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <p:outputLabel> Hora del Servidor:</p:outputLabel><br /><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <p:clock pattern="hh:mm:ss ap" mode="server"/><br /><br /><br /><br />
+                            <p:outputLabel value="Usuario: " style="font-weight: bold;"/>
+                            <p:outputLabel value="#{empleadoController.usuario.username}"/>
+                            <br /><br /><br /><br />
+                            <p:commandLink value="Mi Cuenta" actionListener="#{funciones.irA('/faces/vistas/usuarios/cuenta.xhtml')}" />
+                        </p:layoutUnit>
+
+
+
+                        <!-- CONTENEDOR DEl CUERPO DE LA PAGINA -->
+                        <p:layoutUnit position="center" collapsible="true">
+                               <!-- INDICA QUE SE INSERTARA Y DEFINIRA EL CUERPO DE LA PAGINA -->
+                               
+                               <ui:insert name="body"/>
+                        </p:layoutUnit>
+
+                    </p:layout>
+                    
+                   
+            </c:when>
+            
+            
+            
+            
+            
+            
+            
+            
+            <!-- SI NO ESTA LOGEADO DA MSJ DE ERROR -->
+            <c:otherwise>
+                    
+                    <p:layout fullPage="true">
+                            <p:layoutUnit position="north" size="100" header="#{myBundle.AppName}">
+                            </p:layoutUnit>
+
+                            <p:layoutUnit position="center">
+                                   <h:form>
+                                       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <div style="min-height: 300px; text-align: center">
+                                            <h:graphicImage url="/faces/resources/imagenes/prohibido.png" alt="SESION EXPIRADA" />
+                                            <p style="font-size: 20px;" >No se ha identificado, o su sesion EXPIRO por favor presione el boton para LOGEARSE</p>
+                                            <br/><br/>
+                                            <p:commandButton value="Autentificarse" action="#{funciones.irA('faces/index.xhtml')}"  />
+                                        </div>
+                                    </h:form>
+                            </p:layoutUnit>
+
+                            <p:layoutUnit position="south" size="60">
+                            </p:layoutUnit>
+
+
+                    </p:layout>
+                                        
+             </c:otherwise>
+        </c:choose>
+            
+   </h:body>
+</html>

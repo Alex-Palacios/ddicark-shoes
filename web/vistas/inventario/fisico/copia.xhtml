@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/resources/plantillas/plantillaPrincipal.xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp" >
+
+
+    <ui:define name="title">
+        <h:outputText value="INVENTARIO FISICO" />
+    </ui:define>
+
+    <ui:define name="body">
+        <c:choose>
+        <!-- VERIFICA QUE TENGA PERMISOS -->
+        <c:when test="${empleadoController.verificarPermiso('INVENTARIO', 'ANTERIOR')}" >
+
+        #{existenciasController.prepararConsultaCajasAnteriores()}
+        <p:panel  header="C O N T R O L &nbsp;&nbsp; D E &nbsp;&nbsp; I N V E N T A R I O" >
+            <p:growl id="gwInventario" />
+            
+             <h:form id="frmInventario">
+                 
+                  <!-- Filtro Personalizado -->
+                  <p:fieldset>
+                        
+                        <h:commandLink> 
+                           <p:graphicImage library="imagenes" name="excel.png" title="Exportar a Excel" />  
+                           <p:dataExporter type="xls" target="dtInventarioFisico" fileName="Existencias" postProcessor="#{inventarioController.postProcessXLS}" />  
+                        </h:commandLink> 
+                        <h:commandLink rendered="false">  
+                           <p:graphicImage library="imagenes" name="pdf.png" title="Exportar en PDF"/>  
+                           <p:dataExporter type="pdf" target="dtInventarioFisico" fileName="Existencias" preProcessor="#{inventarioController.preProcessPDF}"/>  
+                        </h:commandLink>
+                        <h:panelGrid id="pngTotales" columns="2" style="float: right">
+                            <p:outputLabel value="TOTAL CAJAS: " style="font-weight: bold"/>
+                            <p:outputLabel value="#{existenciasController.numCajasAnteriores}"/>
+                        </h:panelGrid>
+                 </p:fieldset>
+                  
+                  <p:remoteCommand name="actUnidades" update=":frmInventario:pngTotales"/>
+                  
+                  <p:dataTable id="dtInventarioFisico" var="inventario" value="#{existenciasController.cajasAnterior}"
+                              emptyMessage="NO HAY PRODUCTO EN INVENTARIO ANTERIOR" scrollable="true" scrollHeight="350" style="text-align: center;"
+                              paginator="true" rows="100" paginatorPosition="top"  paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}" 
+                              filteredValue="#{existenciasController.filtroCajasAnterior}"  >
+                              
+                      
+                     <p:ajax event="filter" onsuccess="actUnidades()" />
+                        
+                              
+                        <p:column filterBy="#{inventario.getItemColumna(0)}" filterMaxLength="20" filterStyle="width:60px;"> 
+                            <f:facet name="header" id="prueba">  
+                                <h:outputText value="CODIGO" />  
+                            </f:facet> 
+                            <h:outputText  value="#{inventario.getItemColumna(0)}"  />
+                        </p:column>
+                        
+                        <p:column filterBy="#{inventario.getItemColumna(1)}" filterStyle="width: 65px;"> 
+                            <f:facet name="header">  
+                                <h:outputText value="ESTILO" />  
+                            </f:facet> 
+                            <h:outputText value="#{inventario.getItemColumna(1)}" />
+                        </p:column>
+                        
+                        <p:column filterBy="#{inventario.getItemColumna(2)}" filterStyle="width: 150px;" width="200"> 
+                            <f:facet name="header">  
+                                <h:outputText value="COLORES" />  
+                            </f:facet> 
+                            <h:outputText value="#{inventario.getItemColumna(2)}" />
+                        </p:column>
+                        
+                        <p:column width="100"> 
+                            <f:facet name="header">  
+                                <h:outputText value="CURVA" />  
+                            </f:facet> 
+                            <h:outputText value="#{inventario.getItemColumna(3)}" />
+                        </p:column>
+                        
+                        <p:column> 
+                            <f:facet name="header">  
+                                <h:outputText value="UNIDADES" />  
+                            </f:facet> 
+                            <h:outputText value="#{inventario.getItemColumna(4)}" />
+                        </p:column>
+                        
+                        <p:column> 
+                            <f:facet name="header">  
+                                <h:outputText value="PU S/IVA" />  
+                            </f:facet> 
+                            <h:outputText value="#{inventario.getItemColumna(5)}" />
+                        </p:column>
+                        
+                        <p:column  exportable="false"> 
+                            <f:facet name="header">  
+                                <h:outputText value="UBICACION" />  
+                            </f:facet> 
+                            <h:outputText value="#{inventario.getItemColumna(6)}" />
+                        </p:column>
+                        
+                        <p:column filterBy="#{inventario.getItemColumna(7)}" filterOptions="#{existenciasController.completaOptions}"  
+                                  filterMatchMode="exact" > 
+                            <f:facet name="header">  
+                                <h:outputText value="COMPLETA" />  
+                            </f:facet> 
+                            <h:outputText value="#{inventario.getItemColumna(7)?'COMPLETA':'INCOMPLETA'}" />
+                        </p:column>
+                        
+                        <p:column> 
+                            <f:facet name="header">  
+                                <h:outputText value="U.D" />  
+                            </f:facet> 
+                            <h:outputText value="#{inventario.getItemColumna(8)}" />
+                        </p:column>
+                     
+                     
+                        <p:column width="3%" exportable="false">  
+                            <div align="center">
+                                <p:commandButton actionListener="#{existenciasController.buscarCaja(inventario.getItemColumna(0))}" oncomplete="cajaDialog.show()" process="@form" icon="ui-icon-pencil" title="Ver Detalle" style="height: 15px; width:15px;" update=":frmCaja" >
+                                    <f:setPropertyActionListener value="#{inventario}" target="#{existenciasController.actual}"  />
+                                </p:commandButton>
+                            </div>
+                        </p:column>
+                  </p:dataTable>  
+                  
+                  
+                  
+                  
+             </h:form>
+       </p:panel>
+        
+        
+    
+    
+    
+        <!-- DIALOGO QUE MUESTRA INFO DE LA CAJA  -->
+    <p:dialog id="dlgCaja" widgetVar="cajaDialog" modal="true" resizable="false" appendTo="@(body)" header="DETALLE" width="850">
+
+        <h:form id="frmCaja" >
+                <p:panelGrid id="pnlCaja" columns="2" styleClass="noBorderPanelGrid">
+                    <p:outputLabel value="CODIGO CAJA:" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{existenciasController.cajaFisica.numcaja}" style="font-weight: bold;color: red"/>
+                    <p:outputLabel value="ESTILO:" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{existenciasController.cajaFisica.producto.productoPK.codestilo}" style="font-weight: bold;color: blue"/>
+                    <p:outputLabel value="UNIDADES CAJA:" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{existenciasController.cajaFisica.unidadesCaja}"/>
+                    <p:outputLabel value="CAJA COMPLETA:" style="font-weight: bold;"/>
+                    <p:outputLabel value="#{existenciasController.cajaFisica.completa?'SI':'NO'}"/>
+                </p:panelGrid>
+                <p:dataTable id="dtDetalleCaja" var="articulo" value="#{existenciasController.detalleCaja}" 
+                             emptyMessage="CAJA VACIA" scrollable="true" scrollHeight="200"  style="text-align: center; " >  
+
+                        <f:facet name="header">DETALLE DE LA CAJA</f:facet>
+
+                        <p:column   headerText="ESTILO" >  
+                            <h:outputText value="#{articulo.producto.productoPK.codestilo}" />
+                        </p:column>
+
+                        <p:column   headerText="COLOR" >  
+                            <h:outputText value="#{articulo.color}" />
+                        </p:column>
+
+                        <p:column   headerText="TALLA" >  
+                            <h:outputText value="#{articulo.talla}" />
+                        </p:column>
+                        
+                        <p:column   headerText="MARCA" >  
+                            <h:outputText value="#{articulo.marca}" />
+                        </p:column>
+                        
+                        <p:column   headerText="PRECIO" >  
+                            <h:outputText value="#{funciones.redondearMas(articulo.preciomayoreo,2)}" />
+                        </p:column>
+
+                        <p:column   headerText="ESTADO" >  
+                            <h:outputText value="#{articulo.estadoproducto}" />
+                        </p:column>
+                        
+                        <p:column   headerText="NOTA" >  
+                            <h:outputText value="#{articulo.notaProducto}" />
+                        </p:column>
+                        
+
+                </p:dataTable>
+                
+           <br/><br/>
+                <div align="center">
+                    <p:commandButton value="CERRAR" oncomplete="cajaDialog.hide();"  />
+                </div>
+
+        </h:form>
+
+    </p:dialog>
+            
+            
+       
+        
+        
+
+        
+        </c:when>
+            
+            
+            <!-- SI NO TIENE LOS PERMISOS DA MSJ DE ERROR -->
+            <c:otherwise>
+                   <h:form>
+                        <div style="min-height: 300px; text-align: center; margin-top: 100px;">
+                            <p:outputLabel value="ACCESO DENEGADO" style="font-size: 30px;font-weight: bold;color:red"/>
+                            <br/><br/>
+                            <h:graphicImage url="/faces/resources/imagenes/locked.png" alt="ZONA RESTRINGIDA" width="200" />
+                            <br/><br/>
+                            <p:outputLabel value="NO TIENE PERMISO PARA VER ESTA PAGINA" style="font-size: 20px;font-weight: bold;color:red"/>
+                            <br/>
+                            <p:outputLabel value="CONSULTE CON EL ADMINISTRADOR DEL SISTEMA" style="font-size: 20px;font-weight: bold;"/>
+                        </div>
+                    </h:form>
+             </c:otherwise>
+        </c:choose>
+
+         
+    </ui:define>
+    
+
+</ui:composition>
+    

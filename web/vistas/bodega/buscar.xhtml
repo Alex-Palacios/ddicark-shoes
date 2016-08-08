@@ -1,0 +1,602 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <ui:composition>
+        
+        <!-- BUSCA Y LISTA LOS PRODUCTOS A ENVIAR -->
+        <p:dialog id="dlgBuscarCalzado" widgetVar="buscarCalzadoDialog" modal="true" resizable="false" appendTo="@(body)" header="LISTANDO ARTICULOS"  >
+
+            <h:form id="frmBuscarCalzado">
+                <p:growl id="gwBuscarCalzado" />
+                
+                <br/>
+                <h:panelGroup id="displayBuscarCalzado" >
+                    <p:panelGrid columns="3" styleClass="noBorderPanelGrid" >
+                        <p:outputLabel value="CODIGO:" />
+                        <p:inputText id="codigoBarra" value="#{inventarioController.codigoBarra}" maxlength="20" required="true" requiredMessage="Ingrese el codigo de barra"  />
+                        <p:commandButton actionListener="#{inventarioController.buscarArticuloEnvio()}" value="&laquo;&laquo; BUSCAR Y LISTAR &raquo;&raquo;" 
+                                         oncomplete="listarArticuloDespacho(args,buscarCalzadoDialog,cfdConfirmarListar,cfdConfirmarCompleta,confirmarCajaDialog);" 
+                                         update=":frmBuscarCalzado,:frmConfirmarCaja,:frmDespacho:frmDetalleEnvio:dtInventario,:frmDespacho:frmDetalleEnvio:pnTotales,:frmConsultaUnitario,:frmConfirmarCaja:pnlCurvaColores"  />
+                    </p:panelGrid>
+                    <br/>
+                    <h:panelGrid columns="2">
+                        <p:outputLabel value="BUSCAR POR:" />
+                        <p:selectOneRadio value="#{inventarioController.buscarCaja}">
+                            <f:selectItem itemLabel="CAJA" itemValue="true"/>
+                            <f:selectItem itemLabel="UNIDAD" itemValue="false"/>
+                        </p:selectOneRadio>
+                    </h:panelGrid>
+                    <p:commandButton value="CERRAR" oncomplete="buscarCalzadoDialog.hide();" update=":frmBuscarCalzado" process="@this" />
+
+                </h:panelGroup>
+            </h:form>
+        </p:dialog>
+        
+        
+        
+        <!-- CONSULTA UNITARIO -->
+        <p:dialog widgetVar="consultaUnitario" modal="true" closable="false" resizable="false" appendTo="@(body)" header="CONSULTA UNITARIO"  >
+
+            <h:form id="frmConsultaUnitario">
+                <p:panelGrid columns="2" styleClass="noBorderPanelGrid" >
+                        <p:outputLabel value="ESTILO:"/>
+                        <p:outputLabel value="#{inventarioController.estiloUnitario}"/>
+                        <p:outputLabel value="COLOR:" />
+                        <p:selectOneMenu value="#{inventarioController.colorUnitario}" >
+                            <f:selectItems value="#{inventarioController.coloresUnitario}" />
+                            <p:ajax listener="#{inventarioController.actualizarSubconsultaUnitario()}" update="listarCurva,existencias"/>
+                        </p:selectOneMenu>
+                        <p:outputLabel value="MATERIAL:" />
+                        <p:selectOneMenu value="#{inventarioController.materialUnitario}">
+                            <f:selectItems value="#{inventarioController.materialesUnitario}" />
+                            <p:ajax listener="#{inventarioController.actualizarSubconsultaUnitario()}" update="listarCurva,existencias"/>
+                        </p:selectOneMenu>
+                        <p:outputLabel value="TOTAL EXISTENCIA:"/>
+                        <p:outputLabel id="existencias" value="#{inventarioController.subconsultaUnitario.size()}"/>
+                </p:panelGrid>
+                                
+                <p:panelGrid id="listarCurva"  >
+                            <f:facet name="header">
+                                <p:row>
+                                    <p:column  ></p:column>
+                                    <p:column  >#{inventarioController.tallas[0]}</p:column>
+                                    <p:column  >#{inventarioController.tallas[1]}</p:column>
+                                    <p:column  >#{inventarioController.tallas[2]}</p:column>
+                                    <p:column  >#{inventarioController.tallas[3]}</p:column>
+                                    <p:column  >#{inventarioController.tallas[4]}</p:column>
+                                    <p:column  >#{inventarioController.tallas[5]}</p:column>
+                                    <p:column  >#{inventarioController.tallas[6]}</p:column>
+                                    <p:column  >#{inventarioController.tallas[7]}</p:column>
+                                    <p:column  >#{inventarioController.tallas[8]}</p:column>
+                                    <p:column  >#{inventarioController.tallas[9]}</p:column>
+                                </p:row>
+                            </f:facet>
+                        
+                            <p:row>
+                                <p:column style="text-align: center"><p:outputLabel value="EXISTENCIA" /></p:column>
+                                <p:column style="text-align: center" ><p:outputLabel value="#{inventarioController.exist[0]}" /></p:column>
+                                <p:column style="text-align: center" ><p:outputLabel value="#{inventarioController.exist[1]}" /></p:column>
+                                <p:column style="text-align: center"><p:outputLabel value="#{inventarioController.exist[2]}" /></p:column>
+                                <p:column style="text-align: center"><p:outputLabel value="#{inventarioController.exist[3]}" /></p:column>
+                                <p:column style="text-align: center"><p:outputLabel value="#{inventarioController.exist[4]}" /></p:column>
+                                <p:column style="text-align: center"><p:outputLabel value="#{inventarioController.exist[5]}" /></p:column>
+                                <p:column style="text-align: center"><p:outputLabel value="#{inventarioController.exist[6]}" /></p:column>
+                                <p:column style="text-align: center"><p:outputLabel value="#{inventarioController.exist[7]}" /></p:column>
+                                <p:column style="text-align: center"><p:outputLabel value="#{inventarioController.exist[8]}" /></p:column>
+                                <p:column style="text-align: center"><p:outputLabel value="#{inventarioController.exist[9]}" /></p:column>
+                            </p:row>
+                    
+                            <p:row>
+                                <p:column style="text-align: center"><p:outputLabel value="LISTAR CURVA" /></p:column>
+                                <p:column style="text-align: center" ><p:spinner value="#{inventarioController.listar.t1}" max="#{inventarioController.exist[0]}"  min="0"  ><p:ajax update="numListar" /></p:spinner></p:column>
+                                <p:column style="text-align: center" ><p:spinner value="#{inventarioController.listar.t2}" max="#{inventarioController.exist[1]}"  min="0"  ><p:ajax update="numListar" /></p:spinner></p:column>
+                                <p:column style="text-align: center" ><p:spinner value="#{inventarioController.listar.t3}" max="#{inventarioController.exist[2]}"  min="0"  ><p:ajax update="numListar" /></p:spinner></p:column>
+                                <p:column style="text-align: center" ><p:spinner value="#{inventarioController.listar.t4}" max="#{inventarioController.exist[3]}"  min="0"  ><p:ajax update="numListar" /></p:spinner></p:column>
+                                <p:column style="text-align: center" ><p:spinner value="#{inventarioController.listar.t5}" max="#{inventarioController.exist[4]}"  min="0"  ><p:ajax update="numListar" /></p:spinner></p:column>
+                                <p:column style="text-align: center" ><p:spinner value="#{inventarioController.listar.t6}" max="#{inventarioController.exist[5]}"  min="0"  ><p:ajax update="numListar" /></p:spinner></p:column>
+                                <p:column style="text-align: center" ><p:spinner value="#{inventarioController.listar.t7}" max="#{inventarioController.exist[6]}"  min="0"  ><p:ajax update="numListar" /></p:spinner></p:column>
+                                <p:column style="text-align: center" ><p:spinner value="#{inventarioController.listar.t8}" max="#{inventarioController.exist[7]}"  min="0"  ><p:ajax update="numListar" /></p:spinner></p:column>
+                                <p:column style="text-align: center" ><p:spinner value="#{inventarioController.listar.t9}" max="#{inventarioController.exist[8]}"  min="0"  ><p:ajax update="numListar" /></p:spinner></p:column>
+                                <p:column style="text-align: center" ><p:spinner value="#{inventarioController.listar.t10}" max="#{inventarioController.exist[9]}"  min="0"  ><p:ajax update="numListar" /></p:spinner></p:column>
+                            </p:row>
+                    
+                            <f:facet name="footer">
+                                <p:row>
+                                    <p:column style="text-align: right" ></p:column>
+                                    <p:column><p:outputLabel id="numListar" value="#{inventarioController.numUnitario}" /></p:column>
+                                </p:row>
+                            </f:facet>
+                            
+                </p:panelGrid>
+                <br/>
+                
+                <p:commandButton  value="LISTAR" actionListener="#{inventarioController.listarUnitario()}"  update=":gwDespacho,:frmConsultaUnitario,:frmBuscarCalzado,:frmDespacho:frmDetalleEnvio:dtInventario,:frmDespacho:frmDetalleEnvio:pnTotales" type="submit" process="@form"  />
+
+                <p:commandButton value="CANCELAR" onclick="consultaUnitario.hide();buscarCalzadoDialog.show();" style="float: right;"/>
+            </h:form>
+
+        </p:dialog>
+        
+        
+             
+        
+        
+        <!-- PARA CONFIRMAR LISTAR CAJA -->
+        <p:dialog id="dlgConfirmarCajaDialog" widgetVar="confirmarCajaDialog" modal="true" resizable="false" appendTo="@(body)" header="LISTAR TODOS LOS ARTICULOS DE LA CAJA?"  >
+
+            <h:form id="frmConfirmarCaja">
+                <h:panelGroup id="displayConfirmarCaja" >
+                    
+                    <h:panelGrid columns="2" style="text-align: right;" rendered="#{inventarioController.cajaEnvio != null}" >
+                       <p:outputLabel value="NUMCAJA: " style="font-weight: bold;"/>
+                       <p:outputLabel value="#{inventarioController.cajaEnvio.numcaja}" style="font-weight: bold;color: blue"/>
+                       <p:outputLabel value="ESTILO: " style="font-weight: bold;"/>
+                       <p:outputLabel value="#{inventarioController.cajaEnvio.producto.productoPK.codestilo}" style="font-weight: bold;"/>
+                       <p:outputLabel value="UNIDADES: " style="font-weight: bold;"/>
+                       <p:outputLabel value="#{inventarioController.cajaEnvio.unidadesCaja}" style="font-weight: bold;"/>
+                       <p:outputLabel value="UBICACION EN BODEGA:" style="font-weight: bold;"/>
+                       <p:outputLabel value="#{inventarioController.cajaEnvio.ubicacionCaja}" style="font-weight: bold;"/>  
+                       <p:outputLabel value="CAJA COMPLETA:" style="font-weight: bold;color: red"/>
+                       <p:outputLabel value="#{inventarioController.cajaEnvio.completa? 'SI':'NO'}" style="font-weight: bold;color: red"/>
+                       
+                   </h:panelGrid> 
+                   <br/><br/>
+                   <p:outputLabel value="DETALLE CURVA DE LA CAJA" />
+                    <p:panelGrid id="pnlCurvaColores" styleClass="prueba" >
+                            <f:facet name="header">
+                                <p:row>
+                                    <p:column rowspan="2" style="width: 175px;">C O L O R</p:column>
+                                    <p:column colspan="10">T A L L A S</p:column>
+                                </p:row>
+                                <p:row>
+                                    <p:column rendered="#{cajaController.numTallas > 0}" >#{cajaController.tallas[0]}</p:column>
+                                    <p:column rendered="#{cajaController.numTallas > 1}" >#{cajaController.tallas[1]}</p:column>
+                                    <p:column rendered="#{cajaController.numTallas > 2}" >#{cajaController.tallas[2]}</p:column>
+                                    <p:column rendered="#{cajaController.numTallas > 3}" >#{cajaController.tallas[3]}</p:column>
+                                    <p:column rendered="#{cajaController.numTallas > 4}" >#{cajaController.tallas[4]}</p:column>
+                                    <p:column rendered="#{cajaController.numTallas > 5}" >#{cajaController.tallas[5]}</p:column>
+                                    <p:column rendered="#{cajaController.numTallas > 6}" >#{cajaController.tallas[6]}</p:column>
+                                    <p:column rendered="#{cajaController.numTallas > 7}" >#{cajaController.tallas[7]}</p:column>
+                                    <p:column rendered="#{cajaController.numTallas > 8}" >#{cajaController.tallas[8]}</p:column>
+                                    <p:column rendered="#{cajaController.numTallas > 9}" >#{cajaController.tallas[9]}</p:column>
+                                </p:row>
+                            </f:facet>
+                        
+                            <p:row>
+                                <p:column style="text-align: center"><p:outputLabel value="#{cajaController.curva[0].color}" style="text-align: center"/></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 0}" style="text-align: center" ><p:outputLabel value="#{cajaController.curva[0].t1}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 1}" style="text-align: center" ><p:outputLabel value="#{cajaController.curva[0].t2}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[0].t3}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[0].t4}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[0].t5}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[0].t6}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[0].t7}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[0].t8}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[0].t9}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[0].t10}" /></p:column>
+                            </p:row>
+                        
+                            <p:row rendered="#{cajaController.numColores > 1}">
+                                <p:column style="text-align: center"><p:outputLabel value="#{cajaController.curva[1].color}" style="text-align: center" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 0}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[1].t1}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 1}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[1].t2}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[1].t3}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[1].t4}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[1].t5}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[1].t6}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[1].t7}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[1].t8}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[1].t9}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[1].t10}" /></p:column>
+                            </p:row>
+                            
+                            <p:row rendered="#{cajaController.numColores > 2}">
+                                <p:column style="text-align: center"><p:outputLabel value="#{cajaController.curva[2].color}" style="text-align: center" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 0}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[2].t1}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 1}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[2].t2}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[2].t3}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[2].t4}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[2].t5}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[2].t6}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[2].t7}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[2].t8}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[2].t9}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[2].t10}" /></p:column>
+                            </p:row>
+                            
+                            <p:row rendered="#{cajaController.numColores > 3}">
+                                <p:column style="text-align: center"><p:outputLabel value="#{cajaController.curva[3].color}" style="text-align: center" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 0}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[3].t1}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 1}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[3].t2}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[3].t3}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[3].t4}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[3].t5}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[3].t6}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[3].t7}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[3].t8}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[3].t9}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[3].t10}" /></p:column>
+                            </p:row>
+                            
+                            <p:row rendered="#{cajaController.numColores > 4}">
+                                <p:column style="text-align: center"><p:outputLabel value="#{cajaController.curva[4].color}" style="text-align: center" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 0}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[4].t1}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 1}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[4].t2}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[4].t3}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[4].t4}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[4].t5}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[4].t6}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[4].t7}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[4].t8}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[4].t9}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[4].t10}" /></p:column>
+                            </p:row>
+                            
+                            <p:row rendered="#{cajaController.numColores > 5}">
+                                <p:column style="text-align: center"><p:outputLabel value="#{cajaController.curva[5].color}" style="text-align: center" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 0}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[5].t1}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 1}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[5].t2}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[5].t3}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[5].t4}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[5].t5}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[5].t6}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[5].t7}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[5].t8}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[5].t9}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[5].t10}" /></p:column>
+                            </p:row>
+                    </p:panelGrid>
+                   <br/>
+                   <p:outputLabel value="UNIDADES ACTUALES: " />
+                   <p:outputLabel value="#{cajaController.unidadesActuales}" style="font-weight: bold; color: blue; font-size: 15px;" />
+                </h:panelGroup><br/>
+                <p:outputLabel value="NOTA: YA HA LISTADO #{inventarioController.unidadesCajaListadas} UNIDADES DE ESTA CAJA EN LA ORDEN ACTUAL" rendered="#{inventarioController.unidadesCajaListadas > 0}"  style="font-weight: bold; color: red; font-size: 10px;"/><br/><br/>
+                
+                <p:commandButton actionListener="#{inventarioController.listarCajaCompleta()}" value="LISTAR CAJA COMPLETA" 
+                                 update=":frmBuscarCalzado,:frmConfirmarCaja,:frmMostrarNoListados,:frmDespacho:frmDetalleEnvio:dtInventario,:frmDespacho:frmDetalleEnvio:pnTotales" oncomplete="listarCajaCompleta(args, confirmarCajaDialog, mostrarNoListadosDialog, buscarCalzadoDialog)" />
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                <p:commandButton value="LISTAR UNIDADES" actionListener="#{inventarioController.listarParteCaja()}" process="@form" oncomplete="listarParteCaja(args,confirmarCajaDialog, cajaDialog)" update=":gwDespacho,:frmCaja"/>
+                <p:commandButton value="CERRAR"  oncomplete="confirmarCajaDialog.hide();buscarCalzadoDialog.show();" style="float: right" />
+            </h:form>
+
+        </p:dialog>
+        
+        
+        
+        
+        <!-- PARA INGRESAR SOLO PARTE DE LA CAJA -->
+            <p:dialog id="dlgCaja" widgetVar="cajaDialog" modal="true" resizable="false" appendTo="@(body)" header="ESCOGER UNIDADES" width="700">
+                
+                <h:form id="frmCaja" >
+                    <p:panelGrid id="pnlCurvaColores" styleClass="prueba" >
+                            <f:facet name="header">
+                                <p:row>
+                                    <p:column rowspan="2" style="width: 175px;">C O L O R</p:column>
+                                    <p:column colspan="#{cajaController.numTallas}">CURVA ACTUAL</p:column>
+                                    <p:column>  </p:column>
+                                    <p:column colspan="#{cajaController.numTallas}">CURVA A LISTAR</p:column>
+                                </p:row>
+                                <p:row>
+                                    <p:column rendered="#{cajaController.numTallas > 0}" >#{cajaController.tallas[0]}</p:column>
+                                    <p:column rendered="#{cajaController.numTallas > 1}" >#{cajaController.tallas[1]}</p:column>
+                                    <p:column rendered="#{cajaController.numTallas > 2}" >#{cajaController.tallas[2]}</p:column>
+                                    <p:column rendered="#{cajaController.numTallas > 3}" >#{cajaController.tallas[3]}</p:column>
+                                    <p:column rendered="#{cajaController.numTallas > 4}" >#{cajaController.tallas[4]}</p:column>
+                                    <p:column rendered="#{cajaController.numTallas > 5}" >#{cajaController.tallas[5]}</p:column>
+                                    <p:column rendered="#{cajaController.numTallas > 6}" >#{cajaController.tallas[6]}</p:column>
+                                    <p:column rendered="#{cajaController.numTallas > 7}" >#{cajaController.tallas[7]}</p:column>
+                                    <p:column rendered="#{cajaController.numTallas > 8}" >#{cajaController.tallas[8]}</p:column>
+                                    <p:column rendered="#{cajaController.numTallas > 9}" >#{cajaController.tallas[9]}</p:column>
+                                    <p:column >  </p:column>
+                                    <p:column rendered="#{cajaController.numTallas > 0}" >#{cajaController.tallas[0]}</p:column>
+                                    <p:column rendered="#{cajaController.numTallas > 1}" >#{cajaController.tallas[1]}</p:column>
+                                    <p:column rendered="#{cajaController.numTallas > 2}" >#{cajaController.tallas[2]}</p:column>
+                                    <p:column rendered="#{cajaController.numTallas > 3}" >#{cajaController.tallas[3]}</p:column>
+                                    <p:column rendered="#{cajaController.numTallas > 4}" >#{cajaController.tallas[4]}</p:column>
+                                    <p:column rendered="#{cajaController.numTallas > 5}" >#{cajaController.tallas[5]}</p:column>
+                                    <p:column rendered="#{cajaController.numTallas > 6}" >#{cajaController.tallas[6]}</p:column>
+                                    <p:column rendered="#{cajaController.numTallas > 7}" >#{cajaController.tallas[7]}</p:column>
+                                    <p:column rendered="#{cajaController.numTallas > 8}" >#{cajaController.tallas[8]}</p:column>
+                                    <p:column rendered="#{cajaController.numTallas > 9}" >#{cajaController.tallas[9]}</p:column>
+                                </p:row>
+                            </f:facet>
+                        
+                            <p:row>
+                                <p:column style="text-align: center"><p:outputLabel value="#{inventarioController.listarCurva[0].color}"/></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 0}" style="text-align: center" ><p:outputLabel value="#{cajaController.curva[0].t1}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 1}" style="text-align: center" ><p:outputLabel value="#{cajaController.curva[0].t2}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[0].t3}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[0].t4}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[0].t5}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[0].t6}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[0].t7}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[0].t8}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[0].t9}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[0].t10}" /></p:column>
+                                <p:column >  </p:column>
+                                <p:column rendered="#{cajaController.numTallas > 0}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[0].t1}" max="#{cajaController.curva[0].t1}" min="0" maxlength="3"  ><p:ajax update="unidades"  /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 1}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[0].t2}" max="#{cajaController.curva[0].t2}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 2}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[0].t3}" max="#{cajaController.curva[0].t3}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 3}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[0].t4}" max="#{cajaController.curva[0].t4}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 4}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[0].t5}" max="#{cajaController.curva[0].t5}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 5}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[0].t6}" max="#{cajaController.curva[0].t6}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 6}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[0].t7}" max="#{cajaController.curva[0].t7}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 7}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[0].t8}" max="#{cajaController.curva[0].t8}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 8}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[0].t9}" max="#{cajaController.curva[0].t9}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 9}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[0].t10}" max="#{cajaController.curva[0].t10}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                           
+                            </p:row>
+                        
+                            <p:row rendered="#{cajaController.numColores > 1}">
+                                <p:column style="text-align: center"><p:outputLabel value="#{inventarioController.listarCurva[1].color}" style="text-align: center" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 0}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[1].t1}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 1}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[1].t2}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[1].t3}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[1].t4}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[1].t5}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[1].t6}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[1].t7}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[1].t8}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[1].t9}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[1].t10}" /></p:column>
+                                <p:column >  </p:column>
+                                <p:column rendered="#{cajaController.numTallas > 0}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[1].t1}" max="#{cajaController.curva[1].t1}" min="0" maxlength="3"  ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 1}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[1].t2}" max="#{cajaController.curva[1].t2}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 2}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[1].t3}" max="#{cajaController.curva[1].t3}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 3}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[1].t4}" max="#{cajaController.curva[1].t4}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 4}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[1].t5}" max="#{cajaController.curva[1].t5}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 5}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[1].t6}" max="#{cajaController.curva[1].t6}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 6}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[1].t7}" max="#{cajaController.curva[1].t7}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 7}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[1].t8}" max="#{cajaController.curva[1].t8}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 8}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[1].t9}" max="#{cajaController.curva[1].t9}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 9}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[1].t10}" max="#{cajaController.curva[1].t10}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                           
+                            </p:row>
+                            
+                            <p:row rendered="#{cajaController.numColores > 2}">
+                                <p:column style="text-align: center"><p:outputLabel value="#{inventarioController.listarCurva[2].color}" style="text-align: center" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 0}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[2].t1}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 1}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[2].t2}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[2].t3}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[2].t4}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[2].t5}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[2].t6}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[2].t7}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[2].t8}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[2].t9}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[2].t10}" /></p:column>
+                                <p:column >  </p:column>
+                                <p:column rendered="#{cajaController.numTallas > 0}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[2].t1}" max="#{cajaController.curva[2].t1}" min="0" maxlength="3"  ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 1}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[2].t2}" max="#{cajaController.curva[2].t2}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 2}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[2].t3}" max="#{cajaController.curva[2].t3}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 3}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[2].t4}" max="#{cajaController.curva[2].t4}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 4}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[2].t5}" max="#{cajaController.curva[2].t5}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 5}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[2].t6}" max="#{cajaController.curva[2].t6}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 6}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[2].t7}" max="#{cajaController.curva[2].t7}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 7}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[2].t8}" max="#{cajaController.curva[2].t8}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 8}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[2].t9}" max="#{cajaController.curva[2].t9}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 9}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[2].t10}" max="#{cajaController.curva[2].t10}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                           
+                            </p:row>
+                            
+                            <p:row rendered="#{cajaController.numColores > 3}">
+                                <p:column style="text-align: center"><p:outputLabel value="#{inventarioController.listarCurva[3].color}" style="text-align: center" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 0}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[3].t1}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 1}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[3].t2}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[3].t3}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[3].t4}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[3].t5}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[3].t6}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[3].t7}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[3].t8}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[3].t9}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[3].t10}" /></p:column>
+                                <p:column >  </p:column>
+                                <p:column rendered="#{cajaController.numTallas > 0}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[3].t1}" max="#{cajaController.curva[3].t1}" min="0" maxlength="3"  ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 1}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[3].t2}" max="#{cajaController.curva[3].t2}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 2}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[3].t3}" max="#{cajaController.curva[3].t3}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 3}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[3].t4}" max="#{cajaController.curva[3].t4}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 4}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[3].t5}" max="#{cajaController.curva[3].t5}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 5}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[3].t6}" max="#{cajaController.curva[3].t6}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 6}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[3].t7}" max="#{cajaController.curva[3].t7}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 7}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[3].t8}" max="#{cajaController.curva[3].t8}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 8}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[3].t9}" max="#{cajaController.curva[3].t9}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 9}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[3].t10}" max="#{cajaController.curva[3].t10}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                           
+                            </p:row>
+                            
+                            <p:row rendered="#{cajaController.numColores > 4}">
+                                <p:column style="text-align: center"><p:outputLabel value="#{inventarioController.listarCurva[4].color}" style="text-align: center" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 0}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[4].t1}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 1}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[4].t2}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[4].t3}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[4].t4}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[4].t5}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[4].t6}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[4].t7}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[4].t8}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[4].t9}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[4].t10}" /></p:column>
+                                <p:column >  </p:column>
+                                <p:column rendered="#{cajaController.numTallas > 0}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[4].t1}" max="#{cajaController.curva[4].t1}" min="0" maxlength="3"  ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 1}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[4].t2}" max="#{cajaController.curva[4].t2}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 2}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[4].t3}" max="#{cajaController.curva[4].t3}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 3}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[4].t4}" max="#{cajaController.curva[4].t4}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 4}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[4].t5}" max="#{cajaController.curva[4].t5}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 5}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[4].t6}" max="#{cajaController.curva[4].t6}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 6}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[4].t7}" max="#{cajaController.curva[4].t7}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 7}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[4].t8}" max="#{cajaController.curva[4].t8}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 8}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[4].t9}" max="#{cajaController.curva[4].t9}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 9}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[4].t10}" max="#{cajaController.curva[4].t10}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                           
+                            </p:row>
+                            
+                            <p:row rendered="#{cajaController.numColores > 5}">
+                                <p:column style="text-align: center"><p:outputLabel value="#{inventarioController.listarCurva[5].color}" style="text-align: center" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 0}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[5].t1}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 1}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[5].t2}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 2}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[5].t3}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 3}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[5].t4}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 4}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[5].t5}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 5}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[5].t6}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 6}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[5].t7}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 7}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[5].t8}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 8}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[5].t9}" /></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 9}" style="text-align: center"><p:outputLabel value="#{cajaController.curva[5].t10}" /></p:column>
+                                <p:column >  </p:column>
+                                <p:column rendered="#{cajaController.numTallas > 0}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[5].t1}" max="#{cajaController.curva[5].t1}" min="0" maxlength="3"  ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 1}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[5].t2}" max="#{cajaController.curva[5].t2}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 2}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[5].t3}" max="#{cajaController.curva[5].t3}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 3}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[5].t4}" max="#{cajaController.curva[5].t4}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 4}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[5].t5}" max="#{cajaController.curva[5].t5}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 5}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[5].t6}" max="#{cajaController.curva[5].t6}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 6}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[5].t7}" max="#{cajaController.curva[5].t7}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 7}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[5].t8}" max="#{cajaController.curva[5].t8}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 8}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[5].t9}" max="#{cajaController.curva[5].t9}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                                <p:column rendered="#{cajaController.numTallas > 9}" style="text-align: center"><p:spinner value="#{inventarioController.listarCurva[5].t10}" max="#{cajaController.curva[5].t10}" min="0" maxlength="3" ><p:ajax update="unidades" /></p:spinner></p:column>
+                           
+                            </p:row>
+                        
+                            <f:facet name="footer">
+                                
+                               <p:row>
+                                   <p:column colspan="13" style="text-align: right;" >UNIDADES</p:column>
+                                   <p:column><p:outputLabel id="unidades" value="#{inventarioController.unidadesAlistar}" /></p:column>
+                                </p:row>
+                            </f:facet>
+                    </p:panelGrid> 
+                    <br/><br/>
+                    <p:commandButton value="LISTAR" actionListener="#{inventarioController.listarUnidades()}" oncomplete="cajaDialog.hide();confirmarCajaDialog.show();" update=":frmConfirmarCaja,:gwDespacho,:frmDespacho:frmDetalleEnvio:dtInventario,:frmDespacho:frmDetalleEnvio:pnTotales" process="@this"  />
+                    
+                    <p:commandButton value="CERRAR" oncomplete="cajaDialog.hide();confirmarCajaDialog.show();" update=":frmConfirmarCaja" style="float:right"  />
+                    
+                </h:form>
+
+            </p:dialog>
+        
+        
+        <!-- PARA VER Y REVISAR PRODUCTOS A INGRESAR -->
+        <p:dialog id="dlgMostrarNoListados" widgetVar="mostrarNoListadosDialog" modal="true" resizable="false" appendTo="@(body)" header="PRODUCTOS NO LISTADOS" >
+                
+                <h:form id="frmMostrarNoListados">
+                    <p:growl id="gwMostrarNoListados" />
+                    <h:panelGroup id="displayMostrarNoListados" rendered="#{inventarioController.noListadosEnvio != null}">
+                        <p:dataTable id="dtNoListados" var="noListado"   value="#{inventarioController.noListadosEnvio}"
+                                     emptyMessage="LISTA VACIA" style="text-align: center; " >  
+
+                                    <f:facet name="header">PRODUCTOS QUE NO SE LISTARON AL ENVIO</f:facet>
+
+                                    <p:column headerText="ESTILO"  > 
+                                         #{noListado.producto.productoPK.codestilo}
+                                    </p:column>
+                                    <p:column headerText="COLOR" > 
+                                         #{noListado.color}
+                                    </p:column>
+                                    <p:column headerText="MARCA"> 
+                                         #{noListado.marca}
+                                    </p:column>
+                                    <p:column headerText="TALLA" > 
+                                         #{noListado.talla}
+                                    </p:column>
+                                    <p:column headerText="NOTA" > 
+                                         #{noListado.notaProducto}
+                                    </p:column>
+                                    <p:column headerText="ESTADO"> 
+                                         #{noListado.estadoproducto}
+                                    </p:column>
+                                    <p:column headerText="MUESTRA DER"> 
+                                         #{noListado.responsableMuestraDer.nombreEmpleado}
+                                    </p:column>
+                                    <p:column headerText="MUESTRA IZQ"> 
+                                         #{noListado.responsableMuestraIzq.nombreEmpleado}
+                                    </p:column>
+                         </p:dataTable>
+                        <br/>
+                        <p:commandButton value="CONTINUAR" oncomplete="mostrarNoListadosDialog.hide();buscarCalzadoDialog.show() "/>
+                        
+                    </h:panelGroup>
+                </h:form>
+
+            </p:dialog>
+        
+        <!-- CONFIRMAR CANCELAR ENVIO -->
+        <p:dialog  id="dlgElimnarDeEnvio" widgetVar="eliminarProductoEnvioDialog" modal="true" resizable="false" appendTo="@(body)" header="CANCELANDO ENVIO" >
+            <h:form id="frmEliminarDeEnvio">
+                <p:outputLabel value="SEGURO QUE DESEA ELIMINAR PRODUCTO DEL ENVIO?" />
+                <h:panelGrid columns="2">
+                <p:outputLabel value="ELIMINAR:" rendered="#{inventarioController.preguntarEliminarCajaEnvio}"/>
+                <p:selectOneRadio value="#{inventarioController.eliminarEnvioCaja}" rendered="#{inventarioController.preguntarEliminarCajaEnvio}">
+                    <f:selectItem itemLabel="UNIDAD" itemValue="false"/>
+                    <f:selectItem itemLabel="CAJA COMPLETA" itemValue="true"/>
+                </p:selectOneRadio>
+                </h:panelGrid><br/>
+                <p:commandButton value="SI " actionListener="#{inventarioController.eliminarDeLista()}" oncomplete="eliminarProductoEnvioDialog.hide();" update=":gwDespacho, :frmDespacho:frmDetalleEnvio:dtInventario,:frmDespacho:frmDetalleEnvio:pnTotales"/>
+                <p:commandButton value="NO " onclick="eliminarProductoEnvioDialog.hide();" type="button" style="float: right" />
+            </h:form>
+            
+         </p:dialog>
+        
+        
+         <!-- CONFIRMAR LISTAR ARTICULO A ENVIO -->
+        <p:confirmDialog message="EL ARTICULO INGRESADO NO HA SIDO PEDIDO .. DESEA LISTARLO DE TODAS FORMAS?" appendTo="@(body)"
+                                     header="CONFIRMAR LISTAR" severity="alert"  widgetVar="cfdConfirmarListar">
+            <p:commandButton value="SI LISTAR" actionListener="#{inventarioController.confirmarListar()}" oncomplete="cfdConfirmarListar.hide();buscarCalzadoDialog.show();" update=":frmBuscarCalzado,:frmDespacho:frmDetalleEnvio:dtInventario,:frmDespacho:frmDetalleEnvio:pnTotales"/>
+            <p:commandButton value="NO LISTAR" onclick="cfdConfirmarListar.hide();buscarCalzadoDialog.show();" type="button" style="float: right"/>
+         </p:confirmDialog>
+        
+        <!-- CONFIRMAR CUANDO EL ARTICULO PERTENECE A UNA CAJA COMPLETA -->
+        <p:confirmDialog message="EL ARTICULO INGRESADO PERTENECE A UNA CAJA .. DESEA LISTARLO DE TODAS FORMAS? TENGA EN CUENTA QUE LA CAJA QUEDARA INCOMPLETA" appendTo="@(body)"
+                                     header="CONFIRMAR LISTAR" severity="alert"  widgetVar="cfdConfirmarCompleta">
+            <p:commandButton value="SI LISTAR" actionListener="#{inventarioController.confirmarCajaCompleta()}" oncomplete="confirmarCajaCompleta(args, buscarCalzadoDialog, cfdConfirmarListar, cfdConfirmarCompleta);" update=":frmBuscarCalzado,:frmDespacho:frmDetalleEnvio:dtInventario,:frmDespacho:frmDetalleEnvio:pnTotales" />
+            <p:commandButton value="NO LISTAR" onclick="cfdConfirmarCompleta.hide();buscarCalzadoDialog.show();" type="button" style="float: right"/>
+         </p:confirmDialog>
+        
+        <!-- CONFIRMAR CANCELAR ENVIO -->
+        <p:confirmDialog message="SEGURO QUE DESEA CANCELAR POR COMPLETO EL ENVIO?" appendTo="@(body)"
+                                     header="CANCELANDO ENVIO" severity="alert"  widgetVar="cfdCancelarEnvio">
+            <p:commandButton value="SI " actionListener="#{inventarioController.cancelarEnvio()}" oncomplete="cfdCancelarEnvio.hide();" update=":frmDespacho"/>
+            <p:commandButton value="NO " onclick="cfdCancelarEnvio.hide();" type="button" style="float: right" />
+        </p:confirmDialog>
+        
+        <!-- CONFIRMAR ENVIAR ENVIO -->
+        <p:confirmDialog message="EMPACAR ORDEN DE ENVIO ACTUAL?" appendTo="@(body)"
+                                     header="EMPACANDO" severity="info"  widgetVar="cfdDespacharEnvio">
+            <h:form id="frmDespacharEnvio">
+                <h:panelGrid columns="2">
+                    <p:outputLabel value="VENDEDOR:" />
+                    <p:selectOneMenu id="vendedor" value="#{inventarioController.vendedor}" required="true" requiredMessage="Debe escoger un VENDEDOR" style="  width: 150px " styleClass="ui-selectonemenu-label" >
+                        <f:selectItem itemLabel="Selecciona Vendedor" value="#{null}" />
+                        <f:selectItems value="#{empleadoController.vendedores}"
+                                       var="vendedor"
+                                       itemValue="#{vendedor}"
+                                       itemLabel="#{vendedor.codempleado} - #{vendedor.nombreEmpleado} #{vendedor.apellidoEmpleado}" />
+                        <f:converter binding="#{empleadoConverter}"/>  
+                    </p:selectOneMenu>
+                    <p:outputLabel value="OBSERVACIONES:" />
+                    <p:inputTextarea value="#{inventarioController.observacionesEnvio}" cols="30" rows="3" />
+                </h:panelGrid>
+                <br/><br/>
+                <p:commandButton value="EMPACAR " actionListener="#{inventarioController.despacharEnvio()}" process="@form" oncomplete="handleSubmit(xhr, status, args, cfdDespacharEnvio)" update=":frmDespacho:frmDetalleEnvio,:frmDespacharEnvio,:gwDespacho"/>
+                <p:commandButton value="CANCELAR " onclick="cfdDespacharEnvio.hide();" type="button" style="float: right" />
+            </h:form>
+            
+        </p:confirmDialog>
+        
+        
+        
+        <!-- PEDIDO COMPLETO?? -->
+        <p:confirmDialog message="COMPLETAR PEDIDO?? -- SE QUITARA DE PEDIDO DE LA COLA" appendTo="@(body)"
+                                     header="PEDIDO " severity="alert"  widgetVar="cfdCompletarPedido">
+            <p:commandButton value="SI " actionListener="#{inventarioController.completarPedido()}" oncomplete="cfdCompletarPedido.hide();" />
+            <p:commandButton value="NO " actionListener="#{inventarioController.noCompletarPedido()}" oncomplete="cfdCompletarPedido.hide();" style="float: right" />
+        </p:confirmDialog>
+        
+
+    </ui:composition>
+
+</html>

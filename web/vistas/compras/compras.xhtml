@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/resources/plantillas/plantillaPrincipal.xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+
+    <ui:define name="title">
+        <h:outputText value="COMPRAS" />
+    </ui:define>
+
+    <ui:define name="body">
+        
+        <c:choose>
+        <!-- VERIFICA QUE TENGA PERMISOS -->
+        <c:when test="${empleadoController.verificarPermiso('COMPRAS', 'COMPRAS')}" >
+
+        <p:panel  header="C O M P R A S  &nbsp;&nbsp;&nbsp;  R E A L I Z A D A S" style="height:99.3%; width: 99.5%;" >
+            <p:growl id="gwCompras" />
+            
+             <h:form id="frmCompras">
+                 <p:dataTable var="compra" value="#{facturaIngresoController.compras}"
+                              emptyMessage="NO EXISTEN COMPRAS REGISTRADAS" style="text-align: center"> 
+                     
+                     
+                     <p:column   headerText="FECHA" style=" font-size: 10px;">  
+                         <h:outputText value="#{funciones.setFechaFormateada(compra.facturaIngresoPK.fechaDocumento,1)}" />
+                     </p:column>
+                     
+                     <p:column   headerText="# FACTURA" style=" font-size: 10px;">  
+                         <h:outputText value="#{compra.facturaIngresoPK.documentoCompra}" />
+                     </p:column>
+                                          
+                     <p:column   headerText="CONDICION PAGO" style=" font-size: 10px;" 
+                                 filterBy="#{compra.tipoCompra}" filterOptions="#{facturaIngresoController.condicionPagoOptions}"  
+                                 filterMatchMode="exact">  
+                         <h:outputText value="#{compra.tipoCompra}" />
+                     </p:column>
+
+                     <p:column   headerText="NATURALEZA" style=" font-size: 10px;">  
+                         <h:outputText value="#{compra.naturalezaCompra}" />
+                     </p:column>
+                     
+                     <p:column   headerText="PROVEEDOR" style=" font-size: 10px;">  
+                         <h:outputText value="#{compra.proveedor.nombreProveedor}" />
+                     </p:column>
+                     
+                     <p:column   headerText="SUB TOTAL" style=" font-size: 10px;">  
+                         <h:outputText value="#{funciones.redondearMas(compra.montoCompra,2)}" />
+                     </p:column>
+
+                     <p:column   headerText="SALIDA" style=" font-size: 10px;">  
+                         <h:outputText value="#{funciones.redondearMas(compra.salidaCompra,2)}" />
+                     </p:column>
+                     
+                     <p:column   headerText="DESCUENTO" style=" font-size: 10px;">  
+                         <h:outputText value="#{funciones.redondearMas(compra.descuentoCompra,2)}" />
+                     </p:column>
+
+                     <p:column   headerText="TOTAL" style=" font-size: 10px;">  
+                         <h:outputText value="#{funciones.redondearMas(compra.totalCompra,2)}" />
+                     </p:column>
+
+                     <p:column   headerText="ESTADO CREDITO" style=" font-size: 10px;">  
+                         <h:outputText value="#{compra.estadoCreditoCompra}" />
+                     </p:column>
+                     
+                     <p:column   headerText="ESTADO" style=" font-size: 10px;">  
+                         <h:outputText value="#{compra.estadoFactura}" />
+                     </p:column>
+                 </p:dataTable>  
+             </h:form>
+       </p:panel>
+        
+        
+        
+        
+        
+        
+        
+        </c:when>
+            
+            
+            <!-- SI NO TIENE LOS PERMISOS DA MSJ DE ERROR -->
+            <c:otherwise>
+                   <h:form>
+                        <div style="min-height: 300px; text-align: center; margin-top: 100px;">
+                            <p:outputLabel value="ACCESO DENEGADO" style="font-size: 30px;font-weight: bold;color:red"/>
+                            <br/><br/>
+                            <h:graphicImage url="/faces/resources/imagenes/locked.png" alt="ZONA RESTRINGIDA" width="200" />
+                            <br/><br/>
+                            <p:outputLabel value="NO TIENE PERMISO PARA VER ESTA PAGINA" style="font-size: 20px;font-weight: bold;color:red"/>
+                            <br/>
+                            <p:outputLabel value="CONSULTE CON EL ADMINISTRADOR DEL SISTEMA" style="font-size: 20px;font-weight: bold;"/>
+                        </div>
+                    </h:form>
+             </c:otherwise>
+        </c:choose>
+         
+    </ui:define>
+    
+
+</ui:composition>
+    

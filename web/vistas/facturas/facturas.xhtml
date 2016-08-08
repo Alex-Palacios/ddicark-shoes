@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/resources/plantillas/plantillaPrincipal.xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+
+    <ui:define name="title">
+        <h:outputText value="FACTURAS" />
+    </ui:define>
+
+    <ui:define name="body">
+        <c:choose>
+        <!-- VERIFICA QUE TENGA PERMISOS -->
+        <c:when test="${empleadoController.verificarPermiso('VENTAS', 'VENTAS')}" >
+            
+            #{facturaController.prepararConsultaFacturasEmitidas()}
+
+        <p:panel  header="F A C T U R A S  &nbsp;&nbsp;&nbsp;  E M I T I D A S" style="height:99.3%; width: 99.5%;" >
+            <p:growl id="gwFacturas" />
+            
+             <h:form id="frmFacturas">
+                 
+                 <p:fieldset>
+                        <h:panelGrid columns="2" style="float: left">
+                            <p:outputLabel value="MES:" />
+                            <p:selectOneMenu value="#{facturaController.month}"  >
+                                <f:selectItem itemLabel="ENERO" itemValue="1" />
+                                <f:selectItem itemLabel="FEBRERO" itemValue="2"/>
+                                <f:selectItem itemLabel="MARZO" itemValue="3"/>
+                                <f:selectItem itemLabel="ABRIL" itemValue="4"/>
+                                <f:selectItem itemLabel="MAYO" itemValue="5"/>
+                                <f:selectItem itemLabel="JUNIO" itemValue="6"/>
+                                <f:selectItem itemLabel="JULIO" itemValue="7"/>
+                                <f:selectItem itemLabel="AGOSTO" itemValue="8"/>
+                                <f:selectItem itemLabel="SEPTIEMBRE" itemValue="9"/>
+                                <f:selectItem itemLabel="OCTUBRE" itemValue="10"/>
+                                <f:selectItem itemLabel="NOVIEMBRE" itemValue="11"/>
+                                <f:selectItem itemLabel="DICIEMBRE" itemValue="12"/>
+                            </p:selectOneMenu>
+                            <p:outputLabel value="AÑO:" style="font-weight: bold;" />
+                            <p:selectOneMenu value="#{facturaController.year}" editable="true">
+                                <f:selectItem itemLabel="2012" itemValue="2012"/>
+                                <f:selectItem itemLabel="2013" itemValue="2013"/>
+                                <f:selectItem itemLabel="2014" itemValue="2014"/>
+                                <f:selectItem itemLabel="2015" itemValue="2015"/>
+                                <f:selectItem itemLabel="2016" itemValue="2016"/>
+                            </p:selectOneMenu>
+                        </h:panelGrid>
+                        
+                     <p:commandButton value="CONSULTAR" actionListener="#{facturaController.actualizarConsultaFacturasEmitidas()}" process="@form" update="dtFacturasEmitidas" />
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <h:commandLink> 
+                           <p:graphicImage library="imagenes" name="excel.png" title="Exportar a Excel" />  
+                           <p:dataExporter type="xls" target="dtFacturasEmitidas" fileName="Facturas" postProcessor="#{inventarioController.postProcessXLS}" />  
+                        </h:commandLink> 
+                        <h:commandLink rendered="false">  
+                           <p:graphicImage library="imagenes" name="pdf.png" title="Exportar en PDF"/>  
+                           <p:dataExporter type="pdf" target="dtFacturasEmitidas" fileName="Facturas" preProcessor="#{inventarioController.preProcessPDF}"/>  
+                        </h:commandLink>
+                        
+                        <p:commandButton value="INGRESAR FACTURA ANTERIOR" actionListener="#{facturaController.prepareFacturaAnterior()}" oncomplete="PF('facturaAnterior').show()" update=":frmFacturaAnterior" process="@this" style="float:right;width: 150px;" />
+                 </p:fieldset>
+                 
+                 
+                 <p:dataTable id="dtFacturasEmitidas"  var="factura" value="#{facturaController.facturasEmitidas}"
+                              filteredValue="#{facturaController.filtroFacturas}"
+                              emptyMessage="NO HAY FACTURAS EMITIDAS" style="text-align: center"
+                              selectionMode="single" rowKey="#{factura.facturaPK}"> 
+                     
+                     
+                     <p:column   headerText="TIPO" style=" font-size: 10px;" width="15"
+                                 filterBy="#{factura.tipoFactura}" filterOptions="#{facturaController.tipoOptions}" filterMatchMode="exact" filterStyle="width:10px;">  
+                         <f:facet name="header">  
+                            <h:outputText value="TIPO" />  
+                         </f:facet> 
+                         <h:outputText value="#{factura.tipoFactura}" />
+                     </p:column>
+                     
+                     <p:column   headerText="FECHA" style=" font-size: 10px;"> 
+                         <f:facet name="header">  
+                            <h:outputText value="FECHA EMISION" />  
+                         </f:facet>
+                         <h:outputText value="#{funciones.setFechaFormateada(factura.facturaPK.fechaFactura,1)}" />
+                     </p:column>
+                     
+                     <p:column   headerText="NUMERO" style=" font-size: 10px;" 
+                                 filterBy="#{factura.facturaPK.numfactura}"> 
+                         <f:facet name="header">  
+                            <h:outputText value="# FACTURA" />  
+                         </f:facet>
+                         <h:outputText value="#{factura.facturaPK.numfactura}" />
+                     </p:column>
+                     
+                     <p:column   headerText="CONDICION PAGO" style=" font-size: 10px;" 
+                                 filterBy="#{factura.condicionPago}" filterOptions="#{facturaController.condicionOptions}" filterMatchMode="exact">  
+                         <f:facet name="header">  
+                            <h:outputText value="CONDICION PAGO" />  
+                         </f:facet>
+                         <h:outputText value="#{factura.condicionPago}" />
+                     </p:column>
+                     
+                     <p:column   headerText="CLIENTE" style=" font-size: 10px;"> 
+                         <f:facet name="header">  
+                            <h:outputText value="NOMBRE DEL CLIENTE" />  
+                         </f:facet>
+                         <h:outputText value="#{funciones.getNombreCliente(factura.cliente)}" />
+                     </p:column>
+
+                     <p:column   headerText="SUMAS" style=" font-size: 10px;">
+                         <f:facet name="header">  
+                            <h:outputText value="SUB TOTAL" />  
+                         </f:facet>
+                         <h:outputText value="#{funciones.redondearMas(factura.sumas,2)}" />
+                     </p:column>
+
+                     <p:column   headerText="DESCUENTO" style=" font-size: 10px;">
+                         <f:facet name="header">  
+                            <h:outputText value="DESCUENTO" />  
+                         </f:facet>
+                         <h:outputText value="#{funciones.redondearMas(factura.descuento,2)}" />
+                     </p:column>
+
+                     <p:column   headerText="TOTAL" style=" font-size: 10px;">  
+                         <f:facet name="header">  
+                            <h:outputText value="TOTAL" />  
+                         </f:facet>
+                         <h:outputText value="#{funciones.redondearMas(factura.total,2)}" />
+                     </p:column>
+
+                     <p:column   headerText="ESTADO" style=" font-size: 10px;"> 
+                         <f:facet name="header">  
+                            <h:outputText value="ESTADO" />  
+                         </f:facet>
+                         <h:outputText value="#{factura.estado}" />
+                     </p:column>
+                     
+                     <p:column width="5%" exportable="false">  
+                        <div align="center">
+                            <p:commandButton actionListener="#{ventasController.reimprimirFactura(factura)}"  icon="ui-icon-document" title="Re-Imprimir Factura" style="height: 15px; width:15px;"  />
+                        </div>
+                    </p:column>  
+                     
+                 </p:dataTable>  
+             </h:form>
+       </p:panel>
+        
+        
+            <ui:include src="facturaHistorial.xhtml" />
+        
+        </c:when>
+            
+            
+            <!-- SI NO TIENE LOS PERMISOS DA MSJ DE ERROR -->
+            <c:otherwise>
+                   <h:form>
+                        <div style="min-height: 300px; text-align: center; margin-top: 100px;">
+                            <p:outputLabel value="ACCESO DENEGADO" style="font-size: 30px;font-weight: bold;color:red"/>
+                            <br/><br/>
+                            <h:graphicImage url="/faces/resources/imagenes/locked.png" alt="ZONA RESTRINGIDA" width="200" />
+                            <br/><br/>
+                            <p:outputLabel value="NO TIENE PERMISO PARA VER ESTA PAGINA" style="font-size: 20px;font-weight: bold;color:red"/>
+                            <br/>
+                            <p:outputLabel value="CONSULTE CON EL ADMINISTRADOR DEL SISTEMA" style="font-size: 20px;font-weight: bold;"/>
+                        </div>
+                    </h:form>
+             </c:otherwise>
+        </c:choose>
+        
+        
+        
+         
+    </ui:define>
+    
+
+</ui:composition>
+    

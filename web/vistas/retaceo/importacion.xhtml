@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/resources/plantillas/plantillaPrincipal.xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+    <ui:define name="title">
+        <h:outputText value="IMPORTACIONES"/>
+    </ui:define>
+
+    <ui:define name="body">
+        
+        <c:choose>
+        <!-- VERIFICA QUE TENGA PERMISOS -->
+        <c:when test="${empleadoController.verificarPermiso('COMPRAS', 'REGISTRAR IMPORTACION')}" >
+
+        #{retaceoController.nuevaImportacion(event)}
+        <p:panel id="pnlPrincipal" header="I M P O R T A C I O N E S" style="height: 99.3%"  styleClass="dataTable-text">
+            
+            <p:growl id="gwMsgRetaceo"/> 
+            
+            <h:form id="frmPreFacturas">
+                <h:panelGrid columns="4" styleClass="noBorderPanelGrid" rendered="#{retaceoController.selected != null}">
+                    
+                    <!--DETALLES DE LA IMPORTACION LDO DERECHO -->
+                    <p:fieldset legend="GASTOS DE LA IMPORTACION">
+                        <h:panelGrid columns="2" cellpadding="4" styleClass="noBorderPanelGrid"  > 
+                            <p:outputLabel value="CON COMPROBANTE" style="font-weight: bold;text-decoration: underline;" /><br/>                                
+                            <p:outputLabel value="FLETE:" for="montoFlete"/>
+                            <p:inputText id="montoFlete" value="#{retaceoController.selected.montoFlete}" size="10" required="true"/>
+                            <p:outputLabel value="AGENTE ADUANAL:" for="montoAgenteAduanal"/>
+                            <p:inputText id="montoAgenteAduanal" value="#{retaceoController.selected.montoAgenteAduanal}" size="10" required="true"/>
+                            <p:outputLabel value="ARANCEL:" for="montoArancel"/>
+                            <p:inputText id="montoArancel" value="#{retaceoController.selected.montoArancel}" size="10" required="true"/>
+                            <p:outputLabel value="TRANSPORTE:" for="montoTransporte"/>
+                            <p:inputText id="montoTransporte" value="#{retaceoController.selected.montoTransporte}" size="10" required="true"/>
+                            <p:outputLabel value="BODEGAJE:" for="montoBodegaje"/>
+                            <p:inputText id="montoBodegaje" value="#{retaceoController.selected.montoBodegaje}" size="10" required="true"/>
+                            <p:outputLabel value="SEGURIDAD:" for="montoSeguridad"/>
+                            <p:inputText id="montoSeguridad" value="#{retaceoController.selected.montoSeguridad}" size="10" required="true" />
+                            <p:outputLabel value="SEGURO:" for="montoSeguro"/>
+                            <p:inputText id="montoSeguro" value="#{retaceoController.selected.montoSeguro}" size="10" required="true" />
+                            <p:outputLabel value="OTROS:" for="otrosGastosCCF"/>
+                            <p:inputText id="otrosGastosCCF" value="#{retaceoController.selected.otrosGastosCcf}" size="10" required="true" />
+                        </h:panelGrid>
+                        <br/>
+                        <h:panelGrid columns="2" cellpadding="4" styleClass="noBorderPanelGrid" rendered="false" > 
+                            <p:outputLabel value="SIN COMPROBANTE" style="font-weight: bold;text-decoration: underline;"/><br/>
+                            
+                            <p:outputLabel value="OTROS GASTOS:" for="otrosGastosSCF"/>
+                            <p:inputText id="otrosGastosSCF" value="#{retaceoController.selected.otrosGastos}" size="10" required="true" style="margin-left: 5px;"/>
+                        </h:panelGrid>
+                    </p:fieldset>
+                     
+                    <!-- FACTURAS LADO IZQUIERDO -->
+                    <p:fieldset legend="FACTURAS" style="height:385px;width:auto;">
+                        
+                        <p:growl id="gwConfirmar" life="3000"/>
+                        <br/>
+                        <p:commandButton id="btnCrearFactura" icon="ui-icon-plus" value="NUEVA FACTURA" 
+                                         actionListener="#{retaceoController.newFactura}"  oncomplete="crearFacturaDialog.show();" 
+                                         style="float: right;" update=":frmCrearFactura:displayCrearFactura" />
+                        <p:commandButton id="btnCancelarRetaceo" actionListener="#{retaceoController.cancelarRetaceo}" value="CANCELAR TRANSACCION" icon="ui-icon-cancel" update=":pnlPrincipal,:gwMsgRetaceo"/>
+                            
+                        <br/><br/><br/>
+                        <p:dataTable id="dtFacturas" var="factura" value="#{retaceoController.facturas}" rowKey="#{factura.facturaIngresoPK}"  
+                                     selection="#{retaceoController.f}" selectionMode="single" emptyMessage="NO HA INGRESADO FACTURAS">  
+                               <f:facet name="header">  
+                                   FACTURAS DE LA IMPORTACION  
+                               </f:facet>
+                                <p:column width="5%">  
+                                        <div align="center">
+                                            <p:commandButton actionListener="#{retaceoController.deleteFactura(factura)}"  icon="ui-icon-circle-close" title="Eliminar" style="height: 15px; width:15px;" update="dtFacturas,:gwMsgRetaceo" />
+                                        </div>
+                                </p:column>
+                                <p:column headerText="PROVEEDOR">  
+                                    #{factura.proveedor.nombreProveedor}
+                                </p:column>
+                                <p:column headerText="TIPO DOCUMENTO"> 
+                                    #{factura.tipoDocumento}
+                                </p:column>
+                                <p:column headerText="N° FACTURA">  
+                                    #{factura.facturaIngresoPK.documentoCompra}
+                                </p:column> 
+                                <p:column headerText="FECHA DOC">  
+                                    #{funciones.setFechaFormateada(factura.facturaIngresoPK.fechaDocumento,1)}
+                                </p:column> 
+                                <p:column headerText="TIPO COMPRA"> 
+                                    #{factura.tipoCompra}
+                                </p:column> 
+                                <p:column headerText="MONTO TOTAL"> 
+                                    #{factura.montoCompra}
+                                </p:column> 
+                                <p:column headerText="TRASPASO">
+                                    #{factura.salidaCompra}
+                                </p:column> 
+                                <p:column headerText="DESCUENTO">
+                                    #{factura.descuentoCompra}
+                                </p:column> 
+                                <p:column headerText="TOTAL FACTURA"> 
+                                    #{factura.totalCompra}
+                                </p:column> 
+
+                               <p:columnGroup type="footer">  
+                                   <p:row>  
+                                       <p:column footerText="TOTALES: " colspan="6" style="text-align:right;"/>  
+                                       <p:column footerText="#{funciones.redondearMas(retaceoController.selected.montoFacturas,2)}" style="text-align:left;"/>  
+                                       <p:column footerText="#{funciones.redondearMas(retaceoController.selected.montoSalida,2)}" style="text-align:left;"/>
+                                       <p:column footerText="#{funciones.redondearMas(retaceoController.selected.montoDescuentos,2)}" style="text-align:left;"/>
+                                       <p:column footerText="#{funciones.redondearMas(retaceoController.selected.montoTotalFacturas,2)}" style="text-align:left;"/>
+                                   </p:row>  
+                               </p:columnGroup>  
+                        </p:dataTable>
+                        <br/><br/>
+                            
+                        <p:commandButton id="btnCrearRetaceo" icon="ui-icon-check" value="GENERAR RETACEO" oncomplete="confirmar.show()" style="float: right;" update="pnConfirmarRetaceo"/>
+
+                        <p:remoteCommand name="rcConfirmar" actionListener="#{retaceoController.generarRetaceo(event)}" update=":pnlPrincipal"/>
+                        <!-- DIALOGO PARA CONFIRMAR RETACEO -->
+                        <p:confirmDialog message="Seguro que desea generar el Retaceo con los siguientes datos ingresados?" appendTo="@(body)" closable="false"
+                                header="Confirmar Retaceo" severity="alert" widgetVar="confirmar"  hideEffect="explode">
+                            <div align="center">
+                                <p:panelGrid id="pnConfirmarRetaceo" columns="2">
+                                    <p:outputLabel value="TOTAL FACTURAS:" />
+                                    <p:outputLabel value="#{retaceoController.selected.montoFacturas}"  />
+                                    <p:outputLabel value="TOTAL DESCUENTOS:" />
+                                    <p:outputLabel value="#{retaceoController.selected.montoDescuentos}"  />
+                                    <p:outputLabel value="TOTAL TRASPASO" />
+                                    <p:outputLabel value="#{retaceoController.selected.montoSalida}"  />
+                                    <p:outputLabel value="FLETE:" />
+                                    <p:outputLabel value="#{retaceoController.selected.montoFlete}"  />
+                                    <p:outputLabel value="AGENTE ADUANAL:"/>
+                                    <p:outputLabel value="#{retaceoController.selected.montoAgenteAduanal}" />
+                                    <p:outputLabel value="ARANCEL:" />
+                                    <p:outputLabel  value="#{retaceoController.selected.montoArancel}"  />
+                                    <p:outputLabel value="TRANSPORTE:" />
+                                    <p:outputLabel  value="#{retaceoController.selected.montoTransporte}" />
+                                    <p:outputLabel value="BODEGAJE:" />
+                                    <p:outputLabel value="#{retaceoController.selected.montoBodegaje}" />
+                                    <p:outputLabel value="SEGURIDAD:" />
+                                    <p:outputLabel value="#{retaceoController.selected.montoSeguridad}" />
+                                    <p:outputLabel value="SEGURO:" />
+                                    <p:outputLabel value="#{retaceoController.selected.montoSeguro}" />
+                                    <p:outputLabel value="OTROS GASTOS:" />
+                                    <p:outputLabel value="#{retaceoController.selected.otrosGastosCcf}" />
+                                    <p:outputLabel value="FACTOR RETACEO" style="font-weight: bold; color: red"/>
+                                    <p:outputLabel value="#{funciones.redondearMas(retaceoController.calcRetaceoCONTABLE(retaceoController.selected),4)}" style="font-weight: bold; color: red"/>
+                                    <p:outputLabel value="NOTA:" for="notaRetaceo" />
+                                    <p:inputTextarea id="notaRetaceo" value="#{retaceoController.selected.notaRetaceo}" title="Alguna nota o comentario importante" cols="30" rows="5" />
+                                   
+                                </p:panelGrid><br/>
+                                <p:commandButton value="SI" onclick="rcConfirmar(),confirmar.hide();" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <p:commandButton value="NO" onclick="confirmar.hide();" />
+                            </div>
+                        </p:confirmDialog>
+                    </p:fieldset>
+                 </h:panelGrid>
+            </h:form> 
+        </p:panel>
+        
+        <!-- DIALOGO PARA SELECCIONAR FACTURAS -->
+        <ui:include src="facturas.xhtml" />
+        
+        
+        
+        
+        
+        
+        
+        </c:when>
+            
+            
+            <!-- SI NO TIENE LOS PERMISOS DA MSJ DE ERROR -->
+            <c:otherwise>
+                   <h:form>
+                        <div style="min-height: 300px; text-align: center; margin-top: 100px;">
+                            <p:outputLabel value="ACCESO DENEGADO" style="font-size: 30px;font-weight: bold;color:red"/>
+                            <br/><br/>
+                            <h:graphicImage url="/faces/resources/imagenes/locked.png" alt="ZONA RESTRINGIDA" width="200" />
+                            <br/><br/>
+                            <p:outputLabel value="NO TIENE PERMISO PARA VER ESTA PAGINA" style="font-size: 20px;font-weight: bold;color:red"/>
+                            <br/>
+                            <p:outputLabel value="CONSULTE CON EL ADMINISTRADOR DEL SISTEMA" style="font-size: 20px;font-weight: bold;"/>
+                        </div>
+                    </h:form>
+             </c:otherwise>
+        </c:choose>
+    </ui:define>
+    
+
+</ui:composition>

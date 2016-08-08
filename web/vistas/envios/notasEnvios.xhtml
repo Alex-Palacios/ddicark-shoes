@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/resources/plantillas/plantillaPrincipal.xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+    <ui:define name="title">
+        <h:outputText value="NOTAS DE ENVIOS"/>
+    </ui:define>
+
+    <ui:define name="body">
+        
+        <c:choose>
+        <!-- VERIFICA QUE TENGA PERMISOS -->
+        <c:when test="${empleadoController.verificarPermiso('BODEGA', 'ENVIOS')}" >
+
+            #{envioController.prepararConsultaNotasEnvios()}
+        <p:panel  header="NOTAS DE ENVIO EN PROCESO" style="height:99.3%; width: 99.5%;" >
+            <p:growl id="gwNotasEnvio"/>
+            
+            <h:form id="frmNotasEnvio">
+                <p:fieldset>
+                        <h:panelGrid columns="2" style="float: left">
+                            <p:outputLabel value="MES:" />
+                            <p:selectOneMenu value="#{envioController.month}"  >
+                                <f:selectItem itemLabel="ENERO" itemValue="1" />
+                                <f:selectItem itemLabel="FEBRERO" itemValue="2"/>
+                                <f:selectItem itemLabel="MARZO" itemValue="3"/>
+                                <f:selectItem itemLabel="ABRIL" itemValue="4"/>
+                                <f:selectItem itemLabel="MAYO" itemValue="5"/>
+                                <f:selectItem itemLabel="JUNIO" itemValue="6"/>
+                                <f:selectItem itemLabel="JULIO" itemValue="7"/>
+                                <f:selectItem itemLabel="AGOSTO" itemValue="8"/>
+                                <f:selectItem itemLabel="SEPTIEMBRE" itemValue="9"/>
+                                <f:selectItem itemLabel="OCTUBRE" itemValue="10"/>
+                                <f:selectItem itemLabel="NOVIEMBRE" itemValue="11"/>
+                                <f:selectItem itemLabel="DICIEMBRE" itemValue="12"/>
+                            </p:selectOneMenu>
+                            <p:outputLabel value="AÑO:" style="font-weight: bold;" />
+                            <p:selectOneMenu value="#{envioController.year}" editable="true">
+                                <f:selectItem itemLabel="2012" itemValue="2012"/>
+                                <f:selectItem itemLabel="2013" itemValue="2013"/>
+                                <f:selectItem itemLabel="2014" itemValue="2014"/>
+                                <f:selectItem itemLabel="2015" itemValue="2015"/>
+                                <f:selectItem itemLabel="2016" itemValue="2016"/>
+                            </p:selectOneMenu>
+                        </h:panelGrid>
+                        
+                    <p:commandButton value="CONSULTAR" actionListener="#{envioController.actualizarConsultaEnvios()}" process="@form" update="dtNotasEnvio" />
+                        
+                 </p:fieldset>
+                
+                <p:contextMenu for="dtNotasEnvio"> 
+                    <p:menuitem value="Cancelar" actionListener="#{envioController.prepareCancelarEnvio()}" update=":gwNotasEnvio,:frmCancelarEnvio" icon="ui-icon-cancel"  />  
+                </p:contextMenu>
+                <p:dataTable id="dtNotasEnvio" var="notaEnvio" value="#{envioController.notasEnvios}" filteredValue="#{envioController.filtroEnvios}"
+                             style="text-align: center;" scrollable="true" scrollHeight="450" selectionMode="single" selection="#{envioController.seleccion}" rowKey="#{notaEnvio.numenvio}"
+                             emptyMessage="NO HAY NOTAS DE ENVIO">
+                    
+                    <f:facet name="header">Listado de Ordenes de ENVIO en proceso</f:facet>  
+
+                    <p:column headerText="ENVIO" width="35">  
+                        <h:outputText value="#{notaEnvio.numenvio}" />  
+                    </p:column> 
+                    
+                    <p:column id="columCliente" headerText="CLIENTE" width="200" filterBy="pedido.clientePedido.obtenerNombreCliente()" filterMatchMode="contains" filterStyle="width:150px;">  
+                        <h:outputText value="#{notaEnvio.pedido.clientePedido.obtenerNombreCliente()}" />  
+                    </p:column>
+                    
+                    <p:column headerText="UNIDADES" width="50">  
+                        <h:outputText value="#{notaEnvio.totalUnidades}" />  
+                    </p:column> 
+                    
+                    <p:column headerText="SUB TOTAL" width="50">  
+                        <h:outputText value="#{funciones.redondearMas(notaEnvio.subTotal,2)}" />  
+                    </p:column> 
+                    
+                    <p:column headerText="EMPAQUETADO" width="70">  
+                        <h:outputText value="#{funciones.setFechaFormateada(notaEnvio.fechaEmpaquetado,1)}" />  
+                    </p:column> 
+                    
+                    <p:column headerText="PEDIDO" width="60" filterBy="pedido.pedidoPK.numpedido" filterStyle="width:30px;" >  
+                        <h:outputText value="#{notaEnvio.pedido.pedidoPK.numpedido}" />  
+                    </p:column> 
+                    
+                    <p:column headerText="VENDEDOR" width="100" filterBy="vendedor.nombreEmpleado" >  
+                        <h:outputText value="#{funciones.getNombreEmpleado(notaEnvio.vendedor)}" />  
+                    </p:column> 
+                    
+                    <p:column headerText="ESTADO" width="70">  
+                        <h:outputText value="#{notaEnvio.estado}" />  
+                    </p:column>
+                    
+                    <p:column headerText="OBSERVACIONES">  
+                        <h:outputText value="#{notaEnvio.nota}" />  
+                    </p:column> 
+                    
+                    <p:column width="2%">  
+                        <div align="center">
+                            <p:commandButton actionListener="#{inventarioController.reimprimirNotaEnvio(notaEnvio)}" rendered="#{notaEnvio.estado != 'CANCELADO'}"  icon="ui-icon-document" title="Re-Imprimir Nota de Envio" style="height: 15px; width:15px;"  />
+                        </div>
+                    </p:column>
+                </p:dataTable>  
+            </h:form>
+       </p:panel>
+        
+        
+         
+            <!-- CANCELAR ENVIO -->
+        <p:dialog widgetVar="cancelarEnvio" modal="true" resizable="false" appendTo="@(body)" header="CANCELAR ENVIO" >
+            <h:form id="frmCancelarEnvio">
+                <p:outputLabel value="SEGURO QUE DESEA CANCELAR EL ENVIO?" />
+                <h:panelGrid columns="2">
+                    <p:outputLabel value="NOTA DE ENVIO N&deg;:"/>
+                    <p:outputLabel value="#{envioController.seleccion.numenvio}"/>
+                    <p:outputLabel value="PEDIDO:"/>
+                    <p:outputLabel value="#{envioController.seleccion.pedido.pedidoPK.numpedido}"/>
+                    <p:outputLabel value="CLIENTE:"/>
+                    <p:outputLabel value="#{envioController.seleccion.pedido.clientePedido.obtenerNombreCliente()}"/>
+                </h:panelGrid><br/>
+                <p:commandButton value="SI " actionListener="#{envioController.cancelarEnvio()}" oncomplete="cancelarEnvio.hide();" update=":gwNotasEnvio, :frmCancelarEnvio,:frmNotasEnvio"/>
+                <p:commandButton value="NO " onclick="cancelarEnvio.hide();" type="button" style="float: right" />
+            </h:form>
+            
+         </p:dialog>
+        
+        
+        </c:when>
+            
+            
+            <!-- SI NO TIENE LOS PERMISOS DA MSJ DE ERROR -->
+            <c:otherwise>
+                   <h:form>
+                        <div style="min-height: 300px; text-align: center; margin-top: 100px;">
+                            <p:outputLabel value="ACCESO DENEGADO" style="font-size: 30px;font-weight: bold;color:red"/>
+                            <br/><br/>
+                            <h:graphicImage url="/faces/resources/imagenes/locked.png" alt="ZONA RESTRINGIDA" width="200" />
+                            <br/><br/>
+                            <p:outputLabel value="NO TIENE PERMISO PARA VER ESTA PAGINA" style="font-size: 20px;font-weight: bold;color:red"/>
+                            <br/>
+                            <p:outputLabel value="CONSULTE CON EL ADMINISTRADOR DEL SISTEMA" style="font-size: 20px;font-weight: bold;"/>
+                        </div>
+                    </h:form>
+             </c:otherwise>
+        </c:choose>
+        
+        
+    </ui:define>
+    
+
+</ui:composition>

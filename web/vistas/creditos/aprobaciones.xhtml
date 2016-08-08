@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/resources/plantillas/plantillaPrincipal.xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ezcomp="http://java.sun.com/jsf/composite/ezcomp">
+
+    <ui:define name="title">
+        <h:outputText value="Creditos"/>
+    </ui:define>
+
+    <ui:define name="body">
+        
+       <c:choose>
+        <!-- VERIFICA QUE TENGA PERMISOS -->
+        <c:when test="${empleadoController.verificarPermiso('CREDITOS', 'APROBAR CREDITOS')}" >
+
+        <p:panel  header="A P R O B A C I O N &nbsp;&nbsp;D E &nbsp;&nbsp;C R E D I T O S" style="height:99.3%; width: 99.5%;" >
+            <p:growl id="gwCreditos"/>
+            
+            <h:form id="frmCreditos">
+                <p:dataTable id="dtCreditos" var="solicitud" value="#{creditosHistorialController.solicitudesDeCredito}"
+                                 emptyMessage="NO HAY SOLICITUDES DE CREDITO" style="text-align: center " scrollable="true" scrollHeight="450"
+                                 selection="#{creditosHistorialController.solicitud}" selectionMode="single" rowKey="#{solicitud.pedidoPK}" >
+                        
+                    <p:column width="5%">  
+                        <div align="center">
+                            <p:commandButton oncomplete="cfdAprobarCredito.show()" icon="ui-icon-circle-check" title="Aprobar" style="height: 15px; width:15px;" update=":frmAprobar, :frmCreditos:dtCreditos" >
+                                <f:setPropertyActionListener value="#{solicitud}" target="#{creditosHistorialController.solicitud}" />
+                            </p:commandButton>
+                        </div>
+                    </p:column>
+
+                    <p:column headerText="ORDEN PEDIDO" >  
+                        <h:outputText value="#{solicitud.pedidoPK.numpedido}" />  
+                    </p:column>  
+
+                    <p:column headerText="FECHA PEDIDO" >  
+                        <h:outputText value="#{funciones.setFechaFormateada(solicitud.pedidoPK.fechaPedido,1)}" />  
+                    </p:column>  
+
+                    <p:column headerText="NOMBRE CLIENTE" width="200">  
+                        <h:outputText value="#{funciones.getNombreCliente(solicitud.clientePedido)}" />  
+                    </p:column> 
+
+                    <p:column headerText="FECHA ENTREGA" >    
+                         <h:outputText value="#{funciones.setFechaFormateada(solicitud.fechaEntrega,1)}" />  
+                    </p:column>
+                    
+                    <p:column headerText="MONTO CREDITO" >    
+                        <h:outputText value="#{funciones.redondearMas(solicitud.totalPedido,2)}" />  
+                    </p:column> 
+
+                    <p:column headerText="ESTADO DE CREDITO" >   
+                        <h:outputText value="#{solicitud.estadoPedido}" />  
+                    </p:column>
+
+                    <p:column headerText="VENDEDOR" >  
+                        <h:outputText value="#{solicitud.responsablePedido.nombreEmpleado}" />  
+                    </p:column>
+                    
+                    <p:column width="2%">  
+                        <div align="center">
+                            <p:commandButton actionListener="#{creditosHistorialController.mostrarHistorialCliente(solicitud.clientePedido)}" icon="ui-icon-folder-collapsed" title="Historial del Cliente" style="height: 15px; width:15px;" >
+                                <f:setPropertyActionListener value="#{solicitud}" target="#{creditosHistorialController.solicitud}" />
+                            </p:commandButton>
+                        </div>
+                    </p:column>
+                    
+                    <p:column width="1%">  
+                        <div align="center">
+                            <p:commandButton oncomplete="cfdDenegarCredito.show()" icon="ui-icon-close" title="Rechazar Solicitud de Credito" style="height: 15px; width:15px;" update=":frmDenegar, :frmCreditos:dtCreditos"  >
+                                <f:setPropertyActionListener value="#{solicitud}" target="#{creditosHistorialController.solicitud}" />
+                            </p:commandButton>
+                        </div>
+                    </p:column>
+
+                </p:dataTable> 
+            </h:form>
+                
+       </p:panel>
+        
+        
+       <!-- CONFIRMAR APROBAR CREDITO -->
+        <p:confirmDialog message="SEGURO QUE DESEA APROBAR EL SIGUIENTE CREDITO?" appendTo="@(body)"
+                                     header="APROBAR CREDITO" severity="alert"  widgetVar="cfdAprobarCredito">
+            <h:form id="frmAprobar">
+                <h:panelGrid columns="2">
+                    <p:outputLabel value="ORDEN PEDIDO:" style="font-weight: bold; font-size: 12px;"/>
+                    <p:outputLabel value="#{creditosHistorialController.solicitud.pedidoPK.numpedido}" style="font-weight: bold; font-size: 12px;color: red;" />
+                    <p:outputLabel value="FECHA PEDIDO:" style="font-weight: bold; font-size: 12px;"/>
+                    <p:outputLabel value="#{funciones.setFechaFormateada(creditosHistorialController.solicitud.pedidoPK.fechaPedido,1)}" style="font-weight: bold; font-size: 12px;color: red;"/>
+                    <p:outputLabel value="CLIENTE:" style="font-weight: bold; font-size: 12px;"/>
+                    <p:outputLabel value="#{funciones.getNombreCliente(creditosHistorialController.solicitud.clientePedido)}" style="font-weight: bold; font-size: 12px;color: red;"/>
+                    <p:outputLabel value="MONTO CREDITO:" style="font-weight: bold; font-size: 12px;"/>
+                    <p:outputLabel value="#{funciones.redondearMas(creditosHistorialController.solicitud.totalPedido,2)}" style="font-weight: bold; font-size: 12px;color: red;"/>
+                </h:panelGrid><br/>
+                <p:commandButton value="APROBAR CREDITO " actionListener="#{creditosHistorialController.aprobarCredito()}" oncomplete="cfdAprobarCredito.hide();" process="@form" update=":frmCreditos,:gwCreditos"/>
+                <p:commandButton value="CANCELAR" onclick="cfdAprobarCredito.hide();" update=":frmCreditos:dtCreditos" process="@form" type="button"  style="float: right" />
+            </h:form>
+            
+        </p:confirmDialog> 
+       
+       
+       <!-- CONFIRMAR RECHAZAR CREDITO -->
+        <p:confirmDialog message="SEGURO QUE DESEA DENEGAR EL SIGUIENTE CREDITO?" appendTo="@(body)"
+                                     header="DENEGAR CREDITO" severity="alert"  widgetVar="cfdDenegarCredito">
+            <h:form id="frmDenegar">
+                <h:panelGrid  columns="2">
+                    <p:outputLabel value="ORDEN PEDIDO:" style="font-weight: bold; font-size: 12px;"/>
+                    <p:outputLabel value="#{creditosHistorialController.solicitud.pedidoPK.numpedido}" style="font-weight: bold; font-size: 12px;color: red;" />
+                    <p:outputLabel value="FECHA PEDIDO:" style="font-weight: bold; font-size: 12px;"/>
+                    <p:outputLabel value="#{funciones.setFechaFormateada(creditosHistorialController.solicitud.pedidoPK.fechaPedido,1)}" style="font-weight: bold; font-size: 12px;color: red;"/>
+                    <p:outputLabel value="CLIENTE:" style="font-weight: bold; font-size: 12px;"/>
+                    <p:outputLabel value="#{funciones.getNombreCliente(creditosHistorialController.solicitud.clientePedido)}" style="font-weight: bold; font-size: 12px;color: red;"/>
+                    <p:outputLabel value="MONTO CREDITO:" style="font-weight: bold; font-size: 12px;"/>
+                    <p:outputLabel value="#{funciones.redondearMas(creditosHistorialController.solicitud.totalPedido,2)}" style="font-weight: bold; font-size: 12px;color: red;"/>
+                </h:panelGrid><br/>
+                <p:commandButton value="DENEGAR CREDITO " actionListener="#{creditosHistorialController.rechazarCredito()}" oncomplete="cfdDenegarCredito.hide();" process="@form" update=":frmCreditos ,:gwCreditos"/>
+                <p:commandButton value="CANCELAR" onclick="cfdDenegarCredito.hide();" type="button"  style="float: right" />
+            </h:form>
+            
+        </p:confirmDialog>         
+
+       
+       
+        </c:when>
+            
+            
+            <!-- SI NO TIENE LOS PERMISOS DA MSJ DE ERROR -->
+            <c:otherwise>
+                   <h:form>
+                        <div style="min-height: 300px; text-align: center; margin-top: 100px;">
+                            <p:outputLabel value="ACCESO DENEGADO" style="font-size: 30px;font-weight: bold;color:red"/>
+                            <br/><br/>
+                            <h:graphicImage url="/faces/resources/imagenes/locked.png" alt="ZONA RESTRINGIDA" width="200" />
+                            <br/><br/>
+                            <p:outputLabel value="NO TIENE PERMISO PARA VER ESTA PAGINA" style="font-size: 20px;font-weight: bold;color:red"/>
+                            <br/>
+                            <p:outputLabel value="CONSULTE CON EL ADMINISTRADOR DEL SISTEMA" style="font-size: 20px;font-weight: bold;"/>
+                        </div>
+                    </h:form>
+             </c:otherwise>
+        </c:choose>
+       
+       
+    </ui:define>
+    
+
+</ui:composition>
